@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ for Drone Engineering</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f0efeb;
+    --border: #e5e4df;
+    --border2: #d0cfc9;
+    --text: #1a1a18;
+    --text2: #5a5a56;
+    --text3: #8a8a84;
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --amber: #92400e;
+    --amber-bg: #fffbeb;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --tag-blue: #1d4ed8;
+    --tag-blue-bg: #dbeafe;
+    --tag-green: #166534;
+    --tag-green-bg: #dcfce7;
+    --tag-amber: #92400e;
+    --tag-amber-bg: #fef3c7;
+    --tag-purple: #6b21a8;
+    --tag-purple-bg: #f3e8ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 24px 16px 60px;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .meta-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .meta-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+  .meta-value { font-size: 13px; color: var(--text); }
+
+  .prereq-list { list-style: none; margin-top: 10px; }
+  .prereq-list li { font-size: 13px; color: var(--text2); padding: 2px 0; }
+  .prereq-list li::before { content: "✓ "; color: var(--green); }
+
+  /* Progress bar */
+  .progress-bar {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label { font-size: 13px; color: var(--text2); white-space: nowrap; }
+  .progress-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; width: 0%; transition: width .4s ease; }
+  .progress-count { font-size: 13px; color: var(--text3); white-space: nowrap; min-width: 48px; text-align: right; }
+
+  /* Section accordion */
+  .section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow .15s;
+  }
+  .section:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .section.open { border-color: var(--border2); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 15px; font-weight: 500; flex: 1; }
+  .section-meta { display: flex; align-items: center; gap: 8px; }
+  .tag {
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .chevron {
+    width: 18px; height: 18px;
+    color: var(--text3);
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 24px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  /* Sub-accordions */
+  .sub-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .sub-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--bg2);
+  }
+  .sub-header:hover { background: var(--bg3); }
+  .sub-title { font-size: 14px; font-weight: 500; flex: 1; }
+  .sub-chevron { width: 16px; height: 16px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+  .sub-section.open .sub-chevron { transform: rotate(180deg); }
+  .sub-body { display: none; padding: 16px; border-top: 1px solid var(--border); }
+  .sub-section.open .sub-body { display: block; }
+
+  /* Content typography */
+  .section-body p, .sub-body p { color: var(--text2); margin: 10px 0; font-size: 14px; }
+  .section-body h4, .sub-body h4 { font-size: 13px; font-weight: 600; color: var(--text); margin: 16px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+  code {
+    background: var(--bg3);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 12.5px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .callout-info { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #1e40af; }
+  .callout-success { background: var(--green-bg); border-left: 3px solid var(--green); color: #14532d; }
+  .callout-warning { background: var(--amber-bg); border-left: 3px solid #d97706; color: var(--amber); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { background: var(--bg3); color: var(--text); font-weight: 500; padding: 8px 12px; text-align: left; border: 1px solid var(--border); }
+  td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg2); }
+
+  /* Checklists */
+  .checklist { list-style: none; margin: 10px 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 6px 0;
+    font-size: 13px; color: var(--text2);
+    border-bottom: 1px solid var(--border);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li input[type=checkbox] { margin-top: 3px; flex-shrink: 0; cursor: pointer; width: 14px; height: 14px; accent-color: var(--accent); }
+  .checklist li label { cursor: pointer; line-height: 1.5; }
+  .checklist li.done label { text-decoration: line-through; color: var(--text3); }
+
+  /* Milestone table */
+  .milestone-done td { color: var(--text3); }
+  .milestone-done td:first-child { text-decoration: line-through; }
+
+  /* Stack diagram */
+  .stack { font-family: monospace; font-size: 13px; background: var(--bg3); border-radius: 8px; padding: 16px; margin: 12px 0; line-height: 2; }
+  .stack-layer { padding: 6px 14px; border-radius: 6px; margin: 4px 0; font-size: 13px; }
+
+  /* Expand all button */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; }
+  .btn {
+    font-size: 12px; font-weight: 500;
+    padding: 6px 14px; border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--bg); color: var(--text2);
+    cursor: pointer; transition: all .15s;
+  }
+  .btn:hover { background: var(--bg3); color: var(--text); }
+
+  /* Version footer */
+  .footer { text-align: center; font-size: 12px; color: var(--text3); margin-top: 32px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>C++ for Drone Engineering</h1>
+  <p style="color:var(--text2);font-size:14px;">A complete tutorial from zero to job-ready portfolio. Ubuntu 24.04 · ROS2 Jazzy · ArduPilot SITL · C++17</p>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="meta-label">Target audience</div>
+      <div class="meta-value">Developers with any programming background</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Prerequisites</div>
+      <ul class="prereq-list">
+        <li>Any programming language (C, Python, JS...)</li>
+        <li>Linux command line basics</li>
+        <li>Ubuntu 24.04 installed</li>
+      </ul>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Time commitment</div>
+      <div class="meta-value">8–9 hrs/week · ~3 months to portfolio</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Goal</div>
+      <div class="meta-value">Write real ROS2 drone software in C++ with a GitHub portfolio</div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-bar">
+  <span class="progress-label">Overall progress</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-count" id="progressCount">0 / 0</span>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="btn" onclick="expandAll()">Expand all</button>
+  <button class="btn" onclick="collapseAll()">Collapse all</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 1 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="section-header" onclick="toggle('s1')">
+    <div class="section-num" style="background:#eff6ff;color:#1d4ed8;">1</div>
+    <div class="section-title">Understanding the Drone Software Stack</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-blue-bg);color:var(--tag-blue);">Read first</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>A drone is not one program — it is a collection of programs working together in real time. Understanding the layer structure before writing code prevents confusion about where each technology fits.</p>
+    <div class="stack">
+      <div class="stack-layer" style="background:#f3e8ff;color:#6b21a8;">Layer 4 &nbsp;·&nbsp; AI / Computer Vision &nbsp;&nbsp; Object detection, tracking, ML models</div>
+      <div class="stack-layer" style="background:#dbeafe;color:#1d4ed8;">Layer 3 &nbsp;·&nbsp; Autonomy &amp; Planning &nbsp;&nbsp;&nbsp; ROS2, waypoints, state machines &nbsp; ← This tutorial starts here</div>
+      <div class="stack-layer" style="background:#dcfce7;color:#166534;">Layer 2 &nbsp;·&nbsp; Flight Control &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PX4 / ArduPilot, MAVLink, PID loops</div>
+      <div class="stack-layer" style="background:#fef3c7;color:#92400e;">Layer 1 &nbsp;·&nbsp; Hardware / Embedded &nbsp;&nbsp;&nbsp; RTOS, bare metal C++, sensor drivers</div>
+    </div>
+    <div class="callout callout-info"><strong>Why C++?</strong> Every layer except Layer 4 is dominated by C++. ROS2, PX4, and ArduPilot are all written in C++. Python handles the AI layer and scripting; flight-critical real-time code is C++.</div>
+    <div class="callout callout-info"><strong>Why ROS2?</strong> ROS2 is the industry-standard communication framework connecting all drone components — camera, GPS, lidar, flight controller — without hard-coding them together.</div>
+    <h4>Learning order in this tutorial</h4>
+    <pre>Environment setup → C fundamentals refresh → C++ basics → ROS2 concepts
+→ First node → 4 portfolio projects → Read real code → Contribute</pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 2 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="section-header" onclick="toggle('s2')">
+    <div class="section-num" style="background:#f0fdf4;color:#16a34a;">2</div>
+    <div class="section-title">Environment Setup</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-green-bg);color:var(--tag-green);">Do first</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <div class="callout callout-warning">Do this before learning C++. Running a simulated drone on the machine before understanding everything creates a concrete target — every concept learned afterward feels relevant instead of abstract.</div>
+
+    <div class="sub-section" id="s2-1">
+      <div class="sub-header" onclick="toggleSub('s2-1')">
+        <div class="sub-title">2.1 Install ROS2 Jazzy</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>ROS2 Jazzy is the LTS release for Ubuntu 24.04. Run each command separately.</p>
+        <pre># Step 1 — Install prerequisites
+sudo apt install software-properties-common curl -y</pre>
+        <pre># Step 2 — Add the GPG key
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+  -o /usr/share/keyrings/ros-archive-keyring.gpg</pre>
+        <pre># Step 3 — Add the ROS2 repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null</pre>
+        <pre># Step 4 — Install
+sudo apt update
+sudo apt install ros-jazzy-desktop -y</pre>
+        <pre># Step 5 — Source on every terminal session
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+source ~/.bashrc</pre>
+        <pre># Step 6 — Verify
+ros2 --version</pre>
+        <h4>Test that ROS2 works</h4>
+        <p>Open two terminals side by side:</p>
+        <pre># Terminal 1
+ros2 run demo_nodes_cpp talker
+
+# Terminal 2
+ros2 run demo_nodes_cpp listener
+# Expected: [INFO] I heard: Hello World: 1, 2, 3...</pre>
+        <div class="callout callout-success">If the listener prints "Hello World" — ROS2 Jazzy is fully installed. Stop both with Ctrl+C.</div>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s2-2">
+      <div class="sub-header" onclick="toggleSub('s2-2')">
+        <div class="sub-title">2.2 Install ArduPilot SITL</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>SITL (Software In The Loop) runs a complete virtual drone on the machine — same code as real hardware, without physical motors. This is how drone developers test software without a physical drone.</p>
+        <pre>git clone https://github.com/ArduPilot/ardupilot.git
+cd ardupilot
+git submodule update --init --recursive</pre>
+        <pre>Tools/environment_install/install-prereqs-ubuntu.sh -y
+. ~/.profile</pre>
+        <pre># Build takes 5–15 minutes
+./waf configure --board sitl
+./waf copter</pre>
+        <pre># Run the simulation
+sim_vehicle.py -v ArduCopter --console --map</pre>
+        <p>Three windows appear: Map (top-down drone view), Console (live telemetry), Terminal (MAVProxy commands).</p>
+        <pre># Arm and take off manually — type in the MAVProxy terminal:
+mode guided
+arm throttle
+takeoff 20</pre>
+        <div class="callout callout-success">✅ Milestone: A virtual drone is flying on screen. This is real drone software running on the machine. Everything in this tutorial runs here first.</div>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s2-3">
+      <div class="sub-header" onclick="toggleSub('s2-3')">
+        <div class="sub-title">2.3 Set Up a Workspace</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>All ROS2 code lives in a workspace. Create this once — every project in this tutorial goes inside it.</p>
+        <pre>mkdir -p ~/drone_ws/src
+cd ~/drone_ws
+
+# Auto-source on terminal open
+echo "cd ~/drone_ws && source install/setup.bash 2>/dev/null; cd ~" >> ~/.bashrc</pre>
+        <pre>~/drone_ws/
+  src/          ← all packages go here
+  build/        ← generated, do not edit
+  install/      ← generated, do not edit
+  log/          ← generated, do not edit</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 2.5 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s25">
+  <div class="section-header" onclick="toggle('s25')">
+    <div class="section-num" style="background:#fff7ed;color:#c2410c;">2.5</div>
+    <div class="section-title">C Fundamentals Refresher</div>
+    <div class="section-meta">
+      <span class="tag" style="background:#fff7ed;color:#c2410c;">Skip if confident</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <div class="callout callout-warning">Read this if pointers, memory, or structs feel uncertain. These are the foundation that makes C++ make sense. Skip to Section 3 if all five concepts are solid.</div>
+
+    <div class="sub-section" id="s25-1">
+      <div class="sub-header" onclick="toggleSub('s25-1')">
+        <div class="sub-title">2.5.1 Memory: Stack vs Heap</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+void demonstrate_memory() {
+    // STACK — automatic, fast, limited (~1–8MB)
+    int altitude = 100;
+    float battery[4] = {87.2, 86.1, 85.0, 83.9};
+    // freed automatically when function returns
+
+    // HEAP — manual, slower, much larger
+    float* sensor_readings = malloc(10 * sizeof(float));
+    sensor_readings[0] = 23.8;
+    free(sensor_readings);   // MUST free — forget = memory leak
+    sensor_readings = NULL;  // good practice
+}</pre>
+        <div class="callout callout-warning">Never return a pointer to a stack variable. The stack is destroyed when the function returns.
+<pre>float* bad()  { float x = 100.0; return &amp;x; }  // WRONG — dangling pointer
+float* good() { float* x = malloc(sizeof(float)); *x = 100.0; return x; } // OK</pre></div>
+        <p><strong>Why this matters:</strong> C++ smart pointers (Section 3.5) automate the <code>free()</code> step — but only make sense if the underlying concept is understood.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s25-2">
+      <div class="sub-header" onclick="toggleSub('s25-2')">
+        <div class="sub-title">2.5.2 Pointers</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>float altitude = 100.0;
+float* ptr = &amp;altitude;  // & = "address of"
+
+printf("%.1f\n", *ptr);  // 100.0  (* = dereference)
+*ptr = 200.0;
+printf("%.1f\n", altitude);  // 200.0 — original changed
+
+// NULL — always check before dereferencing
+float* empty = NULL;
+if (empty != NULL) { printf("%.1f\n", *empty); }
+// Dereferencing NULL = segfault = most common drone code crash</pre>
+        <pre>// Pointer arithmetic — used in sensor data buffers
+float readings[5] = {10.0, 20.0, 30.0, 40.0, 50.0};
+float* p = readings;
+printf("%.1f\n", *(p+1));  // 20.0
+printf("%.1f\n", readings[1]);  // same thing</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s25-3">
+      <div class="sub-header" onclick="toggleSub('s25-3')">
+        <div class="sub-title">2.5.3 Structs</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>typedef struct {
+    double latitude;
+    double longitude;
+    float  altitude;
+} GPSPosition;
+
+// Pass by pointer — avoids copying large structs
+void update_altitude(GPSPosition* pos, float new_alt) {
+    pos->altitude = new_alt;  // -> for pointer to struct
+}
+
+GPSPosition home = {23.8103, 90.4125, 10.0};
+update_altitude(&amp;home, 25.0);
+printf("%.1f\n", home.altitude);  // 25.0</pre>
+        <p><strong>Why this matters:</strong> Every ROS2 message works exactly like this struct. <code>sensor_msgs::msg::NavSatFix</code> has <code>latitude</code>, <code>longitude</code>, <code>altitude</code> fields — identical concept.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s25-4">
+      <div class="sub-header" onclick="toggleSub('s25-4')">
+        <div class="sub-title">2.5.4 Functions and Scope</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>// Pass by value — function gets a COPY, original unchanged
+void reset_by_value(float altitude) { altitude = 0.0; }
+
+// Pass by pointer — can modify original
+void reset_by_pointer(float* altitude) { *altitude = 0.0; }
+
+float alt = 100.0;
+reset_by_value(alt);    printf("%.1f\n", alt);  // 100.0 — unchanged
+reset_by_pointer(&amp;alt); printf("%.1f\n", alt);  // 0.0 — changed</pre>
+        <pre>// Output parameter — returning multiple values
+void get_gps_error(float* h_err, float* v_err) {
+    *h_err = 2.5;
+    *v_err = 4.1;
+}
+
+float h, v;
+get_gps_error(&amp;h, &amp;v);  // h=2.5, v=4.1</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s25-5">
+      <div class="sub-header" onclick="toggleSub('s25-5')">
+        <div class="sub-title">2.5.5 Header Files and Compilation Units</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>// gps.h — declares what exists
+#ifndef GPS_H
+#define GPS_H
+typedef struct { double lat; double lon; float alt; } GPSPos;
+float distance(GPSPos a, GPSPos b);  // declaration only
+#endif</pre>
+        <pre>// gps.c — defines how it works
+#include "gps.h"
+#include &lt;math.h&gt;
+float distance(GPSPos a, GPSPos b) {
+    double dlat = a.lat - b.lat;
+    double dlon = a.lon - b.lon;
+    return (float)sqrt(dlat*dlat + dlon*dlon);
+}</pre>
+        <pre># Compile multiple files
+gcc main.c gps.c -o drone_nav -lm</pre>
+        <p><strong>Why this matters:</strong> CMakeLists.txt in ROS2 does exactly this — specifies which <code>.cpp</code> files to compile and which libraries to link. Understanding this makes CMake errors readable.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s25-6">
+      <div class="sub-header" onclick="toggleSub('s25-6')">
+        <div class="sub-title">2.5.6 Practice Exercise — Telemetry Logger</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>Write a single C program using all five concepts. Takes 30–60 minutes. Confirms readiness for Section 3.</p>
+        <h4>Requirements</h4>
+        <ul class="checklist" id="cl-25-6">
+          <li><input type="checkbox" id="c25a"><label for="c25a">Define a <code>TelemetryRecord</code> struct: timestamp, altitude, latitude, longitude, battery_percent</label></li>
+          <li><input type="checkbox" id="c25b"><label for="c25b">Write <code>create_log(int size)</code> — allocates array on heap, returns pointer</label></li>
+          <li><input type="checkbox" id="c25c"><label for="c25c">Write <code>fill_record(TelemetryRecord* r, ...)</code> — fills one record via pointer</label></li>
+          <li><input type="checkbox" id="c25d"><label for="c25d">Write <code>print_log(TelemetryRecord* log, int size)</code> — prints all records</label></li>
+          <li><input type="checkbox" id="c25e"><label for="c25e">Write <code>free_log(TelemetryRecord** log)</code> — frees memory, sets to NULL</label></li>
+          <li><input type="checkbox" id="c25f"><label for="c25f">Program compiles and runs with correct output</label></li>
+          <li><input type="checkbox" id="c25g"><label for="c25g">Valgrind shows zero leaks: <code>gcc -g telemetry.c -o t && valgrind --leak-check=full ./t</code></label></li>
+        </ul>
+        <pre># Expected output:
+[0.0s] Alt:  0.0m  Lat: 23.810300  Lon: 90.412500  Bat: 100%
+[1.0s] Alt: 10.5m  Lat: 23.810350  Lon: 90.412550  Bat:  99%
+[2.0s] Alt: 21.0m  Lat: 23.810400  Lon: 90.412600  Bat:  98%
+[3.0s] Alt: 31.5m  Lat: 23.810450  Lon: 90.412650  Bat:  97%
+[4.0s] Alt: 42.0m  Lat: 23.810500  Lon: 90.412700  Bat:  96%</pre>
+        <div class="callout callout-success">If Valgrind shows "All heap blocks were freed — no leaks are possible" → proceed to Section 3.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 3 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="section-header" onclick="toggle('s3')">
+    <div class="section-num" style="background:#eff6ff;color:#1d4ed8;">3</div>
+    <div class="section-title">C++ Fundamentals for Drone Development</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-blue-bg);color:var(--tag-blue);">Core skill</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+
+    <div class="sub-section" id="s3-1">
+      <div class="sub-header" onclick="toggleSub('s3-1')">
+        <div class="sub-title">3.1 Why C++ Feels Hard + Compilation Basics</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>C++ has three things higher-level languages hide: manual memory management, compilation, and explicit types everywhere. These are features — they make C++ fast enough for real-time drone control.</p>
+        <pre>cat &gt; hello.cpp &lt;&lt; 'EOF'
+#include &lt;iostream&gt;
+int main() {
+    std::cout &lt;&lt; "Drone software starts here" &lt;&lt; std::endl;
+    return 0;
+}
+EOF
+g++ hello.cpp -o hello
+./hello</pre>
+        <p>Unlike Python, C++ must be compiled before running. Bugs caught at compile time cannot crash a drone in flight.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-2">
+      <div class="sub-header" onclick="toggleSub('s3-2')">
+        <div class="sub-title">3.2 Classes</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>A class is a struct with functions attached and access control. Every ROS2 node, every sensor driver, every controller is a class.</p>
+        <pre>#include &lt;cmath&gt;
+class Point {
+public:
+    Point(float x, float y) : x_(x), y_(y) {}  // constructor
+
+    float distance_to_origin() const {
+        return std::sqrt(x_*x_ + y_*y_);
+    }
+    float x() const { return x_; }
+
+private:
+    float x_, y_;  // only accessible inside the class
+};
+
+Point p(3.0f, 4.0f);
+p.distance_to_origin();  // 5.0</pre>
+        <p><strong>Practice:</strong> Write a <code>Waypoint</code> class with latitude, longitude, altitude, and a method that calculates distance to another waypoint.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-3">
+      <div class="sub-header" onclick="toggleSub('s3-3')">
+        <div class="sub-title">3.3 References</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>References are cleaner syntax for the same idea as C pointers — passing by address without the <code>*</code> and <code>&amp;</code> noise.</p>
+        <pre>// C style
+void set_c(float* altitude, float value) { *altitude = value; }
+set_c(&amp;alt, 100.0f);
+
+// C++ style — cleaner, same effect
+void set_cpp(float&amp; altitude, float value) { altitude = value; }
+set_cpp(alt, 100.0f);</pre>
+        <p><strong>Rule:</strong> Prefer references over pointers. Use pointers only when the value can be absent (<code>nullptr</code>) or when transferring ownership.</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-4">
+      <div class="sub-header" onclick="toggleSub('s3-4')">
+        <div class="sub-title">3.4 Smart Pointers</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>Smart pointers automatically call <code>delete</code> when they go out of scope. Used in every single ROS2 node.</p>
+        <pre>#include &lt;memory&gt;
+
+// unique_ptr — one owner, freed when out of scope
+auto p = std::make_unique&lt;float&gt;(100.0f);
+// no delete needed
+
+// shared_ptr — multiple owners, freed when last owner dies
+// THIS IS EVERYWHERE IN ROS2
+auto p = std::make_shared&lt;float&gt;(100.0f);
+auto also_p = p;  // both point to same memory</pre>
+        <div class="callout callout-info">This line appears in every ROS2 node:
+<pre>rclcpp::Publisher&lt;sensor_msgs::msg::NavSatFix&gt;::SharedPtr publisher_;
+//                                                          ↑ this is just shared_ptr</pre></div>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-5">
+      <div class="sub-header" onclick="toggleSub('s3-5')">
+        <div class="sub-title">3.5 STL Containers</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>Do not use raw C arrays in modern C++.</p>
+        <pre>#include &lt;vector&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;array&gt;
+
+std::vector&lt;float&gt; altitudes = {10.0, 20.0, 30.0};
+altitudes.push_back(40.0);
+for (float alt : altitudes) { /* range loop */ }
+
+std::array&lt;double, 3&gt; waypoint = {23.8103, 90.4125, 50.0};
+// [0]=lat  [1]=lon  [2]=altitude
+
+std::map&lt;std::string, float&gt; sensor;
+sensor["altitude"] = 100.5f;
+
+std::string id = "UAV_001";
+std::string full = id + "_SURVEY";  // "UAV_001_SURVEY"</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-6">
+      <div class="sub-header" onclick="toggleSub('s3-6')">
+        <div class="sub-title">3.6 Lambdas</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>JavaScript arrow function = Python lambda = C++ lambda. Every ROS2 callback uses this pattern.</p>
+        <pre>auto add = [](int a, int b) { return a + b; };
+add(3, 4);  // 7
+
+// Capture outer variable
+float threshold = 5.0f;
+auto is_close = [threshold](float dist) { return dist &lt; threshold; };
+
+// [this] capture — used in every ROS2 node
+timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s3-7">
+      <div class="sub-header" onclick="toggleSub('s3-7')">
+        <div class="sub-title">3.7 Key Patterns in Drone Code</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>// const reference — no copy, no modification
+void process_gps(const sensor_msgs::msg::NavSatFix&amp; msg) { ... }
+
+// enum class for state machines
+enum class FlightState { IDLE, ARMING, TAKEOFF, NAVIGATING, LANDING };
+
+// std::clamp — used in every controller
+float throttle = std::clamp(computed, 0.0f, 1.0f);
+
+// chrono literals — time durations
+auto period = 100ms;  auto timeout = 5s;  auto fast = 10us;
+
+// C++17 structured bindings
+auto [lat, lon] = std::pair&lt;double,double&gt;{23.81, 90.41};</pre>
+        <div class="callout callout-success"><strong>Section 3 Checkpoint</strong> — write a program that: (1) creates a <code>Drone</code> class with enum class state, altitude, battery, (2) stores 4 waypoints in <code>vector&lt;array&lt;double,3&gt;&gt;</code>, (3) prints them with range loop, (4) uses a lambda to filter waypoints above 50m. If it compiles and runs → proceed to Section 4.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 4 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="section-header" onclick="toggle('s4')">
+    <div class="section-num" style="background:#f3e8ff;color:#6b21a8;">4</div>
+    <div class="section-title">Understanding ROS2</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-purple-bg);color:var(--tag-purple);">Core framework</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>ROS2 is a communication middleware. It lets dozens of separate drone programs exchange data in real time without being hard-coded to each other.</p>
+
+    <div class="sub-section" id="s4-1">
+      <div class="sub-header" onclick="toggleSub('s4-1')">
+        <div class="sub-title">4.1 Core Concepts: Nodes, Topics, Messages, Services</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>WITHOUT ROS2                    WITH ROS2
+────────────────────────────    ────────────────────────────────
+camera → flight (custom code)   camera_node  publishes → /camera/image
+gps → autopilot (custom code)   vision_node  subscribes ← /camera/image
+                                             publishes  → /target/position
+Everything tightly coupled.     autopilot_node subscribes ← /target/position
+Change one = break others.                     publishes  → /cmd_vel
+                                Loosely coupled. Add/remove nodes freely.</pre>
+        <h4>Node</h4>
+        <p>A single executable process with one responsibility. Nodes run independently.</p>
+        <pre>ros2 node list
+ros2 node info /node_name</pre>
+        <h4>Topic</h4>
+        <p>A named data stream. Any node can publish or subscribe. Publishers and subscribers don't know about each other — only the topic name.</p>
+        <pre>ros2 topic list
+ros2 topic echo /gps/fix
+ros2 topic hz /camera/image_raw
+ros2 topic pub /test std_msgs/msg/String "data: hello"</pre>
+        <h4>Common drone message types</h4>
+        <table>
+          <tr><th>Message Type</th><th>Contains</th><th>Used For</th></tr>
+          <tr><td><code>sensor_msgs/msg/NavSatFix</code></td><td>latitude, longitude, altitude</td><td>GPS position</td></tr>
+          <tr><td><code>sensor_msgs/msg/Imu</code></td><td>orientation, angular velocity</td><td>IMU sensor</td></tr>
+          <tr><td><code>sensor_msgs/msg/LaserScan</code></td><td>range array</td><td>Lidar</td></tr>
+          <tr><td><code>sensor_msgs/msg/Image</code></td><td>raw image data</td><td>Camera</td></tr>
+          <tr><td><code>geometry_msgs/msg/Twist</code></td><td>linear + angular velocity</td><td>Movement commands</td></tr>
+          <tr><td><code>std_msgs/msg/Float64</code></td><td>single float</td><td>Simple values</td></tr>
+        </table>
+        <h4>Service (request/response)</h4>
+        <pre>ros2 service list
+ros2 service call /arm_motors std_srvs/srv/Trigger</pre>
+        <p>Use topics for continuous data. Use services for one-time operations (arm, mode change).</p>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s4-2">
+      <div class="sub-header" onclick="toggleSub('s4-2')">
+        <div class="sub-title">4.2 Daily CLI Commands</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre># Nodes
+ros2 node list                     # what's running
+ros2 node info /name               # inputs, outputs
+
+# Topics
+ros2 topic list                    # all active topics
+ros2 topic echo /topic             # see live data
+ros2 topic hz /topic               # publish rate
+
+# Build
+colcon build                       # build everything
+colcon build --packages-select pkg # build one package
+source install/setup.bash          # ALWAYS after build
+
+# Run
+ros2 run pkg_name executable
+ros2 launch pkg_name file.py
+
+# Debug
+rqt_graph                          # visual node/topic map
+ros2 bag record -a                 # record everything
+ros2 bag play file.bag             # replay</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s4-3">
+      <div class="sub-header" onclick="toggleSub('s4-3')">
+        <div class="sub-title">4.3 Official Tutorials (do before writing nodes)</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p>Complete these at <strong>docs.ros.org/en/jazzy/Tutorials.html</strong> before writing nodes from scratch. Takes 4–5 hours. Hands-on experience no reading can replace.</p>
+        <table>
+          <tr><th>Tutorial</th><th>What It Teaches</th></tr>
+          <tr><td>Configuring environment</td><td>Sourcing, ROS_DOMAIN_ID</td></tr>
+          <tr><td>Using turtlesim</td><td>Nodes and topics, visually</td></tr>
+          <tr><td>Understanding nodes</td><td><code>ros2 node</code> commands</td></tr>
+          <tr><td>Understanding topics</td><td><code>ros2 topic</code> commands, rqt_graph</td></tr>
+          <tr><td>Understanding services</td><td>Request/response pattern</td></tr>
+          <tr><td><strong>Writing publisher/subscriber (C++)</strong></td><td><strong>First real C++ ROS2 node</strong></td></tr>
+          <tr><td><strong>Writing service/client (C++)</strong></td><td><strong>Services in C++</strong></td></tr>
+          <tr><td>Creating a package</td><td>Workspace and package structure</td></tr>
+        </table>
+        <div class="callout callout-info">After completing the two bold entries, the code in Section 5 will be fully readable without confusion.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 5 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="section-header" onclick="toggle('s5')">
+    <div class="section-num" style="background:#eff6ff;color:#1d4ed8;">5</div>
+    <div class="section-title">First ROS2 Node in C++</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-blue-bg);color:var(--tag-blue);">Memorize this</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>Every ROS2 C++ node follows this exact structure. Learn it once — it applies everywhere.</p>
+
+    <div class="sub-section" id="s5-1">
+      <div class="sub-header" onclick="toggleSub('s5-1')">
+        <div class="sub-title">5.1 Universal Node Pattern</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>#include "rclcpp/rclcpp.hpp"
+#include "some_msgs/msg/some_type.hpp"
+
+// Step 1: Inherit from rclcpp::Node
+class MyNode : public rclcpp::Node {
+public:
+    // Step 2: Constructor — set up publishers, subscribers, timers
+    MyNode() : Node("my_node_name") {
+        publisher_ = create_publisher&lt;MsgType&gt;("/topic", 10);
+
+        subscriber_ = create_subscription&lt;MsgType&gt;(
+            "/other_topic", 10,
+            [this](const MsgType::SharedPtr msg) { on_message(msg); }
+        );
+
+        timer_ = create_wall_timer(
+            std::chrono::milliseconds(100),
+            [this]() { on_timer(); }
+        );
+        RCLCPP_INFO(get_logger(), "Node started");
+    }
+
+private:
+    // Step 3: Callbacks
+    void on_message(const MsgType::SharedPtr msg) { /* handle */ }
+    void on_timer() { publisher_-&gt;publish(MsgType()); }
+
+    // Step 4: Members — always SharedPtr
+    rclcpp::Publisher&lt;MsgType&gt;::SharedPtr publisher_;
+    rclcpp::Subscription&lt;MsgType&gt;::SharedPtr subscriber_;
+    rclcpp::TimerBase::SharedPtr timer_;
+};
+
+// Step 5: main — always identical
+int main(int argc, char* argv[]) {
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared&lt;MyNode&gt;());
+    rclcpp::shutdown();
+    return 0;
+}</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s5-2">
+      <div class="sub-header" onclick="toggleSub('s5-2')">
+        <div class="sub-title">5.2 CMakeLists.txt + package.xml Templates</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <div class="callout callout-warning">Most common mistake: adding a new message type to the .cpp file but forgetting to add it to BOTH CMakeLists.txt AND package.xml. Always update both together.</div>
+        <pre>cmake_minimum_required(VERSION 3.8)
+project(my_package)
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)   # ← add every msg package used
+
+add_executable(my_node src/my_node.cpp)
+ament_target_dependencies(my_node rclcpp sensor_msgs)
+install(TARGETS my_node DESTINATION lib/${PROJECT_NAME})
+ament_package()</pre>
+        <pre>&lt;!-- package.xml --&gt;
+&lt;depend&gt;rclcpp&lt;/depend&gt;
+&lt;depend&gt;sensor_msgs&lt;/depend&gt;  &lt;!-- one line per dependency --&gt;</pre>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s5-3">
+      <div class="sub-header" onclick="toggleSub('s5-3')">
+        <div class="sub-title">5.3 Build and Run Workflow</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>cd ~/drone_ws
+colcon build --packages-select my_package
+source install/setup.bash
+ros2 run my_package my_node
+
+# Verify in another terminal:
+ros2 topic echo /topic_name
+ros2 node list</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 6 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="section-header" onclick="toggle('s6')">
+    <div class="section-num" style="background:#f0fdf4;color:#16a34a;">6</div>
+    <div class="section-title">Portfolio Projects</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-green-bg);color:var(--tag-green);">4 projects</span>
+      <span class="tag" style="background:var(--tag-amber-bg);color:var(--tag-amber);">~10 weeks</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>Complete all four in order. Each builds on the previous. All code goes on GitHub with a README. This is the portfolio drone employers look at.</p>
+
+    <div class="sub-section" id="s6-1">
+      <div class="sub-header" onclick="toggleSub('s6-1')">
+        <div class="sub-title">Project 1 — GPS Telemetry Publisher &nbsp; <span style="font-weight:400;color:var(--text3);">1 week</span></div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p><strong>What it does:</strong> Publishes simulated GPS data at 10Hz on <code>/gps/fix</code>.<br><strong>Concepts:</strong> Node structure, publishers, timers, sensor message types.</p>
+        <pre>ros2 pkg create --build-type ament_cmake telemetry_node \
+  --dependencies rclcpp sensor_msgs</pre>
+        <pre>class TelemetryNode : public rclcpp::Node {
+public:
+    TelemetryNode() : Node("telemetry") {
+        publisher_ = create_publisher&lt;sensor_msgs::msg::NavSatFix&gt;("/gps/fix", 10);
+        timer_ = create_wall_timer(100ms, [this]() { publish_gps(); });
+    }
+private:
+    void publish_gps() {
+        auto msg = sensor_msgs::msg::NavSatFix();
+        msg.latitude  = 23.8103 + (counter_ * 0.0001);
+        msg.longitude = 90.4125 + (counter_ * 0.0001);
+        msg.altitude  = 100.0;
+        publisher_-&gt;publish(msg);
+        counter_++;
+    }
+    rclcpp::Publisher&lt;sensor_msgs::msg::NavSatFix&gt;::SharedPtr publisher_;
+    rclcpp::TimerBase::SharedPtr timer_;
+    int counter_ = 0;
+};</pre>
+        <ul class="checklist" id="cl-p1">
+          <li><input type="checkbox" id="p1a"><label for="p1a">Node runs and publishes on <code>/gps/fix</code></label></li>
+          <li><input type="checkbox" id="p1b"><label for="p1b"><code>ros2 topic hz /gps/fix</code> shows ~10 Hz</label></li>
+          <li><input type="checkbox" id="p1c"><label for="p1c">Pushed to GitHub with README showing sample output</label></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s6-2">
+      <div class="sub-header" onclick="toggleSub('s6-2')">
+        <div class="sub-title">Project 2 — Obstacle Detection Subscriber &nbsp; <span style="font-weight:400;color:var(--text3);">1 week</span></div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p><strong>What it does:</strong> Reads lidar data, logs warning when obstacle is within 5m.<br><strong>Concepts:</strong> Subscribers, callbacks, processing sensor arrays, invalid reading filtering.</p>
+        <pre>void process_scan(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
+    float closest = std::numeric_limits&lt;float&gt;::max();
+    for (float r : msg-&gt;ranges) {
+        if (std::isfinite(r) &amp;&amp; r &gt;= msg-&gt;range_min &amp;&amp; r &lt;= msg-&gt;range_max)
+            closest = std::min(closest, r);
+    }
+    if (closest &lt; 5.0f)
+        RCLCPP_WARN(get_logger(), "OBSTACLE at %.2fm!", closest);
+}</pre>
+        <pre># Test without hardware
+ros2 topic pub /scan sensor_msgs/msg/LaserScan \
+  "{range_min: 0.1, range_max: 30.0, ranges: [3.0, 10.0, 15.0]}"</pre>
+        <ul class="checklist" id="cl-p2">
+          <li><input type="checkbox" id="p2a"><label for="p2a">Warning appears when range &lt; 5m in test data</label></li>
+          <li><input type="checkbox" id="p2b"><label for="p2b">Invalid readings (inf, nan) are filtered correctly</label></li>
+          <li><input type="checkbox" id="p2c"><label for="p2c">Pushed to GitHub</label></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s6-3">
+      <div class="sub-header" onclick="toggleSub('s6-3')">
+        <div class="sub-title">Project 3 — Autonomous Waypoint Commander &nbsp; <span style="font-weight:400;color:var(--text3);">2 weeks</span></div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p><strong>What it does:</strong> Flies drone through 4 GPS waypoints autonomously using a state machine.<br><strong>Concepts:</strong> State machines, MAVSDK, ArduPilot integration, autonomous mission execution.</p>
+        <pre>pip3 install mavsdk</pre>
+        <pre># State machine
+CONNECTING → ARMING → TAKEOFF → WAYPOINT_1 →
+WAYPOINT_2 → WAYPOINT_3 → WAYPOINT_4 → LANDING</pre>
+        <pre># Run with SITL
+# Terminal 1: sim_vehicle.py -v ArduCopter --console --map
+# Terminal 2: python3 scripts/waypoint_mission.py</pre>
+        <ul class="checklist" id="cl-p3">
+          <li><input type="checkbox" id="p3a"><label for="p3a">Python mission script connects to SITL</label></li>
+          <li><input type="checkbox" id="p3b"><label for="p3b">Drone flies 4-point square on the map</label></li>
+          <li><input type="checkbox" id="p3c"><label for="p3c">Screen recording of flight in README</label></li>
+          <li><input type="checkbox" id="p3d"><label for="p3d">State machine logic documented in README</label></li>
+          <li><input type="checkbox" id="p3e"><label for="p3e">(Bonus) C++ state machine version implemented</label></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s6-4">
+      <div class="sub-header" onclick="toggleSub('s6-4')">
+        <div class="sub-title">Project 4 — PID Altitude Controller &nbsp; <span style="font-weight:400;color:var(--text3);">1 week</span></div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <p><strong>What it does:</strong> Maintains target altitude using a PID controller.<br><strong>Concepts:</strong> Control theory, real-time constraints, floating point precision, anti-windup.</p>
+        <pre>class PIDController {
+public:
+    PIDController(float kp, float ki, float kd, float min, float max)
+        : kp_(kp), ki_(ki), kd_(kd), min_(min), max_(max) {}
+
+    float compute(float setpoint, float measurement, float dt) {
+        float error = setpoint - measurement;
+        integral_ = std::clamp(integral_ + error * dt, -10.0f, 10.0f);
+        float d = (dt &gt; 0) ? (error - prev_error_) / dt : 0;
+        prev_error_ = error;
+        return std::clamp(kp_*error + ki_*integral_ + kd_*d, min_, max_);
+    }
+private:
+    float kp_, ki_, kd_, min_, max_;
+    float integral_ = 0, prev_error_ = 0;
+};</pre>
+        <h4>PID Tuning Guide</h4>
+        <pre>1. Start: Kp=1.0, Ki=0.0, Kd=0.0
+2. Increase Kp until response is fast but starts to oscillate
+3. Add Kd=0.1 to dampen oscillation
+4. Add Ki=0.001 only if there is steady-state error</pre>
+        <pre># Test with fake altitude
+ros2 topic pub /drone/altitude std_msgs/msg/Float64 "data: 30.0"
+# Throttle should increase (below 50m target)
+
+ros2 topic pub /drone/altitude std_msgs/msg/Float64 "data: 60.0"
+# Throttle should decrease (above 50m target)</pre>
+        <ul class="checklist" id="cl-p4">
+          <li><input type="checkbox" id="p4a"><label for="p4a">PID class is separate from the ROS2 node (good design)</label></li>
+          <li><input type="checkbox" id="p4b"><label for="p4b">Anti-windup implemented and explained in README</label></li>
+          <li><input type="checkbox" id="p4c"><label for="p4c">README explains what each K value does</label></li>
+          <li><input type="checkbox" id="p4d"><label for="p4d">Graph or table showing altitude convergence in README</label></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 7 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="section-header" onclick="toggle('s7')">
+    <div class="section-num" style="background:#fef3c7;color:#92400e;">7</div>
+    <div class="section-title">Reading Real Drone Code</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-amber-bg);color:var(--tag-amber);">Month 3+</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>This separates developers who have done tutorials from engineers who can work on production drone systems. Read with specific questions — do not try to understand everything.</p>
+
+    <div class="sub-section" id="s7-1">
+      <div class="sub-header" onclick="toggleSub('s7-1')">
+        <div class="sub-title">7.1 ArduPilot Files to Read</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>git clone https://github.com/ArduPilot/ardupilot.git</pre>
+        <table>
+          <tr><th>File</th><th>Compare to</th><th>Questions to answer</th></tr>
+          <tr><td><code>libraries/AC_AttitudeControl/AC_PosControl.cpp</code></td><td>Project 4 (PID)</td><td>How is dt handled? What safety checks exist?</td></tr>
+          <tr><td><code>ArduCopter/mode_auto.cpp</code></td><td>Project 3 (waypoints)</td><td>How many states does a production autopilot have?</td></tr>
+          <tr><td><code>ArduCopter/failsafe.cpp</code></td><td>(not in projects)</td><td>What events trigger failsafe? How are priorities set?</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub-section" id="s7-2">
+      <div class="sub-header" onclick="toggleSub('s7-2')">
+        <div class="sub-title">7.2 PX4 Files to Read + Reading Strategy</div>
+        <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sub-body">
+        <pre>git clone https://github.com/PX4/PX4-Autopilot.git
+
+# Position controller
+PX4-Autopilot/src/modules/mc_pos_control/MulticopterPositionControl.cpp
+
+# MAVLink handling
+PX4-Autopilot/src/modules/mavlink/mavlink_receiver.cpp</pre>
+        <h4>Reading strategy</h4>
+        <pre>1. Find the class definition — what data does it hold?
+2. Find the main update loop (update(), run(), execute())
+3. Read only that loop first — ignore everything else
+4. Trace one specific behavior end to end
+5. Write down one difference from the tutorial version and why</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 8 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="section-header" onclick="toggle('s8')">
+    <div class="section-num" style="background:#f3e8ff;color:#6b21a8;">8</div>
+    <div class="section-title">Open Source Contributions</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-purple-bg);color:var(--tag-purple);">Portfolio booster</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <p>Defense companies and serious robotics employers know ArduPilot, PX4, and ROS2 by name. A contribution — even a documentation fix — signals that the candidate has read real production code and engaged with the community.</p>
+    <pre># Contribution ladder — start at Level 1, do not skip
+Level 1: Fix a typo or grammar error in documentation
+Level 2: Improve an unclear or outdated code comment
+Level 3: Fix a small bug linked to an existing issue
+Level 4: Add a unit test for an untested function
+Level 5: Implement a feature from the issue tracker</pre>
+    <pre># Good first issues
+https://github.com/ArduPilot/ardupilot/issues?q=label%3A"good+first+issue"
+https://github.com/PX4/PX4-Autopilot/issues?q=label%3A"good+first+issue"
+https://github.com/ros2/rclcpp/issues?q=label%3A"good+first+issue"</pre>
+    <pre># Process
+git checkout -b fix/descriptive-branch-name
+# make change
+git commit -m "Fix typo in AC_PosControl.cpp comment"
+git push origin fix/descriptive-branch-name
+# Open Pull Request on GitHub</pre>
+    <ul class="checklist" id="cl-oss">
+      <li><input type="checkbox" id="oss1"><label for="oss1">ArduPilot forked on GitHub</label></li>
+      <li><input type="checkbox" id="oss2"><label for="oss2">First Level 1 PR submitted</label></li>
+      <li><input type="checkbox" id="oss3"><label for="oss3">First PR merged</label></li>
+      <li><input type="checkbox" id="oss4"><label for="oss4">"ArduPilot contributor" added to LinkedIn</label></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 9 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="section-header" onclick="toggle('s9')">
+    <div class="section-num" style="background:#f0fdf4;color:#16a34a;">9</div>
+    <div class="section-title">Milestones and Schedule</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-green-bg);color:var(--tag-green);">Track progress</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <h4>Weekly schedule (~8–9 hrs/week)</h4>
+    <table>
+      <tr><th>Day</th><th>Activity</th><th>Time</th></tr>
+      <tr><td>Mon–Fri evenings</td><td>learncpp.com OR reading drone code</td><td>1 hr</td></tr>
+      <tr><td>Saturday</td><td>Project building in ROS2</td><td>2–3 hrs</td></tr>
+      <tr><td>Sunday</td><td>Fix Saturday's problems + commit to GitHub</td><td>1 hr</td></tr>
+    </table>
+    <h4 style="margin-top:20px;">Milestones</h4>
+    <table>
+      <tr><th>Milestone</th><th>Target</th></tr>
+      <tr><td>ROS2 Jazzy installed and verified</td><td>Week 1</td></tr>
+      <tr><td>ArduPilot SITL running, drone flying in sim</td><td>Week 1</td></tr>
+      <tr><td>Section 2.5 exercise compiles, no memory leaks</td><td>Week 1–2</td></tr>
+      <tr><td>C++ fundamentals complete (Section 3 checkpoint)</td><td>Week 2</td></tr>
+      <tr><td>Official ROS2 tutorials complete</td><td>Week 2–3</td></tr>
+      <tr><td>First ROS2 C++ node running</td><td>Week 3</td></tr>
+      <tr><td>Project 1 (Telemetry) on GitHub</td><td>Week 4–5</td></tr>
+      <tr><td>Project 2 (Obstacle Detection) on GitHub</td><td>Week 5–6</td></tr>
+      <tr><td>Project 3 (Waypoint Mission) on GitHub</td><td>Week 7–8</td></tr>
+      <tr><td>Project 4 (PID Controller) on GitHub</td><td>Week 9–10</td></tr>
+      <tr><td>Reading ArduPilot source regularly</td><td>Week 10+</td></tr>
+      <tr><td>First open source contribution merged</td><td>Month 3</td></tr>
+      <tr><td>Ready to apply for entry-level drone roles</td><td>Month 12–18</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 10 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section" id="s10">
+  <div class="section-header" onclick="toggle('s10')">
+    <div class="section-num" style="background:#eff6ff;color:#1d4ed8;">10</div>
+    <div class="section-title">Key Resources and Error Reference</div>
+    <div class="section-meta">
+      <span class="tag" style="background:var(--tag-blue-bg);color:var(--tag-blue);">Quick reference</span>
+    </div>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Resource</th><th>Purpose</th><th>URL</th></tr>
+      <tr><td>learncpp.com</td><td>Best free C++ reference</td><td>learncpp.com</td></tr>
+      <tr><td>ROS2 Jazzy docs</td><td>Official tutorials and API reference</td><td>docs.ros.org/en/jazzy</td></tr>
+      <tr><td>ArduPilot dev docs</td><td>SITL, MAVLink, contributing</td><td>ardupilot.org/dev</td></tr>
+      <tr><td>PX4 dev docs</td><td>Alternative flight stack</td><td>docs.px4.io</td></tr>
+      <tr><td>MAVSDK</td><td>High-level drone control API</td><td>mavsdk.mavlink.io</td></tr>
+      <tr><td>Gazebo</td><td>3D drone simulation</td><td>gazebosim.org</td></tr>
+      <tr><td>cppreference.com</td><td>C++ language reference</td><td>cppreference.com</td></tr>
+    </table>
+    <h4 style="margin-top:20px;">Package installation reference</h4>
+    <pre>sudo apt install ros-jazzy-desktop -y
+sudo apt install ros-jazzy-mavros -y
+sudo apt install ros-jazzy-cv-bridge -y
+sudo apt install ros-jazzy-image-transport -y
+sudo apt install ros-jazzy-gazebo-ros-pkgs -y
+sudo apt install python3-colcon-common-extensions -y</pre>
+    <h4>Common errors</h4>
+    <table>
+      <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+      <tr><td><code>Unable to locate package ros-humble-desktop</code></td><td>Wrong Ubuntu version</td><td>Use <code>ros-jazzy-desktop</code> on Ubuntu 24.04</td></tr>
+      <tr><td><code>package 'X' not found</code> in colcon build</td><td>Missing dependency</td><td>Add to both CMakeLists.txt and package.xml</td></tr>
+      <tr><td><code>source install/setup.bash</code> not found</td><td>Workspace not built yet</td><td>Run <code>colcon build</code> first</td></tr>
+      <tr><td>Node starts but no data on topic</td><td>Wrong topic name</td><td>Check with <code>ros2 topic list</code></td></tr>
+      <tr><td>Segfault in ROS2 node</td><td>Null SharedPtr</td><td>Ensure all members initialized in constructor</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  Version 1.0 &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp;
+  Ubuntu 24.04 LTS · ROS2 Jazzy · ArduPilot SITL · C++17
+</div>
+
+</div><!-- /container -->
+
+<script>
+function toggle(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  updateProgress();
+}
+
+function toggleSub(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function expandAll() {
+  document.querySelectorAll('.section').forEach(s => s.classList.add('open'));
+  document.querySelectorAll('.sub-section').forEach(s => s.classList.add('open'));
+}
+
+function collapseAll() {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.sub-section').forEach(s => s.classList.remove('open'));
+  updateProgress();
+}
+
+// Checkbox progress tracking
+function updateProgress() {
+  const all = document.querySelectorAll('.checklist input[type=checkbox]');
+  const done = document.querySelectorAll('.checklist input[type=checkbox]:checked');
+  const pct = all.length ? (done.length / all.length * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = done.length + ' / ' + all.length;
+
+  // Strike done checklist items
+  all.forEach(cb => {
+    const li = cb.closest('li');
+    if (cb.checked) li.classList.add('done');
+    else li.classList.remove('done');
+  });
+}
+
+// Persist checkboxes in localStorage
+function saveCheckboxes() {
+  const state = {};
+  document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb => {
+    state[cb.id] = cb.checked;
+  });
+  try { localStorage.setItem('drone_tutorial_progress', JSON.stringify(state)); } catch(e) {}
+}
+
+function loadCheckboxes() {
+  try {
+    const state = JSON.parse(localStorage.getItem('drone_tutorial_progress') || '{}');
+    document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb => {
+      if (state[cb.id]) cb.checked = true;
+    });
+  } catch(e) {}
+  updateProgress();
+}
+
+document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb => {
+  cb.addEventListener('change', () => { saveCheckboxes(); updateProgress(); });
+});
+
+loadCheckboxes();
+</script>
+</body>
+</html>
