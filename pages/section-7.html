@@ -8,10 +8,8 @@
 </head>
 <body>
 <div id="page-content">
-
   <p>This separates developers who have done tutorials from engineers who can work on production drone systems. Read with specific questions — do not try to understand everything.</p>
 
-  <!-- 7.1 -->
   <div class="sub-section" id="s7-1">
     <div class="sub-header" onclick="toggleSub('s7-1')">
       <div class="sub-title">7.1 ArduPilot Files to Read</div>
@@ -28,10 +26,9 @@
     </div>
   </div>
 
-  <!-- 7.2 -->
   <div class="sub-section" id="s7-2">
     <div class="sub-header" onclick="toggleSub('s7-2')">
-      <div class="sub-title">7.2 PX4 Files to Read + Reading Strategy</div>
+      <div class="sub-title">7.2 PX4 Files + Reading Strategy</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
@@ -48,10 +45,9 @@ PX4-Autopilot/src/modules/mavlink/mavlink_receiver.cpp</pre>
 3. Read only that loop first — ignore everything else
 4. Trace one specific behavior end to end
 5. Write down one difference from the tutorial version and why</pre>
-      <div class="callout callout-info">The goal is not to understand everything — it's to find the same patterns you learned (PID, state machines, publishers) in production code. Each match builds pattern recognition.</div>
+      <div class="callout callout-info">The goal is not to understand everything — it's to find the same patterns (PID, state machines, publishers) in production code. Each match builds pattern recognition.</div>
     </div>
   </div>
-
 </div>
 <script src="../js/app.js"></script>
 <script>initPage('s7', '../');</script>

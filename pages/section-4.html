@@ -8,13 +8,11 @@
 </head>
 <body>
 <div id="page-content">
-
   <p>ROS2 is a communication middleware. It lets dozens of separate drone programs exchange data in real time without being hard-coded to each other.</p>
 
-  <!-- 4.1 -->
   <div class="sub-section" id="s4-1">
     <div class="sub-header" onclick="toggleSub('s4-1')">
-      <div class="sub-title">4.1 Core Concepts: Nodes, Topics, Messages, Services</div>
+      <div class="sub-title">4.1 Nodes, Topics, Messages, Services</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
@@ -22,23 +20,14 @@
 ────────────────────────────    ────────────────────────────────
 camera → flight (custom code)   camera_node  publishes → /camera/image
 gps → autopilot (custom code)   vision_node  subscribes ← /camera/image
-                                             publishes  → /target/position
-Everything tightly coupled.     autopilot_node subscribes ← /target/position
-Change one = break others.                     publishes  → /cmd_vel
+Everything tightly coupled.                  publishes  → /target/position
+Change one = break others.      autopilot_node subscribes ← /target/position
                                 Loosely coupled. Add/remove nodes freely.</pre>
-
-      <h4>Node</h4>
-      <p>A single executable process with one responsibility. Nodes run independently.</p>
-      <pre>ros2 node list
-ros2 node info /node_name</pre>
-
-      <h4>Topic</h4>
-      <p>A named data stream. Any node can publish or subscribe. Publishers and subscribers don't know about each other — only the topic name.</p>
+      <h4>Topics</h4>
       <pre>ros2 topic list
 ros2 topic echo /gps/fix
 ros2 topic hz /camera/image_raw
 ros2 topic pub /test std_msgs/msg/String "data: hello"</pre>
-
       <h4>Common drone message types</h4>
       <table>
         <tr><th>Message Type</th><th>Contains</th><th>Used For</th></tr>
@@ -49,15 +38,13 @@ ros2 topic pub /test std_msgs/msg/String "data: hello"</pre>
         <tr><td><code>geometry_msgs/msg/Twist</code></td><td>linear + angular velocity</td><td>Movement commands</td></tr>
         <tr><td><code>std_msgs/msg/Float64</code></td><td>single float</td><td>Simple values</td></tr>
       </table>
-
-      <h4>Service (request/response)</h4>
+      <h4>Services (request/response)</h4>
       <pre>ros2 service list
 ros2 service call /arm_motors std_srvs/srv/Trigger</pre>
       <p>Use topics for continuous data. Use services for one-time operations (arm, mode change).</p>
     </div>
   </div>
 
-  <!-- 4.2 -->
   <div class="sub-section" id="s4-2">
     <div class="sub-header" onclick="toggleSub('s4-2')">
       <div class="sub-title">4.2 Daily CLI Commands</div>
@@ -84,26 +71,22 @@ ros2 launch pkg_name file.py
 
 # Debug
 rqt_graph                          # visual node/topic map
-ros2 bag record -a                 # record everything
-ros2 bag play file.bag             # replay</pre>
+ros2 bag record -a                 # record everything</pre>
     </div>
   </div>
 
-  <!-- 4.3 -->
   <div class="sub-section" id="s4-3">
     <div class="sub-header" onclick="toggleSub('s4-3')">
       <div class="sub-title">4.3 Official Tutorials (do before writing nodes)</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
-      <p>Complete these at <strong>docs.ros.org/en/jazzy/Tutorials.html</strong> before writing nodes from scratch. Takes 4–5 hours. Hands-on experience no reading can replace.</p>
+      <p>Complete at <strong>docs.ros.org/en/jazzy/Tutorials.html</strong> before writing nodes. Takes 4–5 hours.</p>
       <table>
         <tr><th>Tutorial</th><th>What It Teaches</th></tr>
         <tr><td>Configuring environment</td><td>Sourcing, ROS_DOMAIN_ID</td></tr>
         <tr><td>Using turtlesim</td><td>Nodes and topics, visually</td></tr>
-        <tr><td>Understanding nodes</td><td><code>ros2 node</code> commands</td></tr>
         <tr><td>Understanding topics</td><td><code>ros2 topic</code> commands, rqt_graph</td></tr>
-        <tr><td>Understanding services</td><td>Request/response pattern</td></tr>
         <tr><td><strong>Writing publisher/subscriber (C++)</strong></td><td><strong>First real C++ ROS2 node</strong></td></tr>
         <tr><td><strong>Writing service/client (C++)</strong></td><td><strong>Services in C++</strong></td></tr>
         <tr><td>Creating a package</td><td>Workspace and package structure</td></tr>
@@ -111,7 +94,6 @@ ros2 bag play file.bag             # replay</pre>
       <div class="callout callout-info">After completing the two bold entries, the code in Section 5 will be fully readable without confusion.</div>
     </div>
   </div>
-
 </div>
 <script src="../js/app.js"></script>
 <script>initPage('s4', '../');</script>

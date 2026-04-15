@@ -8,10 +8,8 @@
 </head>
 <body>
 <div id="page-content">
-
   <p>Every ROS2 C++ node follows this exact structure. Learn it once — it applies everywhere.</p>
 
-  <!-- 5.1 -->
   <div class="sub-section" id="s5-1">
     <div class="sub-header" onclick="toggleSub('s5-1')">
       <div class="sub-title">5.1 Universal Node Pattern</div>
@@ -58,18 +56,15 @@ int main(int argc, char* argv[]) {
     rclcpp::shutdown();
     return 0;
 }</pre>
-      <div class="callout callout-info">
-        <strong>The 5-step pattern to memorize:</strong><br>
+      <div class="callout callout-info"><strong>The 5-step pattern to memorize:</strong><br>
         1. Inherit from <code>rclcpp::Node</code><br>
         2. Constructor sets up pub/sub/timers<br>
         3. Private callbacks handle data<br>
         4. Members are always SharedPtr<br>
-        5. <code>main()</code> is always the same 3 lines
-      </div>
+        5. <code>main()</code> is always the same 3 lines</div>
     </div>
   </div>
 
-  <!-- 5.2 -->
   <div class="sub-section" id="s5-2">
     <div class="sub-header" onclick="toggleSub('s5-2')">
       <div class="sub-title">5.2 CMakeLists.txt + package.xml Templates</div>
@@ -90,11 +85,10 @@ install(TARGETS my_node DESTINATION lib/${PROJECT_NAME})
 ament_package()</pre>
       <pre>&lt;!-- package.xml --&gt;
 &lt;depend&gt;rclcpp&lt;/depend&gt;
-&lt;depend&gt;sensor_msgs&lt;/depend&gt;  &lt;!-- one line per dependency --&gt;</pre>
+&lt;depend&gt;sensor_msgs&lt;/depend&gt;</pre>
     </div>
   </div>
 
-  <!-- 5.3 -->
   <div class="sub-section" id="s5-3">
     <div class="sub-header" onclick="toggleSub('s5-3')">
       <div class="sub-title">5.3 Build and Run Workflow</div>
@@ -103,16 +97,15 @@ ament_package()</pre>
     <div class="sub-body">
       <pre>cd ~/drone_ws
 colcon build --packages-select my_package
-source install/setup.bash
+source install/setup.bash          # don't forget this
 ros2 run my_package my_node
 
 # Verify in another terminal:
 ros2 topic echo /topic_name
 ros2 node list</pre>
-      <div class="callout callout-warning"><strong>Common mistake:</strong> forgetting <code>source install/setup.bash</code> after build. ROS2 won't find your node unless you source every time after building.</div>
+      <div class="callout callout-warning"><strong>Common mistake:</strong> forgetting <code>source install/setup.bash</code> after build. ROS2 won't find your node until you source.</div>
     </div>
   </div>
-
 </div>
 <script src="../js/app.js"></script>
 <script>initPage('s5', '../');</script>

@@ -9,7 +9,6 @@
 <body>
 <div id="page-content">
 
-  <!-- 3.1 -->
   <div class="sub-section" id="s3-1">
     <div class="sub-header" onclick="toggleSub('s3-1')">
       <div class="sub-title">3.1 Why C++ Feels Hard + Compilation Basics</div>
@@ -24,19 +23,16 @@ int main() {
     return 0;
 }
 EOF
-g++ hello.cpp -o hello
-./hello</pre>
-      <p>Unlike Python, C++ must be compiled before running. Bugs caught at compile time cannot crash a drone in flight.</p>
+g++ hello.cpp -o hello &amp;&amp; ./hello</pre>
       <table>
-        <tr><th>Language</th><th>Compilation</th><th>Memory</th><th>Speed</th></tr>
-        <tr><td>Python</td><td>Interpreted</td><td>Automatic GC</td><td>~50–100x slower than C++</td></tr>
-        <tr><td>JavaScript</td><td>JIT compiled</td><td>Automatic GC</td><td>~10–50x slower than C++</td></tr>
-        <tr><td>C++</td><td>AOT compiled</td><td>Manual / Smart pointers</td><td>Baseline — fastest</td></tr>
+        <tr><th>Language</th><th>Compilation</th><th>Memory</th><th>Speed vs C++</th></tr>
+        <tr><td>Python</td><td>Interpreted</td><td>Automatic GC</td><td>~50–100x slower</td></tr>
+        <tr><td>JavaScript</td><td>JIT compiled</td><td>Automatic GC</td><td>~10–50x slower</td></tr>
+        <tr><td>C++</td><td>AOT compiled</td><td>Manual / Smart ptrs</td><td>Baseline</td></tr>
       </table>
     </div>
   </div>
 
-  <!-- 3.2 -->
   <div class="sub-section" id="s3-2">
     <div class="sub-header" onclick="toggleSub('s3-2')">
       <div class="sub-title">3.2 Classes</div>
@@ -47,15 +43,11 @@ g++ hello.cpp -o hello
       <pre>#include &lt;cmath&gt;
 class Point {
 public:
-    Point(float x, float y) : x_(x), y_(y) {}  // constructor
-
-    float distance_to_origin() const {
-        return std::sqrt(x_*x_ + y_*y_);
-    }
+    Point(float x, float y) : x_(x), y_(y) {}
+    float distance_to_origin() const { return std::sqrt(x_*x_ + y_*y_); }
     float x() const { return x_; }
-
 private:
-    float x_, y_;  // only accessible inside the class
+    float x_, y_;
 };
 
 Point p(3.0f, 4.0f);
@@ -64,14 +56,13 @@ p.distance_to_origin();  // 5.0</pre>
     </div>
   </div>
 
-  <!-- 3.3 -->
   <div class="sub-section" id="s3-3">
     <div class="sub-header" onclick="toggleSub('s3-3')">
       <div class="sub-title">3.3 References</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
-      <p>References are cleaner syntax for the same idea as C pointers — passing by address without the <code>*</code> and <code>&amp;</code> noise.</p>
+      <p>References are cleaner syntax for C pointers — passing by address without the <code>*</code> and <code>&amp;</code> noise.</p>
       <pre>// C style
 void set_c(float* altitude, float value) { *altitude = value; }
 set_c(&amp;alt, 100.0f);
@@ -83,7 +74,6 @@ set_cpp(alt, 100.0f);</pre>
     </div>
   </div>
 
-  <!-- 3.4 -->
   <div class="sub-section" id="s3-4">
     <div class="sub-header" onclick="toggleSub('s3-4')">
       <div class="sub-title">3.4 Smart Pointers</div>
@@ -95,7 +85,6 @@ set_cpp(alt, 100.0f);</pre>
 
 // unique_ptr — one owner, freed when out of scope
 auto p = std::make_unique&lt;float&gt;(100.0f);
-// no delete needed
 
 // shared_ptr — multiple owners, freed when last owner dies
 // THIS IS EVERYWHERE IN ROS2
@@ -107,7 +96,6 @@ auto also_p = p;  // both point to same memory</pre>
     </div>
   </div>
 
-  <!-- 3.5 -->
   <div class="sub-section" id="s3-5">
     <div class="sub-header" onclick="toggleSub('s3-5')">
       <div class="sub-title">3.5 STL Containers</div>
@@ -128,22 +116,10 @@ std::array&lt;double, 3&gt; waypoint = {23.8103, 90.4125, 50.0};
 // [0]=lat  [1]=lon  [2]=altitude
 
 std::map&lt;std::string, float&gt; sensor;
-sensor["altitude"] = 100.5f;
-
-std::string id = "UAV_001";
-std::string full = id + "_SURVEY";  // "UAV_001_SURVEY"</pre>
-      <table>
-        <tr><th>Container</th><th>Use when</th><th>Equivalent in JS/Python</th></tr>
-        <tr><td><code>std::vector</code></td><td>Dynamic array, size not known at compile time</td><td>Array / list</td></tr>
-        <tr><td><code>std::array</code></td><td>Fixed size, known at compile time</td><td>Typed tuple</td></tr>
-        <tr><td><code>std::map</code></td><td>Key-value pairs, sorted</td><td>Object / dict</td></tr>
-        <tr><td><code>std::unordered_map</code></td><td>Key-value pairs, faster lookup</td><td>Map / dict</td></tr>
-        <tr><td><code>std::string</code></td><td>Text</td><td>String</td></tr>
-      </table>
+sensor["altitude"] = 100.5f;</pre>
     </div>
   </div>
 
-  <!-- 3.6 -->
   <div class="sub-section" id="s3-6">
     <div class="sub-header" onclick="toggleSub('s3-6')">
       <div class="sub-title">3.6 Lambdas</div>
@@ -160,17 +136,11 @@ auto is_close = [threshold](float dist) { return dist &lt; threshold; };
 
 // [this] capture — used in every ROS2 node
 timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
-      <div class="callout callout-info">
-        <strong>Lambda syntax:</strong> <code>[capture](params) { body }</code><br>
-        <code>[]</code> — capture nothing<br>
-        <code>[=]</code> — capture all by value<br>
-        <code>[&amp;]</code> — capture all by reference<br>
-        <code>[this]</code> — capture the class instance (most common in ROS2)
-      </div>
+      <div class="callout callout-info"><strong>Lambda syntax:</strong> <code>[capture](params) { body }</code><br>
+        <code>[]</code> — nothing · <code>[=]</code> — all by value · <code>[&amp;]</code> — all by ref · <code>[this]</code> — class instance (most common in ROS2)</div>
     </div>
   </div>
 
-  <!-- 3.7 -->
   <div class="sub-section" id="s3-7">
     <div class="sub-header" onclick="toggleSub('s3-7')">
       <div class="sub-title">3.7 Key Patterns in Drone Code</div>
@@ -187,11 +157,11 @@ enum class FlightState { IDLE, ARMING, TAKEOFF, NAVIGATING, LANDING };
 float throttle = std::clamp(computed, 0.0f, 1.0f);
 
 // chrono literals — time durations
-auto period = 100ms;  auto timeout = 5s;  auto fast = 10us;
+auto period = 100ms;  auto timeout = 5s;
 
 // C++17 structured bindings
 auto [lat, lon] = std::pair&lt;double,double&gt;{23.81, 90.41};</pre>
-      <div class="callout callout-success"><strong>Section 3 Checkpoint</strong> — write a program that: (1) creates a <code>Drone</code> class with enum class state, altitude, battery, (2) stores 4 waypoints in <code>vector&lt;array&lt;double,3&gt;&gt;</code>, (3) prints them with range loop, (4) uses a lambda to filter waypoints above 50m. If it compiles and runs → proceed to Section 4.</div>
+      <div class="callout callout-success"><strong>Section 3 Checkpoint:</strong> write a program that (1) creates a <code>Drone</code> class with enum class state, altitude, battery, (2) stores 4 waypoints in <code>vector&lt;array&lt;double,3&gt;&gt;</code>, (3) prints them with range loop, (4) uses a lambda to filter waypoints above 50m. If it compiles and runs → proceed to Section 4.</div>
     </div>
   </div>
 

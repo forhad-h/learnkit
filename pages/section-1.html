@@ -19,7 +19,6 @@
   </div>
 
   <div class="callout callout-info"><strong>Why C++?</strong> Every layer except Layer 4 is dominated by C++. ROS2, PX4, and ArduPilot are all written in C++. Python handles the AI layer and scripting; flight-critical real-time code is C++.</div>
-
   <div class="callout callout-info"><strong>Why ROS2?</strong> ROS2 is the industry-standard communication framework connecting all drone components — camera, GPS, lidar, flight controller — without hard-coding them together.</div>
 
   <h4>Learning order in this tutorial</h4>
@@ -35,10 +34,9 @@
     <tr><td>MAVLink</td><td>Protocol for talking to flight controllers</td><td>Binary protocol</td></tr>
     <tr><td>MAVSDK</td><td>High-level API for autonomous flight</td><td>C++ / Python</td></tr>
     <tr><td>SITL</td><td>Software-In-The-Loop simulator — no hardware needed</td><td>C++</td></tr>
-    <tr><td>Gazebo</td><td>3D physics simulator for drone testing</td><td>C++ / plugins</td></tr>
   </table>
 
-  <div class="callout callout-success"><strong>Key insight:</strong> You write code at Layer 3 (ROS2 nodes in C++). Layer 2 runs autonomously inside the flight controller. MAVLink and MAVSDK are the bridge between them. This tutorial covers Layer 3 end to end.</div>
+  <div class="callout callout-success"><strong>Key insight:</strong> You write code at Layer 3 (ROS2 nodes in C++). Layer 2 runs autonomously inside the flight controller. MAVLink and MAVSDK bridge between them. This tutorial covers Layer 3 end to end.</div>
 
 </div>
 <script src="../js/app.js"></script>

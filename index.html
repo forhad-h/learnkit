@@ -10,17 +10,17 @@
   .dash-layout { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
   .dash-top-bar {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
   }
-  .dash-top-bar h1 { font-size: 13px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
-  .dash-actions { display: flex; gap: 8px; }
+  .dash-top-bar h2 { font-size: 13px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+  #continueBanner { display: none; margin-bottom: 20px; }
 </style>
 </head>
 <body>
 
 <div class="dash-layout">
 
-  <!-- Dashboard Header -->
+  <!-- Header card -->
   <div class="dashboard-header">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
       <span style="font-size:28px;">🚁</span>
@@ -28,13 +28,15 @@
         <h1 style="font-size:22px;font-weight:700;line-height:1.2;">C++ for Drone Engineering</h1>
         <p style="color:var(--text3);font-size:13px;margin-top:2px;">Ubuntu 24.04 · ROS2 Jazzy · ArduPilot SITL · C++17</p>
       </div>
-    </div>
-    <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">A complete tutorial from zero to job-ready portfolio.</p>
-    <div class="meta-grid">
-      <div class="meta-item">
-        <div class="meta-label">Target audience</div>
-        <div class="meta-value">Developers with any programming background</div>
+      <div style="margin-left:auto;">
+        <a href="pages/settings.html" class="btn">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Export / Import
+        </a>
       </div>
+    </div>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">A complete tutorial from zero to job-ready portfolio. Developers with any programming background.</p>
+    <div class="meta-grid">
       <div class="meta-item">
         <div class="meta-label">Prerequisites</div>
         <ul class="prereq-list">
@@ -54,28 +56,23 @@
     </div>
   </div>
 
-  <!-- Progress -->
+  <!-- Overall progress -->
   <div class="progress-card">
     <span class="progress-label">Overall progress</span>
     <div class="progress-track"><div class="progress-fill" id="dashProgressFill"></div></div>
     <span class="progress-count" id="dashProgressCount">0 / 11</span>
   </div>
 
-  <!-- Toolbar -->
+  <!-- Continue banner — populated by JS -->
+  <div id="continueBanner"></div>
+
+  <!-- Section list heading -->
   <div class="dash-top-bar">
-    <h1>Sections</h1>
-    <div class="dash-actions">
-      <a href="pages/settings.html" class="btn">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Export / Import State
-      </a>
-    </div>
+    <h2>All sections</h2>
   </div>
 
-  <!-- Section List -->
-  <div class="section-list" id="sectionList">
-    <!-- Populated by JS -->
-  </div>
+  <!-- Section cards — populated by JS -->
+  <div class="section-list" id="sectionList"></div>
 
   <div class="page-footer">Version 1.0 · April 2026 · Ubuntu 24.04 LTS · ROS2 Jazzy · C++17</div>
 </div>

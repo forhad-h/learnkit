@@ -6,25 +6,25 @@
 <title>Export / Import State — C++ Drone Tutorial</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
-  .settings-layout { max-width: 680px; margin: 0 auto; padding: 32px 20px 80px; }
-  .settings-layout h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .settings-layout > .desc { font-size: 14px; color: var(--text2); margin-bottom: 28px; }
-  .section-title { font-size: 13px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .file-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; }
-  .file-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .file-step-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
-  .state-entry { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
-  .state-entry .file-icon { width: 34px; height: 34px; background: var(--accent-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0; }
-  .state-entry-info { flex: 1; min-width: 0; }
-  .state-entry-name { font-size: 13.5px; font-weight: 500; }
-  .state-entry-meta { font-size: 12px; color: var(--text3); }
-  .divider { height: 1px; background: var(--border); margin: 28px 0; }
-  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 20px; }
+  body { background: var(--bg2); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }
+  .wrap h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .wrap > .desc { font-size: 14px; color: var(--text2); margin-bottom: 28px; }
+  .sec-title { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+  .step-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
+  .step-num { width: 20px; height: 20px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-txt { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .state-entry { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+  .state-icon { width: 32px; height: 32px; background: var(--accent-bg); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0; }
+  .state-info { flex: 1; min-width: 0; }
+  .state-name { font-size: 13.5px; font-weight: 500; }
+  .state-meta { font-size: 12px; color: var(--text3); }
+  .back-link { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text2); text-decoration: none; margin-bottom: 20px; }
   .back-link:hover { color: var(--text); }
 </style>
 </head>
 <body>
-<div class="settings-layout">
+<div class="wrap">
 
   <a href="../index.html" class="back-link">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -34,100 +34,76 @@
   <h1>Export / Import State</h1>
   <p class="desc">Save your progress and carry it to any computer or browser. No account needed — just a JSON file.</p>
 
-  <!-- ── CURRENT PROGRESS ── -->
+  <!-- Current progress -->
   <div class="settings-section">
-    <div class="section-title">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Current Progress
     </div>
-    <div id="progressSummary" style="font-size:13px;color:var(--text2);margin-bottom:16px;"></div>
+    <div id="progressSummary" style="font-size:13px;color:var(--text2);margin-bottom:14px;"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="doExport()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download state.json
       </button>
-      <button class="btn" onclick="doReset()" style="color:var(--red);border-color:currentColor;">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg>
+      <button class="btn" onclick="doReset()" style="color:var(--red);border-color:#fecaca;">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg>
         Reset all progress
       </button>
     </div>
-    <div class="alert alert-success" id="exportAlert">State downloaded!</div>
-    <div class="alert alert-success" id="resetAlert">Progress cleared. Page will reload.</div>
+    <div class="alert alert-success" id="exportAlert"></div>
+    <div class="alert alert-success" id="resetAlert">Progress cleared.</div>
   </div>
 
-  <!-- ── IMPORT FROM FILE ── -->
+  <!-- Import from file -->
   <div class="settings-section">
-    <div class="section-title">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       Import from File
     </div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Load a previously exported state.json file.</p>
-
-    <div style="margin-bottom:12px;">
-      <label class="btn" style="cursor:pointer;">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Choose JSON file
-        <input type="file" accept=".json" id="fileInput" style="display:none;" onchange="handleFileInput(event)">
-      </label>
-    </div>
-
-    <p style="font-size:12.5px;color:var(--text3);margin-bottom:8px;">Or paste JSON directly:</p>
-    <textarea id="jsonInput" rows="6" placeholder='{"sections":{"s1":"completed","s2":"in-progress"},"checkboxes":{"p1a":true}}'></textarea>
-
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Load a previously exported state.json file, or paste JSON directly.</p>
+    <label class="btn" style="cursor:pointer;margin-bottom:10px;">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Choose JSON file
+      <input type="file" accept=".json" id="fileInput" style="display:none;" onchange="handleFileInput(event)">
+    </label>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:4px;">Or paste JSON:</p>
+    <textarea id="jsonInput" rows="5" placeholder='{"sections":{"s1":"completed"},"checkboxes":{"p1a":true}}'></textarea>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="doImportMerge()">Merge into current progress</button>
+      <button class="btn btn-primary" onclick="doImportMerge()">Merge into current</button>
       <button class="btn" onclick="doImportReplace()">Replace all progress</button>
     </div>
-    <div class="alert alert-success" id="importAlert">State imported! <a href="../index.html">Go to dashboard</a></div>
+    <div class="alert alert-success" id="importAlert">State imported! <a href="../index.html">Go to dashboard →</a></div>
     <div class="alert alert-error" id="importError"></div>
   </div>
 
-  <!-- ── STATES DIRECTORY ── -->
+  <!-- States directory -->
   <div class="settings-section">
-    <div class="section-title">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       States Directory
       <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(git-based sync)</span>
     </div>
-
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">
-      Save state files to the <code>states/</code> folder in this repo and push to GitHub.
-      Pull on another machine and load from here to resume exactly where you left off.
-    </p>
-
-    <div style="background:var(--bg3);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px;">How it works</div>
-      <div class="file-step">
-        <div class="file-step-num">1</div>
-        <div class="file-step-text">Download your state using the button above, rename it (e.g. <code>home-pc.json</code>), put it in the <code>states/</code> folder.</div>
-      </div>
-      <div class="file-step">
-        <div class="file-step-num">2</div>
-        <div class="file-step-text">Add the filename to <code>states/manifest.json</code> under the <code>states</code> array with a name and the filename.</div>
-      </div>
-      <div class="file-step">
-        <div class="file-step-num">3</div>
-        <div class="file-step-text">Commit &amp; push to GitHub. On another machine, pull and reload this page — your state will appear below.</div>
-      </div>
-      <div class="file-step">
-        <div class="file-step-num">4</div>
-        <div class="file-step-text">Click <strong>Load</strong> next to the state you want.</div>
-      </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Save state files to <code>states/</code> in this repo, push to GitHub, pull on another machine, and load here.</p>
+    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">Workflow</div>
+      <div class="step-row"><div class="step-num">1</div><div class="step-txt">Download state above → rename to e.g. <code>home-pc.json</code> → put in <code>states/</code> folder</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-txt">Add entry to <code>states/manifest.json</code> (see format below)</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-txt">Commit &amp; push. Pull on another machine. Open this page.</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-txt">Click <strong>Check states/ directory</strong> → click <strong>Load</strong> next to your state.</div></div>
     </div>
-
-    <button class="btn" onclick="loadManifest()" id="loadManifestBtn">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg>
+    <button class="btn" onclick="loadManifest()" id="manifestBtn">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg>
       Check states/ directory
     </button>
-
-    <div id="statesList" style="margin-top:14px;"></div>
+    <div id="statesList" style="margin-top:12px;"></div>
     <div class="alert alert-error" id="manifestError"></div>
   </div>
 
-  <!-- ── MANIFEST FORMAT ── -->
+  <!-- Manifest format -->
   <div class="settings-section">
-    <div class="section-title">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       manifest.json format
     </div>
     <pre>{
@@ -136,40 +112,33 @@
       "name": "Home PC — April 2026",
       "file": "home-pc-2026-04.json",
       "saved_at": "2026-04-15T10:00:00Z"
-    },
-    {
-      "name": "Work Laptop — March 2026",
-      "file": "work-laptop-2026-03.json",
-      "saved_at": "2026-03-20T14:30:00Z"
     }
   ]
 }</pre>
-    <p style="font-size:13px;color:var(--text3);margin-top:8px;">Located at <code>states/manifest.json</code> in the repo root.</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:6px;">Located at <code>states/manifest.json</code> in the repo root.</p>
   </div>
 
 </div>
 
 <script src="../js/app.js"></script>
 <script>
-// ── Render progress summary ──
+// Progress summary
 (function() {
-  const state = getState();
   const completed = getCompletedCount();
+  const state = getState();
   const inProgress = SECTIONS.filter(s => state.sections[s.id] === 'in-progress').length;
   document.getElementById('progressSummary').innerHTML =
     `<strong>${completed}</strong> of ${SECTIONS.length} sections completed · <strong>${inProgress}</strong> in progress`;
 })();
 
-// ── Export ──
 function doExport() {
-  const filename = exportState();
+  const fn = exportState();
   const el = document.getElementById('exportAlert');
-  el.textContent = `Downloaded: ${filename}`;
+  el.textContent = 'Downloaded: ' + fn;
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 4000);
 }
 
-// ── Reset ──
 function doReset() {
   if (!confirm('Reset ALL progress? This cannot be undone.')) return;
   clearState();
@@ -178,107 +147,68 @@ function doReset() {
   setTimeout(() => location.href = '../index.html', 1500);
 }
 
-// ── Import from file ──
-function handleFileInput(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('jsonInput').value = e.target.result;
-  };
-  reader.readAsText(file);
+function handleFileInput(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('jsonInput').value = ev.target.result; };
+  r.readAsText(f);
 }
 
-function getJsonInput() {
-  return document.getElementById('jsonInput').value.trim();
-}
-
-function showImportSuccess() {
-  document.getElementById('importError').style.display = 'none';
-  const el = document.getElementById('importAlert');
-  el.style.display = 'block';
-}
-
-function showImportError(msg) {
-  document.getElementById('importAlert').style.display = 'none';
-  const el = document.getElementById('importError');
-  el.textContent = 'Error: ' + msg;
-  el.style.display = 'block';
-}
+function showOk()  { document.getElementById('importError').style.display='none'; document.getElementById('importAlert').style.display='block'; }
+function showErr(m){ document.getElementById('importAlert').style.display='none'; const e=document.getElementById('importError'); e.textContent='Error: '+m; e.style.display='block'; }
 
 function doImportMerge() {
-  const json = getJsonInput();
-  if (!json) { showImportError('No JSON provided'); return; }
-  const result = importStateFromJSON(json);
-  if (result.ok) showImportSuccess();
-  else showImportError(result.error);
+  const j = document.getElementById('jsonInput').value.trim();
+  if (!j) { showErr('No JSON provided'); return; }
+  const r = importStateFromJSON(j);
+  if (r.ok) showOk(); else showErr(r.error);
 }
 
 function doImportReplace() {
-  const json = getJsonInput();
-  if (!json) { showImportError('No JSON provided'); return; }
-  if (!confirm('This will replace all current progress. Continue?')) return;
-  const result = replaceStateFromJSON(json);
-  if (result.ok) showImportSuccess();
-  else showImportError(result.error);
+  const j = document.getElementById('jsonInput').value.trim();
+  if (!j) { showErr('No JSON provided'); return; }
+  if (!confirm('Replace all current progress?')) return;
+  const r = replaceStateFromJSON(j);
+  if (r.ok) showOk(); else showErr(r.error);
 }
 
-// ── States directory ──
 async function loadManifest() {
-  const btn = document.getElementById('loadManifestBtn');
-  btn.textContent = 'Checking...';
-  btn.disabled = true;
-
+  const btn = document.getElementById('manifestBtn');
+  btn.textContent = 'Checking…'; btn.disabled = true;
   const manifest = await loadStatesManifest('../');
-
   btn.disabled = false;
-  btn.innerHTML = `
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg>
-    Refresh`;
+  btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg> Refresh`;
 
-  const listEl = document.getElementById('statesList');
-  const errEl = document.getElementById('manifestError');
+  const list = document.getElementById('statesList');
+  const err  = document.getElementById('manifestError');
 
   if (!manifest.states || manifest.states.length === 0) {
-    listEl.innerHTML = `<p style="font-size:13px;color:var(--text3);padding:12px 0;">
-      No state files found in <code>states/</code> directory.
-      ${location.protocol === 'file:' ? '<br><em>Note: checking the states/ directory requires serving this via HTTP (e.g. <code>python3 -m http.server</code>).</em>' : ''}
-    </p>`;
-    errEl.style.display = 'none';
+    list.innerHTML = `<p style="font-size:13px;color:var(--text3);padding:10px 0;">No state files found in <code>states/</code>.${location.protocol==='file:'?' Serve via HTTP to use this feature (e.g. <code>python3 -m http.server</code>).':''}</p>`;
+    err.style.display = 'none';
     return;
   }
 
-  errEl.style.display = 'none';
-  listEl.innerHTML = manifest.states.map((s, i) => `
-    <div class="state-entry">
-      <div class="file-icon">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      </div>
-      <div class="state-entry-info">
-        <div class="state-entry-name">${s.name || s.file}</div>
-        <div class="state-entry-meta">${s.file}${s.saved_at ? ' · saved ' + new Date(s.saved_at).toLocaleDateString() : ''}</div>
-      </div>
-      <button class="btn" onclick="loadStateEntry(${i})">Load</button>
-    </div>
-  `).join('');
-
-  // Store manifest for loadStateEntry
+  err.style.display = 'none';
   window._manifest = manifest;
+  list.innerHTML = manifest.states.map((s, i) => `
+    <div class="state-entry">
+      <div class="state-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="state-info">
+        <div class="state-name">${s.name || s.file}</div>
+        <div class="state-meta">${s.file}${s.saved_at ? ' · '+new Date(s.saved_at).toLocaleDateString() : ''}</div>
+      </div>
+      <button class="btn" onclick="loadEntry(${i})">Load</button>
+    </div>`).join('');
 }
 
-async function loadStateEntry(idx) {
-  const entry = window._manifest.states[idx];
-  if (!entry) return;
+async function loadEntry(i) {
+  const entry = window._manifest.states[i];
   try {
     const data = await loadStateFile('../', entry.file);
-    const json = JSON.stringify(data);
-    if (!confirm(`Load "${entry.name || entry.file}"? This will merge into your current progress.`)) return;
-    const result = importStateFromJSON(json);
-    if (result.ok) {
-      showImportSuccess();
-    } else {
-      alert('Error loading state: ' + result.error);
-    }
+    if (!confirm(`Load "${entry.name || entry.file}"? Merges into current progress.`)) return;
+    const r = importStateFromJSON(JSON.stringify(data));
+    if (r.ok) showOk(); else alert('Error: ' + r.error);
   } catch(e) {
     alert('Could not load file: ' + e.message);
   }

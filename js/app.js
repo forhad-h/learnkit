@@ -136,6 +136,21 @@ function getCompletedCount() {
   return SECTIONS.filter(s => state.sections[s.id] === 'completed').length;
 }
 
+// ─── CONTINUE SECTION ────────────────────────
+// Returns the section to resume: in-progress first, then first non-completed,
+// then null if everything is completed.
+function getContinueSection() {
+  const state = getState();
+  // 1. First in-progress section
+  const inProgress = SECTIONS.find(s => state.sections[s.id] === 'in-progress');
+  if (inProgress) return inProgress;
+  // 2. First section that is not completed
+  const nextUp = SECTIONS.find(s => state.sections[s.id] !== 'completed');
+  if (nextUp) return nextUp;
+  // 3. All done
+  return null;
+}
+
 // ─── CHECKBOX MANAGEMENT ──────────────────────
 function loadCheckboxes() {
   const state = getState();
@@ -212,8 +227,6 @@ function clearState() {
 }
 
 // ─── STATES DIRECTORY ────────────────────────
-// Fetch manifest.json from the states/ directory
-// Works when served over HTTP; gracefully fails on file://
 async function loadStatesManifest(basePath) {
   try {
     const resp = await fetch(basePath + 'states/manifest.json', { cache: 'no-store' });
@@ -319,15 +332,12 @@ function renderStatusPicker(sectionId) {
 
 function setStatus(sectionId, status, btn) {
   setSectionStatus(sectionId, status);
-  // Update all status buttons in this picker
   const picker = btn.closest('.status-picker');
   picker.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // Update sidebar dot if present
-  const sidebarLink = document.querySelector(`.sidebar-link.active .sidebar-status`);
-  if (sidebarLink) {
-    sidebarLink.className = `sidebar-status ${status}`;
-  }
+  // Update sidebar dot
+  const sidebarDot = document.querySelector('.sidebar-link.active .sidebar-status');
+  if (sidebarDot) sidebarDot.className = `sidebar-status ${status}`;
   // Update sidebar progress
   const pct = Math.round((getCompletedCount() / SECTIONS.length) * 100);
   const fill = document.querySelector('.sidebar-progress-fill');
@@ -417,7 +427,6 @@ function renderHeader(basePath) {
 }
 
 // ─── PAGE INIT ────────────────────────────────
-// Called from each section page: initPage('s1', '../')
 function initPage(sectionId, basePath) {
   basePath = basePath || '../';
   document.body.innerHTML =
@@ -439,16 +448,66 @@ function initPage(sectionId, basePath) {
 
 // ─── DASHBOARD INIT ───────────────────────────
 function initDashboard() {
-  // No sidebar on dashboard — just render progress and section list
   const state = getState();
   const completed = getCompletedCount();
   const pct = Math.round((completed / SECTIONS.length) * 100);
 
-  // Update progress
+  // Update progress bar
   const fill = document.getElementById('dashProgressFill');
   const count = document.getElementById('dashProgressCount');
   if (fill) fill.style.width = pct + '%';
   if (count) count.textContent = completed + ' / ' + SECTIONS.length + ' completed';
+
+  // Render "continue" banner
+  const continueSection = getContinueSection();
+  const banner = document.getElementById('continueBanner');
+  if (banner) {
+    if (continueSection && completed > 0 || continueSection) {
+      const s = continueSection;
+      const sectionStatus = state.sections[s.id] || 'pending';
+      const isInProgress = sectionStatus === 'in-progress';
+      const verb = isInProgress ? 'Continue' : (completed === 0 ? 'Start' : 'Resume');
+      const hint = isInProgress
+        ? 'Pick up where you left off'
+        : completed === 0
+          ? 'Begin the tutorial'
+          : `Next up after ${completed} completed section${completed > 1 ? 's' : ''}`;
+
+      banner.innerHTML = `
+        <a href="pages/${s.file}" class="continue-card">
+          <div class="continue-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </div>
+          <div class="continue-body">
+            <div class="continue-verb">${verb} learning</div>
+            <div class="continue-title">${s.num}. ${s.title}</div>
+            <div class="continue-hint">${hint}</div>
+          </div>
+          <svg class="continue-arrow" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>`;
+      banner.style.display = 'block';
+    } else if (completed === SECTIONS.length) {
+      // All done
+      banner.innerHTML = `
+        <div class="continue-card continue-done">
+          <div class="continue-icon" style="background:var(--green-bg);color:var(--green);">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="continue-body">
+            <div class="continue-verb" style="color:var(--green);">All sections completed!</div>
+            <div class="continue-title">You've finished the entire tutorial.</div>
+            <div class="continue-hint">Review any section from the list below.</div>
+          </div>
+        </div>`;
+      banner.style.display = 'block';
+    }
+  }
 
   // Render section cards
   const list = document.getElementById('sectionList');
@@ -457,8 +516,9 @@ function initDashboard() {
   list.innerHTML = SECTIONS.map(s => {
     const status = state.sections[s.id] || 'pending';
     const statusLabel = status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1);
+    const isContinue = continueSection && continueSection.id === s.id;
     return `
-      <a href="pages/${s.file}" class="section-card">
+      <a href="pages/${s.file}" class="section-card${isContinue ? ' section-card-current' : ''}">
         <div class="snum" style="${NUM_COLORS[s.id]}">${s.num}</div>
         <div class="section-card-body">
           <div class="section-card-title">${s.title}</div>

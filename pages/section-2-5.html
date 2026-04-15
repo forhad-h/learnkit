@@ -8,20 +8,15 @@
 </head>
 <body>
 <div id="page-content">
+  <div class="callout callout-warning">Read this if pointers, memory, or structs feel uncertain. Skip to Section 3 if all five concepts are solid.</div>
 
-  <div class="callout callout-warning">Read this if pointers, memory, or structs feel uncertain. These are the foundation that makes C++ make sense. Skip to Section 3 if all five concepts are solid.</div>
-
-  <!-- 2.5.1 -->
   <div class="sub-section" id="s25-1">
     <div class="sub-header" onclick="toggleSub('s25-1')">
       <div class="sub-title">2.5.1 Memory: Stack vs Heap</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
-      <pre>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-void demonstrate_memory() {
+      <pre>void demonstrate_memory() {
     // STACK — automatic, fast, limited (~1–8MB)
     int altitude = 100;
     float battery[4] = {87.2, 86.1, 85.0, 83.9};
@@ -31,16 +26,15 @@ void demonstrate_memory() {
     float* sensor_readings = malloc(10 * sizeof(float));
     sensor_readings[0] = 23.8;
     free(sensor_readings);   // MUST free — forget = memory leak
-    sensor_readings = NULL;  // good practice
+    sensor_readings = NULL;
 }</pre>
-      <div class="callout callout-warning">Never return a pointer to a stack variable. The stack is destroyed when the function returns.
+      <div class="callout callout-warning">Never return a pointer to a stack variable.
 <pre>float* bad()  { float x = 100.0; return &amp;x; }  // WRONG — dangling pointer
-float* good() { float* x = malloc(sizeof(float)); *x = 100.0; return x; } // OK</pre></div>
-      <p><strong>Why this matters:</strong> C++ smart pointers (Section 3.4) automate the <code>free()</code> step — but only make sense if the underlying concept is understood.</p>
+float* good() { float* x = malloc(sizeof(float)); *x = 100.0; return x; }</pre></div>
+      <p><strong>Why this matters:</strong> C++ smart pointers (Section 3.4) automate <code>free()</code> — but only make sense if the underlying concept is understood.</p>
     </div>
   </div>
 
-  <!-- 2.5.2 -->
   <div class="sub-section" id="s25-2">
     <div class="sub-header" onclick="toggleSub('s25-2')">
       <div class="sub-title">2.5.2 Pointers</div>
@@ -48,25 +42,22 @@ float* good() { float* x = malloc(sizeof(float)); *x = 100.0; return x; } // OK<
     </div>
     <div class="sub-body">
       <pre>float altitude = 100.0;
-float* ptr = &amp;altitude;  // &amp; = "address of"
-
-printf("%.1f\n", *ptr);  // 100.0  (* = dereference)
+float* ptr = &amp;altitude;       // &amp; = "address of"
+printf("%.1f\n", *ptr);       // 100.0  (* = dereference)
 *ptr = 200.0;
-printf("%.1f\n", altitude);  // 200.0 — original changed
+printf("%.1f\n", altitude);   // 200.0 — original changed
 
 // NULL — always check before dereferencing
 float* empty = NULL;
 if (empty != NULL) { printf("%.1f\n", *empty); }
-// Dereferencing NULL = segfault = most common drone code crash</pre>
+// Dereferencing NULL = segfault = most common crash</pre>
       <pre>// Pointer arithmetic — used in sensor data buffers
 float readings[5] = {10.0, 20.0, 30.0, 40.0, 50.0};
 float* p = readings;
-printf("%.1f\n", *(p+1));  // 20.0
-printf("%.1f\n", readings[1]);  // same thing</pre>
+printf("%.1f\n", *(p+1));    // 20.0</pre>
     </div>
   </div>
 
-  <!-- 2.5.3 -->
   <div class="sub-section" id="s25-3">
     <div class="sub-header" onclick="toggleSub('s25-3')">
       <div class="sub-title">2.5.3 Structs</div>
@@ -79,7 +70,6 @@ printf("%.1f\n", readings[1]);  // same thing</pre>
     float  altitude;
 } GPSPosition;
 
-// Pass by pointer — avoids copying large structs
 void update_altitude(GPSPosition* pos, float new_alt) {
     pos->altitude = new_alt;  // -> for pointer to struct
 }
@@ -91,34 +81,30 @@ printf("%.1f\n", home.altitude);  // 25.0</pre>
     </div>
   </div>
 
-  <!-- 2.5.4 -->
   <div class="sub-section" id="s25-4">
     <div class="sub-header" onclick="toggleSub('s25-4')">
       <div class="sub-title">2.5.4 Functions and Scope</div>
       <svg class="sub-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="sub-body">
-      <pre>// Pass by value — function gets a COPY, original unchanged
+      <pre>// Pass by value — original unchanged
 void reset_by_value(float altitude) { altitude = 0.0; }
 
-// Pass by pointer — can modify original
+// Pass by pointer — modifies original
 void reset_by_pointer(float* altitude) { *altitude = 0.0; }
 
 float alt = 100.0;
-reset_by_value(alt);    printf("%.1f\n", alt);  // 100.0 — unchanged
-reset_by_pointer(&amp;alt); printf("%.1f\n", alt);  // 0.0 — changed</pre>
+reset_by_value(alt);    printf("%.1f\n", alt);  // 100.0
+reset_by_pointer(&amp;alt); printf("%.1f\n", alt);  // 0.0</pre>
       <pre>// Output parameter — returning multiple values
 void get_gps_error(float* h_err, float* v_err) {
-    *h_err = 2.5;
-    *v_err = 4.1;
+    *h_err = 2.5;  *v_err = 4.1;
 }
-
 float h, v;
 get_gps_error(&amp;h, &amp;v);  // h=2.5, v=4.1</pre>
     </div>
   </div>
 
-  <!-- 2.5.5 -->
   <div class="sub-section" id="s25-5">
     <div class="sub-header" onclick="toggleSub('s25-5')">
       <div class="sub-title">2.5.5 Header Files and Compilation Units</div>
@@ -129,23 +115,20 @@ get_gps_error(&amp;h, &amp;v);  // h=2.5, v=4.1</pre>
 #ifndef GPS_H
 #define GPS_H
 typedef struct { double lat; double lon; float alt; } GPSPos;
-float distance(GPSPos a, GPSPos b);  // declaration only
+float distance(GPSPos a, GPSPos b);
 #endif</pre>
       <pre>// gps.c — defines how it works
 #include "gps.h"
 #include &lt;math.h&gt;
 float distance(GPSPos a, GPSPos b) {
-    double dlat = a.lat - b.lat;
-    double dlon = a.lon - b.lon;
+    double dlat = a.lat - b.lat, dlon = a.lon - b.lon;
     return (float)sqrt(dlat*dlat + dlon*dlon);
 }</pre>
-      <pre># Compile multiple files
-gcc main.c gps.c -o drone_nav -lm</pre>
-      <p><strong>Why this matters:</strong> CMakeLists.txt in ROS2 does exactly this — specifies which <code>.cpp</code> files to compile and which libraries to link. Understanding this makes CMake errors readable.</p>
+      <pre>gcc main.c gps.c -o drone_nav -lm</pre>
+      <p><strong>Why this matters:</strong> CMakeLists.txt does exactly this — specifies which <code>.cpp</code> files to compile and which libraries to link.</p>
     </div>
   </div>
 
-  <!-- 2.5.6 -->
   <div class="sub-section" id="s25-6">
     <div class="sub-header" onclick="toggleSub('s25-6')">
       <div class="sub-title">2.5.6 Practice Exercise — Telemetry Logger</div>
@@ -153,7 +136,6 @@ gcc main.c gps.c -o drone_nav -lm</pre>
     </div>
     <div class="sub-body">
       <p>Write a single C program using all five concepts. Takes 30–60 minutes. Confirms readiness for Section 3.</p>
-      <h4>Requirements</h4>
       <ul class="checklist" id="cl-25-6">
         <li><input type="checkbox" id="c25a"><label for="c25a">Define a <code>TelemetryRecord</code> struct: timestamp, altitude, latitude, longitude, battery_percent</label></li>
         <li><input type="checkbox" id="c25b"><label for="c25b">Write <code>create_log(int size)</code> — allocates array on heap, returns pointer</label></li>
@@ -168,7 +150,6 @@ gcc main.c gps.c -o drone_nav -lm</pre>
 [1.0s] Alt: 10.5m  Lat: 23.810350  Lon: 90.412550  Bat:  99%</pre>
     </div>
   </div>
-
 </div>
 <script src="../js/app.js"></script>
 <script>initPage('s25', '../');</script>
