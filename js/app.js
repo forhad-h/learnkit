@@ -426,6 +426,36 @@ function renderHeader(basePath) {
     </header>`;
 }
 
+// ─── COPY BUTTONS ─────────────────────────────
+function attachCopyButtons() {
+  document.querySelectorAll('pre').forEach(pre => {
+    const code = pre.textContent;
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+      }).catch(() => {
+        // fallback for non-https / older browsers
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.cssText = 'position:fixed;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+      });
+    });
+    pre.appendChild(btn);
+  });
+}
+
 // ─── PAGE INIT ────────────────────────────────
 function initPage(sectionId, basePath) {
   basePath = basePath || '../';
@@ -444,6 +474,7 @@ function initPage(sectionId, basePath) {
     </div>`;
 
   bindCheckboxes();
+  attachCopyButtons();
 }
 
 // ─── DASHBOARD INIT ───────────────────────────
