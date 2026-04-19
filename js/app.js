@@ -98,6 +98,7 @@ const TAG_COLORS = {
 
 // ─── STATE MANAGEMENT ─────────────────────────
 const STATE_KEY = 'drone_tutorial_state';
+let currentSectionId = null;
 
 function getState() {
   try {
@@ -105,9 +106,11 @@ function getState() {
     const state = raw ? JSON.parse(raw) : {};
     if (!state.sections) state.sections = {};
     if (!state.checkboxes) state.checkboxes = {};
+    if (!state.lastSubSection) state.lastSubSection = {};
+    if (!state.expandedSubSections) state.expandedSubSections = {};
     return state;
   } catch(e) {
-    return { sections: {}, checkboxes: {} };
+    return { sections: {}, checkboxes: {}, lastSubSection: {}, expandedSubSections: {} };
   }
 }
 
@@ -246,7 +249,12 @@ async function loadStateFile(basePath, filename) {
 // ─── SUB-SECTION ACCORDIONS ──────────────────
 function toggleSub(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.toggle('open');
+  if (!el) return;
+  const wasOpen = el.classList.contains('open');
+  el.classList.toggle('open');
+  if (!wasOpen && currentSectionId) {
+    recordSubSectionExpanded(currentSectionId, id);
+  }
 }
 
 function expandAll() {
@@ -255,6 +263,63 @@ function expandAll() {
 
 function collapseAll() {
   document.querySelectorAll('.sub-section').forEach(s => s.classList.remove('open'));
+}
+
+function recordSubSectionExpanded(sectionId, subId) {
+  const state = getState();
+
+  state.lastSubSection[sectionId] = subId;
+
+  if (!state.expandedSubSections[sectionId]) state.expandedSubSections[sectionId] = [];
+  if (!state.expandedSubSections[sectionId].includes(subId)) {
+    state.expandedSubSections[sectionId].push(subId);
+  }
+
+  const currentStatus = state.sections[sectionId] || 'pending';
+  const totalSubSections = document.querySelectorAll('.sub-section').length;
+
+  if (state.expandedSubSections[sectionId].length >= totalSubSections) {
+    state.sections[sectionId] = 'completed';
+    syncStatusUI(sectionId, 'completed');
+  } else if (currentStatus === 'pending') {
+    state.sections[sectionId] = 'in-progress';
+    syncStatusUI(sectionId, 'in-progress');
+  }
+
+  saveState(state);
+}
+
+function syncStatusUI(sectionId, status) {
+  const picker = document.querySelector('.status-picker');
+  if (picker) {
+    picker.querySelectorAll('.status-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.status === status);
+    });
+  }
+  const sidebarDot = document.querySelector('.sidebar-link.active .sidebar-status');
+  if (sidebarDot) sidebarDot.className = `sidebar-status ${status}`;
+  const pct = Math.round((getCompletedCount() / SECTIONS.length) * 100);
+  const fill = document.querySelector('.sidebar-progress-fill');
+  const count = document.querySelector('.sidebar-progress-count');
+  if (fill) fill.style.width = pct + '%';
+  if (count) count.textContent = getCompletedCount() + ' / ' + SECTIONS.length + ' completed';
+}
+
+function restoreLastSubSection(sectionId) {
+  const state = getState();
+  const lastSub = state.lastSubSection[sectionId];
+  if (!lastSub) return;
+  const el = document.getElementById(lastSub);
+  if (!el) return;
+  if (!el.classList.contains('open')) el.classList.add('open');
+  setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+}
+
+function getSubSectionDisplay(sectionId, subId) {
+  const section = SECTIONS.find(s => s.id === sectionId);
+  if (!section) return '';
+  const subNum = subId.startsWith(sectionId + '-') ? subId.slice(sectionId.length + 1) : '';
+  return subNum ? `${section.num}.${subNum}` : section.num;
 }
 
 // ─── SIDEBAR ──────────────────────────────────
@@ -458,6 +523,7 @@ function attachCopyButtons() {
 
 // ─── PAGE INIT ────────────────────────────────
 function initPage(sectionId, basePath) {
+  currentSectionId = sectionId;
   basePath = basePath || '../';
   document.body.innerHTML =
     renderHeader(basePath) +
@@ -475,6 +541,7 @@ function initPage(sectionId, basePath) {
 
   bindCheckboxes();
   attachCopyButtons();
+  restoreLastSubSection(sectionId);
 }
 
 // ─── DASHBOARD INIT ───────────────────────────
@@ -498,8 +565,10 @@ function initDashboard() {
       const sectionStatus = state.sections[s.id] || 'pending';
       const isInProgress = sectionStatus === 'in-progress';
       const verb = isInProgress ? 'Continue' : (completed === 0 ? 'Start' : 'Resume');
+      const lastSub = state.lastSubSection[s.id];
+      const subDisplay = lastSub ? getSubSectionDisplay(s.id, lastSub) : null;
       const hint = isInProgress
-        ? 'Pick up where you left off'
+        ? (subDisplay ? `Last viewed: §${subDisplay}` : 'Pick up where you left off')
         : completed === 0
           ? 'Begin the tutorial'
           : `Next up after ${completed} completed section${completed > 1 ? 's' : ''}`;

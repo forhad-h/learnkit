@@ -46,12 +46,16 @@ public:
     Point(float x, float y) : x_(x), y_(y) {}
     float distance_to_origin() const { return std::sqrt(x_*x_ + y_*y_); }
     float x() const { return x_; }
+    float y() const { return y_; }
 private:
     float x_, y_;
 };
 
-Point p(3.0f, 4.0f);
-p.distance_to_origin();  // 5.0</pre>
+int main() {
+    Point p(3.0f, 4.0f);
+    p.distance_to_origin();  // 5.0
+    return 0;
+}</pre>
       <p><strong>Practice:</strong> Write a <code>Waypoint</code> class with latitude, longitude, altitude, and a method that calculates distance to another waypoint.</p>
     </div>
   </div>
@@ -65,11 +69,16 @@ p.distance_to_origin();  // 5.0</pre>
       <p>References are cleaner syntax for C pointers — passing by address without the <code>*</code> and <code>&amp;</code> noise.</p>
       <pre>// C style
 void set_c(float* altitude, float value) { *altitude = value; }
-set_c(&amp;alt, 100.0f);
 
 // C++ style — cleaner, same effect
 void set_cpp(float&amp; altitude, float value) { altitude = value; }
-set_cpp(alt, 100.0f);</pre>
+
+int main() {
+    float alt = 0.0f;
+    set_c(&amp;alt, 100.0f);
+    set_cpp(alt, 100.0f);
+    return 0;
+}</pre>
       <p><strong>Rule:</strong> Prefer references over pointers. Use pointers only when the value can be absent (<code>nullptr</code>) or when transferring ownership.</p>
     </div>
   </div>
@@ -83,13 +92,16 @@ set_cpp(alt, 100.0f);</pre>
       <p>Smart pointers automatically call <code>delete</code> when they go out of scope. Used in every single ROS2 node.</p>
       <pre>#include &lt;memory&gt;
 
-// unique_ptr — one owner, freed when out of scope
-auto p = std::make_unique&lt;float&gt;(100.0f);
+int main() {
+    // unique_ptr — one owner, freed when out of scope
+    auto p = std::make_unique&lt;float&gt;(100.0f);
 
-// shared_ptr — multiple owners, freed when last owner dies
-// THIS IS EVERYWHERE IN ROS2
-auto p = std::make_shared&lt;float&gt;(100.0f);
-auto also_p = p;  // both point to same memory</pre>
+    // shared_ptr — multiple owners, freed when last owner dies
+    // THIS IS EVERYWHERE IN ROS2
+    auto sp = std::make_shared&lt;float&gt;(100.0f);
+    auto also_p = sp;  // both point to same memory
+    return 0;
+}</pre>
       <div class="callout callout-info">This line appears in every ROS2 node:
 <pre>rclcpp::Publisher&lt;sensor_msgs::msg::NavSatFix&gt;::SharedPtr publisher_;
 //                                                          ↑ this is just shared_ptr</pre></div>
@@ -108,15 +120,18 @@ auto also_p = p;  // both point to same memory</pre>
 #include &lt;string&gt;
 #include &lt;array&gt;
 
-std::vector&lt;float&gt; altitudes = {10.0, 20.0, 30.0};
-altitudes.push_back(40.0);
-for (float alt : altitudes) { /* range loop */ }
+int main() {
+    std::vector&lt;float&gt; altitudes = {10.0, 20.0, 30.0};
+    altitudes.push_back(40.0);
+    for (float alt : altitudes) { /* range loop */ }
 
-std::array&lt;double, 3&gt; waypoint = {23.8103, 90.4125, 50.0};
-// [0]=lat  [1]=lon  [2]=altitude
+    std::array&lt;double, 3&gt; waypoint = {23.8103, 90.4125, 50.0};
+    // [0]=lat  [1]=lon  [2]=altitude
 
-std::map&lt;std::string, float&gt; sensor;
-sensor["altitude"] = 100.5f;</pre>
+    std::map&lt;std::string, float&gt; sensor;
+    sensor["altitude"] = 100.5f;
+    return 0;
+}</pre>
     </div>
   </div>
 
@@ -127,15 +142,18 @@ sensor["altitude"] = 100.5f;</pre>
     </div>
     <div class="sub-body">
       <p>JavaScript arrow function = Python lambda = C++ lambda. Every ROS2 callback uses this pattern.</p>
-      <pre>auto add = [](int a, int b) { return a + b; };
-add(3, 4);  // 7
+      <pre>int main() {
+    auto add = [](int a, int b) { return a + b; };
+    add(3, 4);  // 7
 
-// Capture outer variable
-float threshold = 5.0f;
-auto is_close = [threshold](float dist) { return dist &lt; threshold; };
+    // Capture outer variable
+    float threshold = 5.0f;
+    auto is_close = [threshold](float dist) { return dist &lt; threshold; };
+    return 0;
+}
 
-// [this] capture — used in every ROS2 node
-timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
+// [this] capture — used in every ROS2 node (inside a class constructor)
+// timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
       <div class="callout callout-info"><strong>Lambda syntax:</strong> <code>[capture](params) { body }</code><br>
         <code>[]</code> — nothing · <code>[=]</code> — all by value · <code>[&amp;]</code> — all by ref · <code>[this]</code> — class instance (most common in ROS2)</div>
     </div>
@@ -148,19 +166,25 @@ timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
     </div>
     <div class="sub-body">
       <pre>// const reference — no copy, no modification
-void process_gps(const sensor_msgs::msg::NavSatFix&amp; msg) { ... }
+void process_gps(const sensor_msgs::msg::NavSatFix&amp; msg) { /* ... */ }
 
 // enum class for state machines
 enum class FlightState { IDLE, ARMING, TAKEOFF, NAVIGATING, LANDING };
 
-// std::clamp — used in every controller
-float throttle = std::clamp(computed, 0.0f, 1.0f);
+int main() {
+    using namespace std::chrono_literals;
 
-// chrono literals — time durations
-auto period = 100ms;  auto timeout = 5s;
+    // std::clamp — used in every controller
+    float computed = 1.5f;
+    float throttle = std::clamp(computed, 0.0f, 1.0f);
 
-// C++17 structured bindings
-auto [lat, lon] = std::pair&lt;double,double&gt;{23.81, 90.41};</pre>
+    // chrono literals — time durations
+    auto period = 100ms;  auto timeout = 5s;
+
+    // C++17 structured bindings
+    auto [lat, lon] = std::pair&lt;double,double&gt;{23.81, 90.41};
+    return 0;
+}</pre>
       <div class="callout callout-success"><strong>Section 3 Checkpoint:</strong> write a program that (1) creates a <code>Drone</code> class with enum class state, altitude, battery, (2) stores 4 waypoints in <code>vector&lt;array&lt;double,3&gt;&gt;</code>, (3) prints them with range loop, (4) uses a lambda to filter waypoints above 50m. If it compiles and runs → proceed to Section 4.</div>
     </div>
   </div>
