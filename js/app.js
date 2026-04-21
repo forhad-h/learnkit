@@ -108,9 +108,11 @@ function getState() {
     if (!state.checkboxes) state.checkboxes = {};
     if (!state.lastSubSection) state.lastSubSection = {};
     if (!state.expandedSubSections) state.expandedSubSections = {};
+    if (state.userName === undefined) state.userName = '';
+    if (state.theme === undefined) state.theme = 'light';
     return state;
   } catch(e) {
-    return { sections: {}, checkboxes: {}, lastSubSection: {}, expandedSubSections: {} };
+    return { sections: {}, checkboxes: {}, lastSubSection: {}, expandedSubSections: {}, userName: '' };
   }
 }
 
@@ -227,6 +229,99 @@ function replaceStateFromJSON(json) {
 
 function clearState() {
   localStorage.removeItem(STATE_KEY);
+}
+
+// ─── PERSONALIZATION ──────────────────────────
+function getUserName() {
+  const n = getState().userName;
+  return n && n !== '__skipped__' ? n : null;
+}
+
+function showNameModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'name-modal-overlay';
+  overlay.innerHTML = `
+    <div class="name-modal">
+      <div class="name-modal-title">Welcome to the tutorial!</div>
+      <p class="name-modal-desc">What should we call you? Your name will appear in greetings throughout the tutorial.</p>
+      <input class="name-modal-input" id="nameModalInput" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name">
+      <div class="name-modal-actions">
+        <button class="btn" onclick="skipNameModal()">Skip for now</button>
+        <button class="btn btn-primary" onclick="submitNameModal()">Let's go</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('active'));
+  const input = document.getElementById('nameModalInput');
+  if (input) {
+    input.focus();
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') submitNameModal(); });
+  }
+}
+
+function submitNameModal() {
+  const name = (document.getElementById('nameModalInput')?.value || '').trim();
+  const state = getState();
+  state.userName = name || '__skipped__';
+  saveState(state);
+  document.querySelector('.name-modal-overlay')?.remove();
+  if (typeof initDashboard === 'function') initDashboard();
+}
+
+function skipNameModal() {
+  const state = getState();
+  state.userName = '__skipped__';
+  saveState(state);
+  document.querySelector('.name-modal-overlay')?.remove();
+}
+
+// ─── THEME ────────────────────────────────────
+function loadTheme() {
+  const theme = getState().theme || 'light';
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+function applyTheme(theme) {
+  const state = getState();
+  state.theme = theme;
+  saveState(state);
+  if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+function toggleTheme() {
+  applyTheme((getState().theme || 'light') === 'dark' ? 'light' : 'dark');
+}
+
+// ─── GIST SHARING ─────────────────────────────
+async function shareProgressAsGist() {
+  const json = JSON.stringify(getState(), null, 2);
+  const resp = await fetch('https://api.github.com/gists', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+    body: JSON.stringify({
+      description: 'LearnKit tutorial progress',
+      public: true,
+      files: { 'learnkit-progress.json': { content: json } }
+    })
+  });
+  if (!resp.ok) throw new Error('GitHub API error ' + resp.status);
+  const data = await resp.json();
+  return { url: data.html_url, rawUrl: data.files['learnkit-progress.json'].raw_url };
+}
+
+async function importProgressFromGist(url) {
+  let rawUrl = url.trim();
+  if (rawUrl.includes('gist.github.com/') && !rawUrl.includes('githubusercontent')) {
+    const parts = rawUrl.replace(/\/$/, '').split('/');
+    const id = parts[parts.length - 1];
+    const user = parts[parts.length - 2];
+    rawUrl = `https://gist.githubusercontent.com/${user}/${id}/raw/learnkit-progress.json`;
+  }
+  const resp = await fetch(rawUrl);
+  if (!resp.ok) throw new Error('Could not fetch gist: ' + resp.status);
+  return replaceStateFromJSON(await resp.text());
 }
 
 // ─── STATES DIRECTORY ────────────────────────
@@ -481,6 +576,10 @@ function renderHeader(basePath) {
       </a>
       <div class="header-spacer"></div>
       <div class="header-actions">
+        <button class="btn-icon" onclick="toggleTheme()" title="Toggle dark / light theme">
+          <svg class="theme-icon-moon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon-sun" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
         <a href="${basePath}pages/settings.html" class="btn-icon" title="Export / Import State">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="3"/>
@@ -542,11 +641,13 @@ function initPage(sectionId, basePath) {
   bindCheckboxes();
   attachCopyButtons();
   restoreLastSubSection(sectionId);
+  loadTheme();
 }
 
 // ─── DASHBOARD INIT ───────────────────────────
 function initDashboard() {
   const state = getState();
+  const name = state.userName && state.userName !== '__skipped__' ? state.userName : null;
   const completed = getCompletedCount();
   const pct = Math.round((completed / SECTIONS.length) * 100);
 
@@ -568,9 +669,9 @@ function initDashboard() {
       const lastSub = state.lastSubSection[s.id];
       const subDisplay = lastSub ? getSubSectionDisplay(s.id, lastSub) : null;
       const hint = isInProgress
-        ? (subDisplay ? `Last viewed: §${subDisplay}` : 'Pick up where you left off')
+        ? (subDisplay ? `Last viewed: §${subDisplay}` : (name ? `Ready to continue, ${name}` : 'Pick up where you left off'))
         : completed === 0
-          ? 'Begin the tutorial'
+          ? (name ? `Welcome, ${name} — let's start` : 'Begin the tutorial')
           : `Next up after ${completed} completed section${completed > 1 ? 's' : ''}`;
 
       banner.innerHTML = `
@@ -601,7 +702,7 @@ function initDashboard() {
           </div>
           <div class="continue-body">
             <div class="continue-verb" style="color:var(--green);">All sections completed!</div>
-            <div class="continue-title">You've finished the entire tutorial.</div>
+            <div class="continue-title">${name ? `Incredible work, ${name}!` : "You've finished the entire tutorial."}</div>
             <div class="continue-hint">Review any section from the list below.</div>
           </div>
         </div>`;
@@ -632,4 +733,9 @@ function initDashboard() {
         </svg>
       </a>`;
   }).join('');
+
+  if (state.userName === '') showNameModal();
 }
+
+// Apply saved theme immediately on every page load
+loadTheme();

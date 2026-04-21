@@ -409,8 +409,184 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3
 .section-card-current { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-bg) !important; }
 .section-card-current .section-card-arrow { color: var(--accent); }
 
+/* ─── AI COACH BLOCKS ───────────────────────── */
+/* Copy-paste prompts for Claude. Pre inside gets the standard copy button. */
+.ai-coach {
+  border: 1px solid #e9d5ff;
+  border-radius: 8px;
+  margin: 18px 0;
+  overflow: hidden;
+}
+.ai-coach-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  background: #f3e8ff;
+  border-bottom: 1px solid #e9d5ff;
+}
+.ai-coach-icon { font-size: 14px; line-height: 1; }
+.ai-coach-label {
+  font-size: 11px; font-weight: 600; color: #6b21a8;
+  text-transform: uppercase; letter-spacing: .06em; flex: 1;
+}
+.ai-coach-type {
+  font-size: 11px; font-weight: 500;
+  background: #ede9fe; color: #7c3aed;
+  padding: 2px 8px; border-radius: 99px;
+}
+.ai-coach pre {
+  background: #2d1b69;
+  color: #e9d5ff;
+  border-radius: 0 0 7px 7px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-top: none;
+}
+
+/* ─── NAME MODAL ────────────────────────────── */
+.name-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 500; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+}
+.name-modal-overlay.active { opacity: 1; }
+.name-modal {
+  background: var(--bg); border-radius: var(--radius);
+  box-shadow: var(--shadow-md); padding: 32px 28px 24px;
+  width: 100%; max-width: 400px; margin: 16px;
+}
+.name-modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.name-modal-desc { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 18px; }
+.name-modal-input {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border2);
+  border-radius: 7px; font-size: 15px; font-family: inherit;
+  margin-bottom: 18px; outline: none;
+}
+.name-modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.name-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
 /* ─── FOOTER ────────────────────────────────── */
 .page-footer { text-align: center; font-size: 12px; color: var(--text3); margin-top: 40px; padding: 16px; }
+
+/* ─── TOOLTIP ───────────────────────────────── */
+.tooltip {
+  position: relative;
+  border-bottom: 1px dashed var(--accent);
+  color: var(--accent);
+  cursor: help;
+}
+.tooltip::after {
+  content: attr(data-def);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 7px;
+  width: max-content;
+  max-width: 260px;
+  white-space: normal;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 300;
+}
+.tooltip:hover::after { opacity: 1; }
+
+/* ─── Q&A SECTION ───────────────────────────── */
+.qa-section { margin: 14px 0; }
+.qa-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.qa-item summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  cursor: pointer;
+  background: var(--bg2);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  user-select: none;
+  transition: background .12s;
+}
+.qa-item summary:hover { background: var(--bg3); }
+.qa-item summary::-webkit-details-marker { display: none; }
+.qa-item summary::before {
+  content: 'Q';
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.qa-item[open] summary { background: var(--bg3); }
+.qa-answer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* ─── THEME TOGGLE ICONS ────────────────────── */
+.theme-icon-sun { display: none; }
+.theme-icon-moon { display: block; }
+[data-theme="dark"] .theme-icon-sun { display: block; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+
+/* ─── DARK THEME ────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --border: #30363d;
+  --border2: #484f58;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #6e7681;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --accent-bg: #051d4d;
+  --green: #3fb950;
+  --green-bg: #0d2b1a;
+  --green-border: #1f6f3a;
+  --amber: #d29922;
+  --amber-bg: #2d1d00;
+  --amber-border: #6a4d00;
+  --red: #f85149;
+  --code-bg: #161b22;
+  --code-text: #c9d1d9;
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.5);
+  --tag-blue: #58a6ff; --tag-blue-bg: #051d4d;
+  --tag-green: #3fb950; --tag-green-bg: #0d2b1a;
+  --tag-amber: #d29922; --tag-amber-bg: #2d1d00;
+  --tag-purple: #bc8cff; --tag-purple-bg: #1f0a3d;
+  --tag-orange: #f0883e; --tag-orange-bg: #2d1400;
+}
+[data-theme="dark"] .callout-info    { color: #93c5fd; }
+[data-theme="dark"] .callout-success { color: #86efac; }
+[data-theme="dark"] .callout-warning { color: #fcd34d; }
+[data-theme="dark"] .ai-coach { border-color: #3b1f5e; }
+[data-theme="dark"] .ai-coach-header { background: #1f0a3d; border-bottom-color: #3b1f5e; }
+[data-theme="dark"] .ai-coach-label { color: #bc8cff; }
+[data-theme="dark"] .ai-coach-type { background: #2d1b5e; color: #bc8cff; }
+[data-theme="dark"] .name-modal-input { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+[data-theme="dark"] textarea { background: var(--bg2) !important; color: var(--text) !important; }
+[data-theme="dark"] input[type="text"] { background: var(--bg2); color: var(--text); border-color: var(--border2); }
 
 /* ─── RESPONSIVE ────────────────────────────── */
 @media (max-width: 768px) {

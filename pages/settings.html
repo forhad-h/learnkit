@@ -26,13 +26,26 @@
 <body>
 <div class="wrap">
 
-  <a href="../index.html" class="back-link">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to Dashboard
-  </a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <a href="../index.html" class="back-link" style="margin-bottom:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </a>
+    <button class="btn-icon" onclick="toggleTheme()" title="Toggle dark / light theme">
+      <svg class="theme-icon-moon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="theme-icon-sun" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
 
   <h1>Export / Import State</h1>
   <p class="desc">Save your progress and carry it to any computer or browser. No account needed — just a JSON file.</p>
+
+  <div class="callout callout-warning" style="margin-bottom:24px;">
+    <strong>No database, no backend.</strong> Your progress lives only in this browser's <code>localStorage</code>.
+    Clearing browser data, switching browsers, or using a private/incognito window will erase it.
+    <br><br>
+    To keep or transfer your progress: <strong>download a state.json file</strong> below, then import it on any other browser or computer. Nothing leaves your device unless you choose to share via Gist.
+  </div>
 
   <!-- Current progress -->
   <div class="settings-section">
@@ -98,6 +111,51 @@
     </button>
     <div id="statesList" style="margin-top:12px;"></div>
     <div class="alert alert-error" id="manifestError"></div>
+  </div>
+
+  <!-- Share via public link (GitHub Gist) -->
+  <div class="settings-section">
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Share Progress (Public Link)
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px;">Generate a shareable URL using an anonymous GitHub Gist. No account needed. Anyone with the link can see your progress data.</p>
+    <div class="callout callout-warning" style="margin-bottom:14px;font-size:13px;">Public gist — the link is visible to anyone who has it. Do not include sensitive data in tutorial notes.</div>
+    <button class="btn btn-primary" id="gistShareBtn" onclick="doShareGist()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Generate Share Link
+    </button>
+    <div id="gistResult" style="display:none;margin-top:12px;">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px;">Your shareable link:</p>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="gistUrl" type="text" readonly style="flex:1;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-size:12px;font-family:monospace;background:var(--bg2);">
+        <button class="btn" onclick="copyGistUrl()">Copy</button>
+      </div>
+    </div>
+    <div class="alert alert-error" id="gistError"></div>
+    <div style="margin-top:20px;">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Restore from a share link on this device:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input id="gistImportUrl" type="text" placeholder="https://gist.github.com/..." style="flex:1;min-width:200px;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:inherit;">
+        <button class="btn" onclick="doImportGist()">Restore</button>
+      </div>
+      <div class="alert alert-success" id="gistImportOk">Progress restored! <a href="../index.html">Go to dashboard →</a></div>
+      <div class="alert alert-error" id="gistImportErr"></div>
+    </div>
+  </div>
+
+  <!-- Personalization -->
+  <div class="settings-section">
+    <div class="sec-title">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Your Name
+    </div>
+    <p id="currentNameDisplay" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input id="nameInput" type="text" placeholder="Enter your name" maxlength="40" style="padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-size:13px;font-family:inherit;">
+      <button class="btn btn-primary" onclick="saveName()">Save</button>
+    </div>
+    <div class="alert alert-success" id="nameAlert">Name saved!</div>
   </div>
 
   <!-- Manifest format -->
@@ -200,6 +258,65 @@ async function loadManifest() {
       </div>
       <button class="btn" onclick="loadEntry(${i})">Load</button>
     </div>`).join('');
+}
+
+// Gist sharing
+async function doShareGist() {
+  const btn = document.getElementById('gistShareBtn');
+  btn.textContent = 'Generating…'; btn.disabled = true;
+  const errEl = document.getElementById('gistError');
+  errEl.style.display = 'none';
+  try {
+    const { url } = await shareProgressAsGist();
+    document.getElementById('gistUrl').value = url;
+    document.getElementById('gistResult').style.display = 'block';
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+  btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Generate Share Link`;
+  btn.disabled = false;
+}
+
+function copyGistUrl() {
+  const val = document.getElementById('gistUrl').value;
+  navigator.clipboard?.writeText(val).catch(() => {});
+}
+
+async function doImportGist() {
+  const url = document.getElementById('gistImportUrl').value.trim();
+  if (!url) return;
+  const okEl = document.getElementById('gistImportOk');
+  const errEl = document.getElementById('gistImportErr');
+  okEl.style.display = 'none'; errEl.style.display = 'none';
+  try {
+    const r = await importProgressFromGist(url);
+    if (r.ok) okEl.style.display = 'block';
+    else { errEl.textContent = 'Error: ' + r.error; errEl.style.display = 'block'; }
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message; errEl.style.display = 'block';
+  }
+}
+
+// Name management
+(function() {
+  const name = getUserName();
+  const display = document.getElementById('currentNameDisplay');
+  if (display) display.textContent = name ? `Currently set to: ${name}` : 'No name set yet. Add one below.';
+  const input = document.getElementById('nameInput');
+  if (input && name) input.value = name;
+})();
+
+function saveName() {
+  const name = (document.getElementById('nameInput')?.value || '').trim();
+  const state = getState();
+  state.userName = name || '__skipped__';
+  saveState(state);
+  const display = document.getElementById('currentNameDisplay');
+  if (display) display.textContent = name ? `Currently set to: ${name}` : 'No name set.';
+  const el = document.getElementById('nameAlert');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2500);
 }
 
 async function loadEntry(i) {
