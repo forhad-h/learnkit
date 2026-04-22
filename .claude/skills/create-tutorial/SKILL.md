@@ -7,18 +7,43 @@ argument-hint: "[topic + audience — e.g. 'Rust for systems programmers who kno
 
 Scaffold a complete new LearnKit tutorial from scratch. You are the tutorial generation agent.
 
-## Step 1 — Gather requirements
+## Step 1 — Gather requirements (one question at a time)
 
 $ARGUMENTS
 
-If the user provided a topic/audience above, use it as a starting point. Then ask for anything still missing. Ask all questions at once in a single message so they can answer together:
+Ask questions one at a time, waiting for the user's answer before asking the next. Do not ask multiple questions in the same message. Skip any question the user already answered via `$ARGUMENTS`.
 
-1. **Topic** — What is the tutorial about? (e.g. "Machine learning with Python", "Rust for systems programming")
-2. **Target audience** — Who is this for? What do they already know?
-3. **Prerequisites** — What must the learner have installed or know before starting?
-4. **Time commitment** — Roughly how long will the full tutorial take? (e.g. "6–8 hrs/week · 2 months")
-5. **Goal** — What concrete outcome will the learner have at the end?
-6. **Sections** — List the main sections/chapters with a one-line description of each. Aim for 6–12 sections.
+Ask in this order, only what is still missing. For each question, use this exact format so the user can see clearly that input is expected:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Question N of 6 · [label]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  [question text]
+
+  ▶
+```
+
+Replace `N` with the current question number, `[label]` with a short label (e.g. `Topic`, `Audience`, `Prerequisites`, `Time`, `Goal`, `Sections`), and `[question text]` with the actual question. The `▶` at the end signals "your turn".
+
+Questions in order:
+
+1. **Topic** (label: `Topic`) — "What is the tutorial about?" — skip if already provided in `$ARGUMENTS`.
+2. **Audience** (label: `Audience`) — "Who is this for, and what do they already know?"
+3. **Prerequisites** (label: `Prerequisites`) — "What must the learner have installed or know before starting?"
+4. **Time** (label: `Time`) — "Roughly how long will the full tutorial take? (e.g. '4–6 hours total', '1 week at 2 hrs/day')"
+5. **Goal** (label: `Goal`) — "What concrete outcome will the learner have at the end?"
+6. **Sections** (label: `Sections`) — Propose a numbered section list yourself based on the topic (6–12 sections, one-line descriptions each), then ask: "Here's a suggested outline — confirm, reorder, drop, or add sections." Wait for confirmation or edits.
+
+After all answers are collected, display:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Got everything — generating now
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Then continue to Step 1b.
 
 ## Step 1b — Planning pass
 
