@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 7 — Agent Architecture & Design Patterns</title>
+<title>Module 4 — Agent Architecture: Loops, Memory & State</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -16,9 +16,9 @@
 
 
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s7-1">
-    <div class="lesson-header" onclick="toggleLesson('s7-1')">
-      <div class="lesson-title">7.1 The ReAct Loop: Reason → Act → Observe</div>
+  <div class="lesson" id="s4-1">
+    <div class="lesson-header" onclick="toggleLesson('s4-1')">
+      <div class="lesson-title">4.1 The ReAct Loop: Reason → Act → Observe</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -52,9 +52,9 @@
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s7-2">
-    <div class="lesson-header" onclick="toggleLesson('s7-2')">
-      <div class="lesson-title">7.2 Memory: Short-term, Long-term, and Semantic</div>
+  <div class="lesson" id="s4-2">
+    <div class="lesson-header" onclick="toggleLesson('s4-2')">
+      <div class="lesson-title">4.2 Memory: Short-term, Long-term, and Semantic</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -96,9 +96,9 @@ def run_agent_step(task, history, memory):
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s7-3">
-    <div class="lesson-header" onclick="toggleLesson('s7-3')">
-      <div class="lesson-title">7.3 Multi-Agent Patterns: Orchestrator + Subagents</div>
+  <div class="lesson" id="s4-3">
+    <div class="lesson-header" onclick="toggleLesson('s4-3')">
+      <div class="lesson-title">4.3 Multi-Agent Patterns: Orchestrator + Subagents</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -140,9 +140,9 @@ def research_and_write(topic: str) -> str:
 
 
   <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s7-4">
-    <div class="lesson-header" onclick="toggleLesson('s7-4')">
-      <div class="lesson-title">7.4 When to Use Agents (and When Not To)</div>
+  <div class="lesson" id="s4-4">
+    <div class="lesson-header" onclick="toggleLesson('s4-4')">
+      <div class="lesson-title">4.4 When to Use Agents (and When Not To)</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -164,10 +164,10 @@ def research_and_write(topic: str) -> str:
       </table>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s7-react"> I can explain the ReAct loop: what the model produces, what my code does, how the loop ends</li>
-        <li><input type="checkbox" id="s7-memory"> I understand the three types of agent memory and when to use each</li>
-        <li><input type="checkbox" id="s7-multi"> I can describe the orchestrator + subagent pattern and name one reason it's fragile</li>
-        <li><input type="checkbox" id="s7-when"> I can decide whether a given task needs an agent or a simpler prompt chain</li>
+        <li><input type="checkbox" id="s4-react"> I can explain the ReAct loop: what the model produces, what my code does, how the loop ends</li>
+        <li><input type="checkbox" id="s4-memory"> I understand the three types of agent memory and when to use each</li>
+        <li><input type="checkbox" id="s4-multi"> I can describe the orchestrator + subagent pattern and name one reason it's fragile</li>
+        <li><input type="checkbox" id="s4-when"> I can decide whether a given task needs an agent or a simpler prompt chain</li>
       </ul>
 
     </div>
@@ -177,6 +177,6 @@ def research_and_write(topic: str) -> str:
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s7', '../');</script>
+<script>initPage('s4', '../');</script>
 </body>
 </html>

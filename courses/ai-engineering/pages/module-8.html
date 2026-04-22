@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 8 — Tool Use & Function Calling</title>
+<title>Module 3 — Tool Use: Give Your Agent Hands</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -16,9 +16,9 @@
 
 
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s8-1">
-    <div class="lesson-header" onclick="toggleLesson('s8-1')">
-      <div class="lesson-title">8.1 How Tool Use Works Under the Hood</div>
+  <div class="lesson" id="s3-1">
+    <div class="lesson-header" onclick="toggleLesson('s3-1')">
+      <div class="lesson-title">3.1 How Tool Use Works Under the Hood</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -62,9 +62,9 @@ tools = [
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s8-2">
-    <div class="lesson-header" onclick="toggleLesson('s8-2')">
-      <div class="lesson-title">8.2 Implementing the Tool Loop</div>
+  <div class="lesson" id="s3-2">
+    <div class="lesson-header" onclick="toggleLesson('s3-2')">
+      <div class="lesson-title">3.2 Implementing the Tool Loop</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -133,9 +133,9 @@ print(run_agent("What's the weather in Tokyo? Should I bring a jacket?"))</pre>
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s8-3">
-    <div class="lesson-header" onclick="toggleLesson('s8-3')">
-      <div class="lesson-title">8.3 Writing Good Tool Descriptions</div>
+  <div class="lesson" id="s3-3">
+    <div class="lesson-header" onclick="toggleLesson('s3-3')">
+      <div class="lesson-title">3.3 Writing Good Tool Descriptions</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -191,9 +191,9 @@ print(run_agent("What's the weather in Tokyo? Should I bring a jacket?"))</pre>
 
 
   <!-- ═══ LESSON 4: VERIFY ════════════════════════════════════════════ -->
-  <div class="lesson" id="s8-4">
-    <div class="lesson-header" onclick="toggleLesson('s8-4')">
-      <div class="lesson-title">8.4 Verify: Build a Two-Tool Agent</div>
+  <div class="lesson" id="s3-4">
+    <div class="lesson-header" onclick="toggleLesson('s3-4')">
+      <div class="lesson-title">3.4 Verify: Build a Two-Tool Agent</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -203,10 +203,10 @@ print(run_agent("What's the weather in Tokyo? Should I bring a jacket?"))</pre>
       <p>Build an agent with two tools that require the model to decide which to call — don't make it obvious. A good test: one tool for current facts, one for historical data, and a question that could use either.</p>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s8-loop"> I implemented the tool loop: messages → API call → parse tool_use → execute → append tool_result → repeat</li>
-        <li><input type="checkbox" id="s8-guard"> I added a max-iterations guard that surfaces a graceful error when the limit is hit</li>
-        <li><input type="checkbox" id="s8-descriptions"> I wrote tool descriptions that clearly state when to use the tool and when NOT to</li>
-        <li><input type="checkbox" id="s8-two-tools"> My agent correctly chooses between two tools based on the user's question</li>
+        <li><input type="checkbox" id="s3-loop"> I implemented the tool loop: messages → API call → parse tool_use → execute → append tool_result → repeat</li>
+        <li><input type="checkbox" id="s3-guard"> I added a max-iterations guard that surfaces a graceful error when the limit is hit</li>
+        <li><input type="checkbox" id="s3-descriptions"> I wrote tool descriptions that clearly state when to use the tool and when NOT to</li>
+        <li><input type="checkbox" id="s3-two-tools"> My agent correctly chooses between two tools based on the user's question</li>
       </ul>
 
     </div>
@@ -216,6 +216,6 @@ print(run_agent("What's the weather in Tokyo? Should I bring a jacket?"))</pre>
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s8', '../');</script>
+<script>initPage('s3', '../');</script>
 </body>
 </html>

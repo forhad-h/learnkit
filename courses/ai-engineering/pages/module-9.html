@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 9 — Building Agents with Claude Code</title>
+<title>Module 5 — Building Agents with Claude Code SDK</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -15,10 +15,90 @@
   </p>
 
 
+  <!-- ═══ LESSON 0: CLAUDE API SETUP ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s5-0">
+    <div class="lesson-header" onclick="toggleLesson('s5-0')">
+      <div class="lesson-title">Claude API Setup</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Before you can build agents with Claude Code, you need access to the Anthropic API. Claude Code uses the API under the hood, and you'll also need it for direct API calls in your own projects. Follow these steps to get your API key and set up your environment.</p>
+
+      <div class="callout callout-info">
+        <strong>Important</strong>: The primary source for API keys is <strong>console.anthropic.com</strong>, not claude.ai. Claude.ai is the web interface; the API is managed separately.
+      </div>
+
+      <h3>Step 1: Get Your API Key</h3>
+      <ol>
+        <li>Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> and sign in with your Anthropic account.</li>
+        <li>Click <strong>API Keys</strong> in the left sidebar.</li>
+        <li>Click <strong>Create Key</strong>, give it a descriptive name, and copy the generated key immediately (it won't be shown again).</li>
+        <li>New accounts typically receive free trial credits (e.g., $5‑10 worth) to test the API. Check your balance in the <strong>Usage & Billing</strong> section.</li>
+      </ol>
+
+      <h3>Step 2: Install the Anthropic SDK</h3>
+      <pre>pip install anthropic</pre>
+
+      <h3>Step 3: Set Up Your Environment</h3>
+      <p>Never hardcode your API key in your source code. Use environment variables:</p>
+      <pre># On macOS/Linux:
+export ANTHROPIC_API_KEY='your-api-key-here'
+
+# On Windows (PowerShell):
+$env:ANTHROPIC_API_KEY='your-api-key-here'
+
+# Or create a .env file:
+ANTHROPIC_API_KEY=your-api-key-here</pre>
+
+      <div class="callout callout-warning">
+        <strong>Security</strong>: Add <code>.env</code> to your <code>.gitignore</code> to prevent accidentally committing your key. Use a library like <code>python-dotenv</code> to load environment variables in Python.
+      </div>
+
+      <h3>Step 4: Verify Your Setup</h3>
+      <p>Create a simple test script to confirm everything works:</p>
+      <pre>import anthropic
+import os
+
+client = anthropic.Anthropic(
+    api_key=os.environ.get("ANTHROPIC_API_KEY")
+)
+
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=100,
+    system="You are a helpful assistant.",
+    messages=[
+        {"role": "user", "content": "Say 'Hello, world!'"}
+    ]
+)
+
+print(response.content[0].text)</pre>
+
+      <p>Run the script. If you see <code>Hello, world!</code> (or a similar greeting), your API key is valid and the SDK is correctly installed.</p>
+
+      <div class="callout callout-success">
+        💡 <strong>Personal discovery</strong>: I keep my API key in a password manager and load it via a shell script that sets the environment variable before starting my agent projects. This keeps it out of my shell history and makes it easy to rotate.
+      </div>
+
+      <h3>Checklist</h3>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s5-api-key-obtained"> I have created an API key at console.anthropic.com and copied it to a secure location</li>
+        <li><input type="checkbox" id="s5-sdk-installed"> I have installed the Anthropic SDK via <code>pip install anthropic</code></li>
+        <li><input type="checkbox" id="s5-env-var-set"> I have set the <code>ANTHROPIC_API_KEY</code> environment variable (or added it to a <code>.env</code> file)</li>
+        <li><input type="checkbox" id="s5-test-script-works"> I have run the verification script and received a successful response from Claude</li>
+      </ul>
+
+    </div>
+  </div>
+
+
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-1">
-    <div class="lesson-header" onclick="toggleLesson('s9-1')">
-      <div class="lesson-title">9.1 What Claude Code Is (and How It Works)</div>
+  <div class="lesson" id="s5-1">
+    <div class="lesson-header" onclick="toggleLesson('s5-1')">
+      <div class="lesson-title">5.1 What Claude Code Is (and How It Works)</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -51,9 +131,9 @@ claude --version</pre>
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-2">
-    <div class="lesson-header" onclick="toggleLesson('s9-2')">
-      <div class="lesson-title">9.2 CLAUDE.md — Your Agent's System Prompt</div>
+  <div class="lesson" id="s5-2">
+    <div class="lesson-header" onclick="toggleLesson('s5-2')">
+      <div class="lesson-title">5.2 CLAUDE.md — Your Agent's System Prompt</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -92,9 +172,9 @@ Explicit prohibitions save you from expensive mistakes:
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-3">
-    <div class="lesson-header" onclick="toggleLesson('s9-3')">
-      <div class="lesson-title">9.3 Hooks: Automate Behaviors Around Tool Calls</div>
+  <div class="lesson" id="s5-3">
+    <div class="lesson-header" onclick="toggleLesson('s5-3')">
+      <div class="lesson-title">5.3 Hooks: Automate Behaviors Around Tool Calls</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -150,9 +230,9 @@ Explicit prohibitions save you from expensive mistakes:
 
 
   <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-4">
-    <div class="lesson-header" onclick="toggleLesson('s9-4')">
-      <div class="lesson-title">9.4 Skills and MCP Servers: Extend the Agent</div>
+  <div class="lesson" id="s5-4">
+    <div class="lesson-header" onclick="toggleLesson('s5-4')">
+      <div class="lesson-title">5.4 Skills and MCP Servers: Extend the Agent</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -195,9 +275,9 @@ Always follow the project's TypeScript strict mode. Never use `any`.
 
 
   <!-- ═══ LESSON 5 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-5">
-    <div class="lesson-header" onclick="toggleLesson('s9-5')">
-      <div class="lesson-title">9.5 Subagents and Parallel Work</div>
+  <div class="lesson" id="s5-5">
+    <div class="lesson-header" onclick="toggleLesson('s5-5')">
+      <div class="lesson-title">5.5 Subagents and Parallel Work</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -230,9 +310,9 @@ Agent({
 
 
   <!-- ═══ LESSON 6: VERIFY ════════════════════════════════════════════ -->
-  <div class="lesson" id="s9-6">
-    <div class="lesson-header" onclick="toggleLesson('s9-6')">
-      <div class="lesson-title">9.6 Verify: Configure Your Project for Claude Code</div>
+  <div class="lesson" id="s5-6">
+    <div class="lesson-header" onclick="toggleLesson('s5-6')">
+      <div class="lesson-title">5.6 Verify: Configure Your Project for Claude Code</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -242,11 +322,11 @@ Agent({
       <p>The best way to learn Claude Code is to configure it for a real project you already work on. Set up CLAUDE.md, add one hook, and write one skill for a task you do repeatedly.</p>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s9-installed"> I installed Claude Code and ran a basic task in a real project</li>
-        <li><input type="checkbox" id="s9-claude-md"> I wrote a CLAUDE.md that covers: overview, architecture, conventions, and common commands</li>
-        <li><input type="checkbox" id="s9-hook"> I added at least one hook (PreToolUse or PostToolUse) that enforces a project invariant</li>
-        <li><input type="checkbox" id="s9-skill"> I created a skill in .claude/skills/ for a task I repeat more than once a week</li>
-        <li><input type="checkbox" id="s9-mcp"> I connected at least one MCP server (GitHub, filesystem, or a custom one)</li>
+        <li><input type="checkbox" id="s5-installed"> I installed Claude Code and ran a basic task in a real project</li>
+        <li><input type="checkbox" id="s5-claude-md"> I wrote a CLAUDE.md that covers: overview, architecture, conventions, and common commands</li>
+        <li><input type="checkbox" id="s5-hook"> I added at least one hook (PreToolUse or PostToolUse) that enforces a project invariant</li>
+        <li><input type="checkbox" id="s5-skill"> I created a skill in .claude/skills/ for a task I repeat more than once a week</li>
+        <li><input type="checkbox" id="s5-mcp"> I connected at least one MCP server (GitHub, filesystem, or a custom one)</li>
       </ul>
 
     </div>
@@ -256,6 +336,6 @@ Agent({
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s9', '../');</script>
+<script>initPage('s5', '../');</script>
 </body>
 </html>

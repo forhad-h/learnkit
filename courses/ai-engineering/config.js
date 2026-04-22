@@ -10,7 +10,6 @@ window.COURSE_CONFIG = {
   prerequisites: [
     'Python basics (functions, loops, dicts)',
     'Command line basics (cd, ls, pip install)',
-    'A free Anthropic API key (claude.ai/settings → API keys)',
   ],
   timeCommitment: '2–3 hrs/day · 3–5 days',
   goal: 'Build and ship three working AI agents with Claude Code that solve real problems you care about',
@@ -19,7 +18,7 @@ window.COURSE_CONFIG = {
     {
       id: 's1',
       num: '1',
-      title: 'Claude API Setup & Your First Agent',
+      title: 'How LLMs Actually Work',
       tag: 'Do first',
       tagColor: 'green',
       file: 'module-1.html'
@@ -72,6 +71,22 @@ window.COURSE_CONFIG = {
       tagColor: 'green',
       file: 'module-10.html'
     },
+    {
+      id: 's8',
+      num: '8',
+      title: 'Context Engineering',
+      tag: 'Core skill',
+      tagColor: 'blue',
+      file: 'module-11.html'
+    },
+    {
+      id: 's9',
+      num: '9',
+      title: 'Multi‑Agent Orchestration',
+      tag: 'Core concept',
+      tagColor: 'purple',
+      file: 'module-12.html'
+    },
   ],
 
   numColors: {
@@ -82,6 +97,8 @@ window.COURSE_CONFIG = {
     s5: 'background:#f3e8ff;color:#6b21a8;',
     s6: 'background:#eff6ff;color:#1d4ed8;',
     s7: 'background:#fef3c7;color:#92400e;',
+    s8: 'background:#eff6ff;color:#1d4ed8;',
+    s9: 'background:#f3e8ff;color:#6b21a8;',
   },
 
 };

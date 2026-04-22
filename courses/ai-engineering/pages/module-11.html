@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 8 — Context Engineering</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Context engineering is the discipline of deciding what information goes into the model's context window — and what stays out. Most agent failures are not model failures. They're context failures: too much noise, the wrong information at the wrong time, or no awareness of cost. This module gives you the mental model and the mechanics.
+  </p>
+
+
+  <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s8-1">
+    <div class="lesson-header" onclick="toggleLesson('s8-1')">
+      <div class="lesson-title">8.1 What Is Context Engineering (and Why Agents Fail Without It)</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Every API call you make includes a context window — the full list of messages the model sees at inference time. The model cannot learn between calls. It cannot remember yesterday. It can only reason about what you put in front of it right now.</p>
+
+      <p>This means your job as an agent builder is not just "write a good prompt." It's to engineer — deliberately design — exactly what the model sees at each step.</p>
+
+      <div class="callout callout-warning">
+        More context is not better. Every token you add competes with signal for the model's attention. Dumping a 50,000-token codebase into context doesn't make the model smarter — it makes it slower, more expensive, and often less accurate. Relevant context wins.
+      </div>
+
+      <p>Three root causes of agent context failures:</p>
+
+      <pre># 1. Noise overload — too much irrelevant information
+# The model hallucinates or ignores the right facts because
+# they're buried in 10,000 tokens of tangential content.
+
+# 2. Missing prerequisites — the model lacks key facts
+# You asked the agent to file a bug, but it doesn't know
+# your project's Jira URL or issue template format.
+
+# 3. Stale context — information that was true earlier but isn't now
+# A multi-step agent appends every tool result to context.
+# By step 15, the step-1 results are obsolete and contradictory.
+
+# The fix for all three: treat context as a living artifact,
+# not an ever-growing log. Curate it at every step.</pre>
+
+      <div class="callout callout-info">
+        The context window is not a transcript. Think of it as the whiteboard in front of the model — you decide what's written on it. A good context engineer is constantly erasing the irrelevant and surfacing the essential.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s8-2">
+    <div class="lesson-header" onclick="toggleLesson('s8-2')">
+      <div class="lesson-title">8.2 Structuring Your System Prompt</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The system prompt is the highest-priority context — it's always there, it frames everything else, and the model weights it most heavily. A well-structured system prompt answers four questions in order:</p>
+
+      <pre>SYSTEM PROMPT TEMPLATE
+======================
+
+## Identity
+Who you are, what you're for, who your user is.
+"You are a code review assistant for a Python backend team at a fintech startup."
+
+## Capabilities
+What you can and cannot do. Be explicit about limitations.
+"You can read files, run tests, and suggest changes. You cannot push to git."
+
+## Constraints
+Rules that override everything else.
+"Never suggest deleting a migration file. Always explain the 'why' of a refactor.
+Prefer explicit over implicit. Follow PEP 8 unless the file already diverges."
+
+## Output format
+Exactly how the response should be shaped.
+"When reviewing code: (1) start with a one-line verdict, (2) list issues as
+bullet points with severity [HIGH/MED/LOW], (3) end with a concrete next step."</pre>
+
+      <div class="callout callout-warning">
+        Ordering matters inside the system prompt. Information at the top of the system prompt gets more weight than information at the bottom — especially in long prompts. Put your most critical constraints first, not last.
+      </div>
+
+      <p>What goes where in the message array:</p>
+
+      <pre>messages = [
+    # System prompt — identity, capabilities, constraints, format
+    # (passed separately in the API, not as a message role)
+
+    # User messages — the actual task, with just enough context
+    {"role": "user", "content": "Review the diff in context."},
+
+    # Assistant messages — prior reasoning (only include if needed)
+    # {"role": "assistant", "content": "..."},
+
+    # Tool results — factual outputs, not prose
+    # Include only results relevant to the current step
+]</pre>
+
+      <div class="callout callout-success">
+        💡 What worked for me: separating "persona" from "constraints" in the system prompt. I had one section that described what the agent is (identity + capabilities) and a separate section — formatted as a numbered list — for hard constraints. The numbered list format signals to the model that these are enumerable, checkable rules, not soft suggestions. Response quality improved noticeably.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s8-3">
+    <div class="lesson-header" onclick="toggleLesson('s8-3')">
+      <div class="lesson-title">8.3 Dynamic Context Assembly</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Static prompts are a starting point. Real agents assemble context dynamically — pulling in only the facts that matter for this specific request, at this moment.</p>
+
+      <pre>import anthropic
+
+client = anthropic.Anthropic()
+
+def build_context(user_query: str, knowledge_base: list[dict]) -> str:
+    """Return the top-3 most relevant knowledge base entries as context."""
+    # In production, use embeddings + vector similarity.
+    # Here we demo keyword overlap as a simple proxy.
+    scored = []
+    query_words = set(user_query.lower().split())
+    for entry in knowledge_base:
+        words = set(entry["text"].lower().split())
+        score = len(query_words & words)
+        scored.append((score, entry))
+
+    top = sorted(scored, key=lambda x: x[0], reverse=True)[:3]
+    return "\n\n".join(f"[Source: {e['id']}]\n{e['text']}" for _, e in top)
+
+
+def answer_with_context(user_query: str, knowledge_base: list[dict]) -> str:
+    relevant_context = build_context(user_query, knowledge_base)
+
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        system="You are a helpful assistant. Answer using only the provided context.",
+        messages=[
+            {
+                "role": "user",
+                "content": f"Context:\n{relevant_context}\n\nQuestion: {user_query}"
+            }
+        ]
+    )
+    return response.content[0].text</pre>
+
+      <p>When context grows too large — a long agent loop, a large codebase — you need a truncation strategy. Choose one based on your task:</p>
+
+      <pre># Strategy 1: Sliding window — keep the N most recent messages
+def sliding_window(messages: list, max_messages: int) -> list:
+    # Always keep the first message (usually the task description)
+    if len(messages) <= max_messages:
+        return messages
+    return [messages[0]] + messages[-(max_messages - 1):]
+
+
+# Strategy 2: Summarize-and-compress
+# When the window is full, call Claude to summarize earlier turns,
+# replace them with the summary, then continue.
+def compress_history(messages: list, client) -> list:
+    if len(messages) < 10:
+        return messages
+    to_compress = messages[1:-4]  # keep first + last 4
+    summary_response = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=512,
+        messages=[{
+            "role": "user",
+            "content": f"Summarize the key facts and decisions from this conversation:\n{to_compress}"
+        }]
+    )
+    summary = summary_response.content[0].text
+    return [messages[0], {"role": "assistant", "content": f"[Summary of earlier work]: {summary}"}] + messages[-4:]</pre>
+
+      <div class="callout callout-info">
+        Use a cheap, fast model (Haiku) for summarization. You're compressing facts, not reasoning — the small model handles it well, and the cost is a fraction of what you'd spend sending the full history to Sonnet or Opus.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s8-4">
+    <div class="lesson-header" onclick="toggleLesson('s8-4')">
+      <div class="lesson-title">8.4 Prompt Caching for Speed and Cost</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Every time you send the same prefix to the Claude API — the same system prompt, the same conversation history — you pay to process those tokens again. Prompt caching lets Claude reuse the KV-cache from a previous call. For agents with large, stable system prompts, this cuts latency by ~80% and cost by ~90% on cached tokens.</p>
+
+      <div class="callout callout-info">
+        Caching works on the longest common prefix. The rule: put your stable content first (system prompt, reference docs, tool definitions), and your dynamic, per-request content last. The stable prefix is cached; only the new suffix is computed fresh.
+      </div>
+
+      <pre>import anthropic
+
+client = anthropic.Anthropic()
+
+# Your large, stable system prompt — loaded once, cached across calls
+SYSTEM_INSTRUCTIONS = open("system_instructions.txt").read()  # e.g. 10,000 tokens
+
+def ask_with_caching(user_message: str) -> str:
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        system=[
+            {
+                "type": "text",
+                "text": SYSTEM_INSTRUCTIONS,
+                "cache_control": {"type": "ephemeral"}  # ← cache this prefix
+            }
+        ],
+        messages=[
+            {"role": "user", "content": user_message}
+        ]
+    )
+
+    # Inspect cache usage in the response
+    usage = response.usage
+    print(f"Cache read:  {usage.cache_read_input_tokens} tokens")
+    print(f"Cache write: {usage.cache_creation_input_tokens} tokens")
+    print(f"Not cached:  {usage.input_tokens} tokens")
+
+    return response.content[0].text
+
+
+# First call: cache miss — all tokens billed at full rate
+result1 = ask_with_caching("What are the project conventions?")
+
+# Second call: cache hit — 90% cost reduction on the system prompt
+result2 = ask_with_caching("How do I run the tests?")</pre>
+
+      <div class="callout callout-warning">
+        The cache TTL is 5 minutes by default. If your agent pauses for more than 5 minutes between calls — waiting for human input, a long tool execution — the cache expires and you pay full price again. Design your agent loop to call the API at least every few minutes if you need sustained caching benefits.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 5 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s8-5">
+    <div class="lesson-header" onclick="toggleLesson('s8-5')">
+      <div class="lesson-title">8.5 Verify: Audit Your Context Quality</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The fastest way to improve an agent is to print its context at the moment it makes a bad decision, then ask: "What is wrong with what the model sees here?" You will find the answer almost every time.</p>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s8-structure"> My system prompt has four clearly separated sections: identity, capabilities, constraints, and output format</li>
+        <li><input type="checkbox" id="s8-ordering"> My most critical constraints appear at the top of the system prompt, not the bottom</li>
+        <li><input type="checkbox" id="s8-dynamic"> I assemble context dynamically — I only inject the information relevant to the current query, not everything I have</li>
+        <li><input type="checkbox" id="s8-truncation"> I have a truncation or compression strategy for long agent loops (sliding window or summarize-and-compress)</li>
+        <li><input type="checkbox" id="s8-caching"> I implemented prompt caching with <code>cache_control</code> on my stable system prompt prefix</li>
+        <li><input type="checkbox" id="s8-audit"> I can print the full context my agent sees at any step, and I've used it to debug at least one bad output</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s8', '../');</script>
+</body>
+</html>
