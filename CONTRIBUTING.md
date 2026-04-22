@@ -5,9 +5,9 @@ Thanks for your interest in contributing. LearnKit is a static-file tutorial fra
 ## Ways to contribute
 
 - **Content fixes** — typos, outdated commands, broken examples in `tutorials/cpp-drone/pages/`
-- **New tutorial** — run `/create-tutorial` in Claude Code, generate a tutorial on any topic, open a PR
+- **New tutorial** — open Claude Code in the repo, ask Claude to create a tutorial on any topic, open a PR
 - **Framework improvements** — new components, mobile fixes, performance changes in `core/`
-- **Skill improvements** — better prompt logic in `.claude/commands/`
+- **Skill improvements** — better prompt logic in `.claude/skills/`
 
 ## How to run locally
 
@@ -26,7 +26,7 @@ core/js/framework.js   ← all runtime logic (shared)
 core/css/styles.css    ← design system (136 CSS variables)
 tutorials/template/    ← copy this to start a new tutorial
 tutorials/cpp-drone/   ← reference tutorial
-.claude/commands/      ← Claude Code skills
+.claude/skills/        ← Claude Code skills
 ```
 
 ## Ground rules

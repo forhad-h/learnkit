@@ -76,4 +76,4 @@ Choose the `tagColor` based on the section's role (see tag vocabulary in CLAUDE.
 
 Tell the user which files were modified, what the new section ID is, and remind them to reload the tutorial in the browser to confirm the sidebar shows the new section correctly.
 
-Ask: "Would you like me to expand the placeholder content into a full lesson now? I can run /improve-lesson on this new section."
+Ask: "Would you like me to expand the placeholder content into a full lesson now? I can use the improve-lesson skill on this new section."

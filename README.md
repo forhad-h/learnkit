@@ -47,7 +47,7 @@ This repo ships with a **C++ drone engineering tutorial** as a reference example
 
 ### Self-improvement loop
 
-When you discover a technique, mental model, or shortcut that makes something click — you can add it back to the tutorial. The `/improve-lesson` skill prompts you for exactly this. Your personal discoveries get embedded as "What worked for me" callouts directly in the section that benefited from them.
+When you discover a technique, mental model, or shortcut that makes something click — you can add it back to the tutorial. The `improve-lesson` skill prompts you for exactly this. Your personal discoveries get embedded as "What worked for me" callouts directly in the section that benefited from them.
 
 This is the compounding part: the tutorial gets smarter as you learn.
 
@@ -70,10 +70,12 @@ This is the compounding part: the tutorial gets smarter as you learn.
 
 ### For authors (via Claude Code)
 
-- **`/create-tutorial`** — scaffold a complete new tutorial from a conversation
-- **`/add-lesson`** — add a new section to an existing tutorial
-- **`/improve-lesson`** — improve content of a specific section; includes prompting for personal discoveries
-- **`/improve-framework`** — extend or fix the core LearnKit framework itself
+Claude Code has four built-in AI skills for authoring. Ask Claude naturally, or use the skill name directly in conversation:
+
+- **`create-tutorial`** — scaffold a complete new tutorial from a conversation
+- **`add-lesson`** — add a new section to an existing tutorial
+- **`improve-lesson`** — improve content of a specific section; includes prompting for personal discoveries
+- **`improve-framework`** — extend or fix the core LearnKit framework itself
 
 ---
 
@@ -96,7 +98,7 @@ Your progress saves automatically in your browser. No account, no login.
 1. **Fork this repo** on GitHub — your fork is your tutorial's home
 2. Clone your fork locally
 3. Open Claude Code in the project directory: `claude` (or open via VS Code extension)
-4. Run `/create-tutorial` and answer the prompts
+4. Ask Claude: "create a tutorial on [your topic]" — it will gather requirements and generate all the files
 5. Commit your new tutorial files to your fork
 6. Enable GitHub Pages on your fork to publish it for free
 
@@ -104,7 +106,7 @@ Your progress saves automatically in your browser. No account, no login.
 git clone https://github.com/<your-github-username>/learnkit
 cd learnkit
 claude  # opens Claude Code
-# In Claude Code: /create-tutorial
+# In Claude Code: ask "create a tutorial on [your topic]"
 ```
 
 ### Setup walkthrough with Claude Code
@@ -112,7 +114,7 @@ claude  # opens Claude Code
 After cloning and opening Claude Code (`claude` in the terminal):
 
 ```
-Step 1: Run /create-tutorial
+Step 1: Ask Claude "create a tutorial on [topic]"
         Claude will ask you for your topic, audience, sections, and time estimate.
         It creates all the files under tutorials/your-topic/:
         config.js, index.html, pages/, states/
@@ -120,7 +122,7 @@ Step 1: Run /create-tutorial
 Step 2: Review the generated content
         Open http://localhost:8000/tutorials/your-topic/ and check the dashboard.
         (Use whatever port you started the server on — 8000 is just the default.)
-        Run /improve-lesson to flesh out any section.
+        Ask Claude to improve any section you want fleshed out.
 
 Step 3: Commit your tutorial
         git add .
@@ -281,11 +283,11 @@ When writing or generating section content, apply these patterns:
 
 This project is designed to get better as people use it.
 
-**Framework improvements** — if you improve the core UX (new component, better mobile behavior, new feature), open a PR or run `/improve-framework` and commit the result.
+**Framework improvements** — if you improve the core UX (new component, better mobile behavior, new feature), open a PR or ask Claude to improve the framework and commit the result.
 
-**Content improvements** — if something in a tutorial section is wrong, unclear, or missing a better example, run `/improve-lesson` and commit. The skill specifically asks what clicked for you personally — those insights are the most valuable additions.
+**Content improvements** — if something in a tutorial section is wrong, unclear, or missing a better example, ask Claude to improve the lesson and commit. The skill specifically asks what clicked for you personally — those insights are the most valuable additions.
 
-**New tutorials** — run `/create-tutorial`, generate a tutorial on any topic, and add it under `tutorials/`. If it's high quality it may replace `cpp-drone` as the primary showcase example. Anyone can fork the repo and host their own tutorial collection.
+**New tutorials** — ask Claude to create a tutorial on any topic, and add it under `tutorials/`. If it's high quality it may replace `cpp-drone` as the primary showcase example. Anyone can fork the repo and host their own tutorial collection.
 
 ---
 

@@ -1,6 +1,6 @@
 # Tutorial Generation Prompt
 
-Used internally by `/create-tutorial` after Step 1 requirements are gathered. Run this planning pass before generating any files.
+Used internally by the create-tutorial skill after Step 1 requirements are gathered. Run this planning pass before generating any files.
 
 ## Variables (filled from Step 1 answers)
 

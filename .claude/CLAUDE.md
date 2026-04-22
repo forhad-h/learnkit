@@ -100,7 +100,7 @@ Apply every one of these principles. They are not optional stylistic choices —
 - `importProgressFromGist(url)` — async; accepts gist HTML or raw URL; calls `replaceStateFromJSON()`; returns `{ ok, error? }`
 - `.name-modal-overlay` / `.name-modal` — CSS classes for the name prompt modal; do not remove
 
-### When running /create-tutorial
+### When the create-tutorial skill is invoked
 
 See `.claude/skills/create-tutorial/SKILL.md` for the full skill. Summary:
 - Gather: topic, audience, prerequisites, time estimate, list of sections
@@ -109,7 +109,7 @@ See `.claude/skills/create-tutorial/SKILL.md` for the full skill. Summary:
 - Asset paths in index.html: `../../core/css/styles.css`, `./config.js`, `../../core/js/framework.js`
 - The user should be able to open the tutorial immediately after
 
-### When running /add-lesson or /improve-lesson
+### When the add-lesson or improve-lesson skill is invoked
 
 Read the existing section HTML before making any changes. Match the existing style and structure. Section IDs must be unique and follow the pattern `sN` for sections and `sN-M` for sub-sections.
 

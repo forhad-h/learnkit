@@ -73,7 +73,7 @@ If yes, add a brief mention in the section intro or README's "what people find h
 Tell the user:
 - What was changed and why (one line per change)
 - Whether any structural gaps remain (sub-sections that still need work)
-- Suggest the next section to improve: "The weakest section based on structure is probably section N. Want to run /improve-lesson on that next?"
+- Suggest the next section to improve: "The weakest section based on structure is probably section N. Want me to improve that one next?"
 
 ## Important rules
 

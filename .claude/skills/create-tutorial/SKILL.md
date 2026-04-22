@@ -102,7 +102,7 @@ For each section in the user's list:
 Tell the user:
 - Which files were created
 - How to open the tutorial: `python3 -m http.server 8000` then open the URL
-- What to do next: `/add-lesson` to flesh out any section, `/improve-lesson` to deepen content
+- What to do next: use the `add-lesson` skill to flesh out any section, `improve-lesson` to deepen content
 - How to publish: enable GitHub Pages on their fork
 
 ## Important rules
