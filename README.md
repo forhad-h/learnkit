@@ -70,7 +70,7 @@ This is the compounding part: the tutorial gets smarter as you learn.
 ### Option A: Follow an existing tutorial (read-only)
 
 ```bash
-git clone https://github.com/YOUR_FORK/learnkit
+git clone https://github.com/forhad-h/learnkit
 cd learnkit
 python3 -m http.server 8000
 ```
