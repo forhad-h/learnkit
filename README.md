@@ -1,5 +1,7 @@
 # LearnKit — AI-Powered Tutorial Framework
 
+![LearnKit Banner](learnkit-banner.png)
+
 > A zero-backend, static-file tutorial framework that uses psychology-backed learning design and Claude Code as your personal learning agent.
 
 ---
@@ -18,22 +20,6 @@ This repo ships with a **C++ drone engineering tutorial** as a reference example
 ---
 
 ## The Learning Philosophy
-
-Every design decision in LearnKit is grounded in cognitive science. These are not marketing claims — they are specific mechanisms:
-
-### Built-in psychological techniques
-
-| Technique | How it's implemented |
-|-----------|---------------------|
-| **Chunking** | Content is split into numbered sub-sections. Each sub-section covers exactly one concept. Your brain forms a single strong memory trace per chunk. |
-| **Active recall** | Checklists require you to confirm each step yourself. Reading is passive; checking a box forces retrieval. |
-| **Progress visibility** | The progress bar and "X / 11 completed" counter create a completion loop. Visible progress releases dopamine and sustains motivation. |
-| **Momentum cues** | The "Continue learning" banner picks up exactly where you left off, removing the friction of finding your place. The verb changes: "Start" → "Continue" → "Resume". |
-| **Reduced cognitive load** | Tags like "Skip if confident", "Read first", "Memorize this" tell you how to approach each section before you open it. You spend mental energy on content, not on figuring out what matters. |
-| **Finite horizon** | "Section 3 of 11" in the nav footer removes open-ended anxiety. You always know how much is left. |
-| **Milestone anchoring** | Portfolio projects section gives concrete external deliverables. Finishing a project is more motivating than finishing a lesson. |
-| **Spaced revisiting** | The 3-state status (Pending / In Progress / Completed) normalizes returning to a section. "In Progress" is a valid long-term state, not a failure. |
-| **Just-in-time reference** | Error reference and resources sections are always one click away via the sidebar. You don't need to leave the tutorial to find help. |
 
 ### Self-improvement loop
 
