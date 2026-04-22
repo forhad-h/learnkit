@@ -11,9 +11,18 @@ Scaffold a complete new LearnKit tutorial from scratch. You are the tutorial gen
 
 $ARGUMENTS
 
-Ask questions one at a time, waiting for the user's answer before asking the next. Do not ask multiple questions in the same message. Skip any question the user already answered via `$ARGUMENTS`.
+**First, ask for the topic.** If already provided in `$ARGUMENTS`, skip directly to the suggestions step.
 
-Ask in this order, only what is still missing. For each question, use this exact format so the user can see clearly that input is expected:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Question 1 of 6 · Topic
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  What is the tutorial about?
+
+  ▶
+```
+
+**Once the topic is known**, generate smart options for all remaining questions based on the topic. Then ask each remaining question one at a time using this format:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -21,19 +30,23 @@ Ask in this order, only what is still missing. For each question, use this exact
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   [question text]
 
-  ▶
+  a) [option 1]
+  b) [option 2]
+  c) [option 3]
+  d) Decide for me
+
+  a / b / c / d / your own answer  ▶
 ```
 
-Replace `N` with the current question number, `[label]` with a short label (e.g. `Topic`, `Audience`, `Prerequisites`, `Time`, `Goal`, `Sections`), and `[question text]` with the actual question. The `▶` at the end signals "your turn".
+Questions in order (2–6 all include options):
 
-Questions in order:
-
-1. **Topic** (label: `Topic`) — "What is the tutorial about?" — skip if already provided in `$ARGUMENTS`.
 2. **Audience** (label: `Audience`) — "Who is this for, and what do they already know?"
 3. **Prerequisites** (label: `Prerequisites`) — "What must the learner have installed or know before starting?"
-4. **Time** (label: `Time`) — "Roughly how long will the full tutorial take? (e.g. '4–6 hours total', '1 week at 2 hrs/day')"
+4. **Time** (label: `Time`) — "Roughly how long will the full tutorial take?"
 5. **Goal** (label: `Goal`) — "What concrete outcome will the learner have at the end?"
-6. **Sections** (label: `Sections`) — Propose a numbered section list yourself based on the topic (6–12 sections, one-line descriptions each), then ask: "Here's a suggested outline — confirm, reorder, drop, or add sections." Wait for confirmation or edits.
+6. **Sections** (label: `Sections`) — Generate 3 distinct outline variants (different focus/depth/structure) as options a/b/c, each showing the full section list.
+
+When the user types `a`, `b`, or `c`, use that option. When the user types `d`, pick whichever option you judge best and move on. When the user types anything else, treat it as their own custom answer.
 
 After all answers are collected, display:
 
