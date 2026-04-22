@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnKit — All Tutorials</title>
+  <link rel="stylesheet" href="./core/css/styles.css" />
+  <style>
+    body {
+      padding-top: 0;
+    }
+
+    /* ── Home layout ── */
+    .home-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    /* ── Brand header ── */
+    .home-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .home-brand-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .home-brand h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .home-brand p {
+      font-size: 13.5px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .home-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin: 36px 0 12px;
+    }
+
+    /* ── Tutorial card grid ── */
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 14px;
+    }
+
+    .tutorial-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 22px 24px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--shadow);
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .tutorial-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg), var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .tutorial-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .tutorial-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .tutorial-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .tutorial-card-title {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .tutorial-card-subtitle {
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.5;
+    }
+
+    .tutorial-card-desc {
+      font-size: 13.5px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .tutorial-card-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .tutorial-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text3);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+    .tutorial-meta-pill svg {
+      flex-shrink: 0;
+    }
+
+    /* ── Progress strip inside card ── */
+    .tutorial-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tutorial-progress-track {
+      flex: 1;
+      height: 5px;
+      background: var(--bg3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .tutorial-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #14b8a6);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .tutorial-progress-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text3);
+      white-space: nowrap;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .tutorial-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      align-self: flex-start;
+    }
+    .tutorial-cta svg {
+      transition: transform 0.15s;
+    }
+    .tutorial-card:hover .tutorial-cta svg {
+      transform: translateX(3px);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text3);
+    }
+    .empty-state p {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* ── Footer ── */
+    .home-footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .home-footer-text {
+      font-size: 12px;
+      color: var(--text3);
+    }
+    .home-footer-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .home-footer-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 560px) {
+      .tutorial-grid {
+        grid-template-columns: 1fr;
+      }
+      .home-brand h1 {
+        font-size: 21px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="home-layout">
+
+    <div class="home-brand">
+      <div class="home-brand-icon">📚</div>
+      <div>
+        <h1>LearnKit</h1>
+        <p>Structured, hands-on tutorials — track your progress as you learn.</p>
+      </div>
+    </div>
+
+    <p class="home-section-label">Available tutorials</p>
+
+    <div class="tutorial-grid" id="tutorialGrid"></div>
+
+    <div class="home-footer">
+      <span class="home-footer-text">LearnKit · open-source tutorial framework</span>
+      <a class="home-footer-link" href="https://github.com/ForhadHossainKhan/LearnKit" target="_blank" rel="noopener">View on GitHub →</a>
+    </div>
+
+  </div>
+
+  <script>
+    const TUTORIALS = [
+      {
+        title: 'C++ for Drone Engineering',
+        icon: '🚁',
+        subtitle: 'Ubuntu 24.04 · ROS2 Jazzy · ArduPilot SITL · C++17',
+        description: 'From zero to job-ready portfolio. Write real ROS2 drone software in C++ with a GitHub portfolio to show for it.',
+        href: './tutorials/cpp-drone/index.html',
+        stateKey: 'drone_tutorial_state',
+        sectionCount: 11,
+        timeCommitment: '8–9 hrs/week · ~3 months',
+      },
+    ];
+
+    function getProgress(stateKey, sectionCount) {
+      try {
+        const raw = localStorage.getItem(stateKey);
+        if (!raw) return { completed: 0, total: sectionCount, started: false };
+        const state = JSON.parse(raw);
+        const sections = state.sections || {};
+        const completed = Object.values(sections).filter(v => v === 'completed').length;
+        const inProgress = Object.values(sections).filter(v => v === 'in-progress').length;
+        return {
+          completed,
+          total: sectionCount,
+          started: completed > 0 || inProgress > 0,
+        };
+      } catch {
+        return { completed: 0, total: sectionCount, started: false };
+      }
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('tutorialGrid');
+
+      if (TUTORIALS.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size:32px">🔭</div>
+            <p>No tutorials yet. Add one via <code>/create-tutorial</code>.</p>
+          </div>`;
+        return;
+      }
+
+      TUTORIALS.forEach(t => {
+        const prog = getProgress(t.stateKey, t.sectionCount);
+        const pct = prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
+        const ctaLabel = prog.completed === prog.total && prog.total > 0
+          ? 'Review'
+          : prog.started ? 'Continue' : 'Start learning';
+
+        const card = document.createElement('a');
+        card.className = 'tutorial-card';
+        card.href = t.href;
+        card.innerHTML = `
+          <div class="tutorial-card-top">
+            <div class="tutorial-icon">${t.icon}</div>
+            <div class="tutorial-card-info">
+              <div class="tutorial-card-title">${t.title}</div>
+              <div class="tutorial-card-subtitle">${t.subtitle}</div>
+            </div>
+          </div>
+          <div class="tutorial-card-desc">${t.description}</div>
+          <div class="tutorial-card-meta">
+            <span class="tutorial-meta-pill">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+              ${t.sectionCount} sections
+            </span>
+            <span class="tutorial-meta-pill">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${t.timeCommitment}
+            </span>
+          </div>
+          <div class="tutorial-progress">
+            <div class="tutorial-progress-track">
+              <div class="tutorial-progress-fill" style="width:${pct}%"></div>
+            </div>
+            <span class="tutorial-progress-label">${pct}%</span>
+          </div>
+          <span class="tutorial-cta">
+            ${ctaLabel}
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </span>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
