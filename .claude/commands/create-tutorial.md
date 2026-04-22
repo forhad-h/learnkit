@@ -13,6 +13,19 @@ Ask the user for the following. Ask all at once in a single message so they can 
 5. **Goal** — What concrete outcome will the learner have at the end?
 6. **Sections** — List the main sections/chapters with a one-line description of each. Aim for 6–12 sections.
 
+## Step 1b — Planning pass
+
+Before writing any files, run the planning pass defined in `.claude/prompts/tutorial-generation.md`.
+
+Fill in the variables from Step 1:
+- `TOPIC` → user's topic answer
+- `DURATION` → user's time commitment answer
+- `TARGET_AUDIENCE` → user's audience answer
+- `GOAL` → user's goal answer
+- `SECTIONS` → user's section list
+
+Work through the scratchpad (core concepts, project idea, depth calibration, analogies, stumbling blocks). The output informs every config and HTML file you generate — it does not get written to disk.
+
 ## Step 2 — Determine tutorial location
 
 Check whether we are in the monorepo layout (a `core/` directory exists) or the legacy single-tutorial layout.
