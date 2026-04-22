@@ -27,7 +27,7 @@
 
       <p>LLM applications fail silently. A user gets a bad answer and doesn't report it. Without tracing, you'll never know. Structured logging with a unique trace ID per request is the minimum for production observability.</p>
 
-      <pre">import anthropic, logging, uuid, time
+      <pre>import anthropic, logging, uuid, time
 
 logger = logging.getLogger(__name__)
 client = anthropic.Anthropic()
@@ -78,7 +78,7 @@ def traced_call(system: str, messages: list, trace_id: str = None) -> dict:
 
       <p>An eval is an automated test for LLM output quality. You need evals before you ship, not after users complain. Build a golden set of 20–50 test cases that cover your core use cases and known failure modes.</p>
 
-      <pre">from dataclasses import dataclass
+      <pre>from dataclasses import dataclass
 from typing import Callable
 
 @dataclass
@@ -148,7 +148,7 @@ def run_evals(system: str, cases: list[EvalCase]) -> dict:
         </tbody>
       </table>
 
-      <pre">import hashlib, functools
+      <pre>import hashlib, functools
 from datetime import datetime, timedelta
 
 _response_cache: dict = {}
@@ -182,7 +182,7 @@ def cached_call(system: str, user: str, ttl_minutes: int = 60) -> str:
 
       <p>AI applications have unique deployment considerations: secrets management for API keys, graceful degradation when the API is down, and versioning your prompts like code.</p>
 
-      <pre"># .env (never commit this)
+      <pre># .env (never commit this)
 ANTHROPIC_API_KEY=sk-ant-...
 
 # Graceful degradation: catch API errors and fall back
