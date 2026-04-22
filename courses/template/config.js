@@ -46,7 +46,11 @@ window.COURSE_CONFIG = {
       tag: 'Read first', // Short label shown as a badge on the module card.
                          // See tag vocabulary below for options.
       tagColor: 'blue',  // One of: blue | green | amber | purple | orange
-      file: 'module-1.html'  // Filename inside pages/ — relative to pages/ directory
+      file: 'module-1.html',  // Filename inside pages/ — relative to pages/ directory
+      // Optional: short description shown on dashboard card (1-2 sentences)
+      // description: 'Brief overview of what this module covers.',
+      // Optional: estimated time shown on dashboard card
+      // estimatedTime: '~45 min',
     },
     {
       id: 's2',
@@ -54,7 +58,11 @@ window.COURSE_CONFIG = {
       title: 'Core Concepts',
       tag: 'Core skill',
       tagColor: 'blue',
-      file: 'module-2.html'
+      file: 'module-2.html',  // Filename inside pages/ — relative to pages/ directory
+      // Optional: short description shown on dashboard card (1-2 sentences)
+      // description: 'Brief overview of what this module covers.',
+      // Optional: estimated time shown on dashboard card
+      // estimatedTime: '~45 min',
     },
     {
       id: 's3',
@@ -62,7 +70,11 @@ window.COURSE_CONFIG = {
       title: 'Hands-on Practice',
       tag: 'Do first',
       tagColor: 'green',
-      file: 'module-3.html'
+      file: 'module-3.html',  // Filename inside pages/ — relative to pages/ directory
+      // Optional: short description shown on dashboard card (1-2 sentences)
+      // description: 'Brief overview of what this module covers.',
+      // Optional: estimated time shown on dashboard card
+      // estimatedTime: '~45 min',
     },
     {
       id: 's4',
@@ -70,7 +82,11 @@ window.COURSE_CONFIG = {
       title: 'Portfolio Project',
       tag: '1 project',
       tagColor: 'green',
-      file: 'module-4.html'
+      file: 'module-4.html',  // Filename inside pages/ — relative to pages/ directory
+      // Optional: short description shown on dashboard card (1-2 sentences)
+      // description: 'Brief overview of what this module covers.',
+      // Optional: estimated time shown on dashboard card
+      // estimatedTime: '~45 min',
     },
     {
       id: 's5',
@@ -78,7 +94,11 @@ window.COURSE_CONFIG = {
       title: 'Resources and Reference',
       tag: 'Quick reference',
       tagColor: 'blue',
-      file: 'module-5.html'
+      file: 'module-5.html',  // Filename inside pages/ — relative to pages/ directory
+      // Optional: short description shown on dashboard card (1-2 sentences)
+      // description: 'Brief overview of what this module covers.',
+      // Optional: estimated time shown on dashboard card
+      // estimatedTime: '~45 min',
     },
   ],
 

@@ -168,29 +168,99 @@ Read the existing module HTML before making any changes. Match the existing styl
 </div>
 ```
 
-### Dashboard progress card structure
+### Master-Detail Dashboard Layout
 
-The dashboard progress card must follow this exact structure for proper layout and styling:
+The dashboard now uses a master-detail layout with left sidebar navigation and a main content area. The structure must follow this pattern:
 
 ```html
-<div class="progress-card">
-  <div class="progress-main">
-    <!-- required flex row container -->
-    <span class="progress-label">Overall progress</span>
-    <div class="progress-track">
-      <div class="progress-fill" id="dashProgressFill"></div>
+<div class="dash-master-detail">
+  <!-- Left Sidebar (Navigation) -->
+  <aside class="dash-sidebar">
+    <!-- Backup warning card -->
+    <div class="nav-card">
+      <!-- warning icon and text -->
+      <a href="pages/settings.html" class="module-grid-card-action-btn">
+        Export / Import
+      </a>
     </div>
-    <span class="progress-count" id="dashProgressCount">0 / ?</span>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="dash-main">
+    <!-- Header card — populated by initDashboard() from config.js -->
+    <div id="dashHeader"></div>
+
+    <!-- Hero progress section -->
+    <div class="hero-progress">
+      <div class="hero-progress-left">
+        <div class="hero-progress-label">Overall progress</div>
+        <div class="hero-progress-track">
+          <div class="hero-progress-fill" id="dashProgressFill"></div>
+        </div>
+        <div class="hero-progress-stats">
+          <span class="hero-progress-count" id="dashProgressCount">0 / ? completed</span>
+          <span id="dashProgressPercent">0%</span>
+        </div>
+      </div>
+      <div class="hero-progress-actions">
+        <!-- action buttons -->
+      </div>
+    </div>
+
+    <!-- Continue banner — populated by initDashboard() -->
+    <div id="continueBanner"></div>
+
+    <!-- Module grid heading -->
+    <div class="dash-top-bar">
+      <h2>All modules</h2>
+    </div>
+
+    <!-- Module grid — populated by initDashboard() -->
+    <div class="module-grid" id="moduleList"></div>
+
+    <!-- Footer — populated by initDashboard() -->
+    <div class="page-footer" id="dashFooter"></div>
+  </main>
+</div>
+```
+
+- The `.dash-master-detail` grid container establishes the two-column layout.
+- The `.dash-sidebar` is sticky and contains navigation and backup warning.
+- The `.hero-progress` section displays overall progress with horizontal KPIs.
+- The `.module-grid` uses CSS Grid for responsive card layout.
+- Refer to `courses/template/index.html` for the exact markup and inline styles.
+
+### Module Grid Card Structure
+
+Each module card in the grid follows this structure:
+
+```html
+<div class="module-grid-card">
+  <div class="module-grid-card-header">
+    <div class="module-grid-card-num" style="${numColor}">${s.num}</div>
+    <div style="flex:1;">
+      <div class="module-grid-card-title">${s.title}</div>
+      <div class="module-grid-card-meta">
+        <span class="module-grid-card-tag" style="${TAG_COLORS[s.tagColor]}">${s.tag}</span>
+        <span class="module-grid-card-status ${status}">${statusLabel}</span>
+      </div>
+    </div>
   </div>
-  <div class="progress-backup-row">
-    <!-- icon + text + settings link with class="btn-icon" and gear SVG -->
+  ${s.description ? `<div class="module-grid-card-body">${s.description}</div>` : ""}
+  <div class="module-grid-card-actions">
+    <a href="pages/${s.file}" class="module-grid-card-action-btn ${buttonClass}">
+      ${buttonText}
+    </a>
+    <span style="font-size:12px;color:var(--text3);">
+      ${s.estimatedTime || ""}
+    </span>
   </div>
 </div>
 ```
 
-- The `.progress-main` wrapper is required — without it the layout breaks.
-- The settings link in `.progress-backup-row` must use `class="btn-icon"` with a gear icon SVG, not a regular button.
-- Refer to `courses/cpp-drone/index.html` for the exact markup.
+- Button text is determined by module status: "Start" (pending), "Continue" (in-progress), "Review" (completed).
+- The primary button uses `.module-grid-card-action-btn.primary` for pending/in-progress modules.
+- Module descriptions and estimated times are optional fields in `config.js`.
 
 ### Callouts
 
