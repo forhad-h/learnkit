@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in the framework or a tutorial is broken
+about: Something in the framework or a course is broken
 labels: bug
 ---
 

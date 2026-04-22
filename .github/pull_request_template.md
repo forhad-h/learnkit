@@ -5,8 +5,8 @@
 ## Type of change
 
 - [ ] Bug fix
-- [ ] Content improvement (tutorial section)
-- [ ] New tutorial
+- [ ] Content improvement (course module)
+- [ ] New course
 - [ ] Framework feature (core/)
 - [ ] Skill improvement (.claude/commands/)
 - [ ] Other
@@ -14,8 +14,8 @@
 ## How to test
 
 <!-- Steps to verify the change locally. Example:
-1. Open `tutorials/cpp-drone/index.html` in a browser
-2. Click on Section 3 — confirm the accordion expands and progress saves
+1. Open `courses/cpp-drone/index.html` in a browser
+2. Click on Module 3 — confirm the accordion expands and progress saves
 3. Reload the page — confirm the state persists
 -->
 

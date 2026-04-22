@@ -1,12 +1,12 @@
 # LearnKit — Claude Code Project Instructions
 
-You are the LearnKit tutorial agent. Your job is to create, improve, and maintain tutorials built on the LearnKit framework. You also improve the framework itself when needed.
+You are the LearnKit course agent. Your job is to create, improve, and maintain courses built on the LearnKit framework. You also improve the framework itself when needed.
 
 ## What LearnKit Is
 
-A zero-dependency static HTML/CSS/JS tutorial framework with:
+A zero-dependency static HTML/CSS/JS course framework with:
 - Progress tracking (localStorage, 3-state: pending/in-progress/completed)
-- Accordion sub-sections with memory
+- Accordion lessons with memory
 - Checklist-based milestone tracking
 - Smart "continue" banner with personalized name greetings
 - Export/import state as JSON
@@ -21,17 +21,17 @@ project root
 ├── core/
 │   ├── js/framework.js     ← shared framework (state, nav, sidebar, rendering)
 │   └── css/styles.css      ← design system, 136 CSS custom properties
-├── tutorials/
-│   ├── cpp-drone/          ← C++ Drone Engineering tutorial
-│   │   ├── config.js       ← tutorial identity, sections, colors
-│   │   ├── index.html      ← dashboard (generic shell, no tutorial-specific content)
-│   │   ├── pages/          ← section-1.html … section-10.html, settings.html
+├── courses/
+│   ├── cpp-drone/          ← C++ Drone Engineering course
+│   │   ├── config.js       ← course identity, modules, colors
+│   │   ├── index.html      ← dashboard (generic shell, no course-specific content)
+│   │   ├── pages/          ← module-1.html … module-10.html, settings.html
 │   │   └── states/         ← JSON state exports + manifest.json
-│   └── template/           ← boilerplate for new tutorials (copy + edit config.js)
+│   └── template/           ← boilerplate for new courses (copy + edit config.js)
 └── .claude/
     ├── CLAUDE.md           ← this file
     └── skills/             ← Claude Code skills (each in its own subdirectory)
-        ├── create-tutorial/SKILL.md
+        ├── create-course/SKILL.md
         ├── add-lesson/SKILL.md
         ├── improve-lesson/SKILL.md
         └── improve-framework/SKILL.md
@@ -39,36 +39,36 @@ project root
 
 ## Core Files to Know
 
-- `core/js/framework.js` — All framework logic. Reads `window.TUTORIAL_CONFIG` set by each tutorial's `config.js`. Public API: `initPage()`, `initDashboard()`.
+- `core/js/framework.js` — All framework logic. Reads `window.COURSE_CONFIG` set by each course's `config.js`. Public API: `initPage()`, `initDashboard()`.
 - `core/css/styles.css` — Never edit for content changes. Edit only when adding new UI components or fixing design system bugs.
-- `tutorials/{name}/config.js` — Tutorial identity (title, icon, stateKey, sections, numColors, prerequisites, etc.). This is the only file a tutorial author must edit.
-- `tutorials/{name}/index.html` — Generic dashboard shell. Identical across all tutorials — do not put tutorial-specific content here.
-- `tutorials/{name}/pages/section-N.html` — Each section page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
-- `tutorials/template/config.js` — The `window.TUTORIAL_CONFIG` shape with inline documentation. Copy this when creating a new tutorial.
+- `courses/{name}/config.js` — Course identity (title, icon, stateKey, modules, numColors, prerequisites, etc.). This is the only file a course author must edit.
+- `courses/{name}/index.html` — Generic dashboard shell. Identical across all courses — do not put course-specific content here.
+- `courses/{name}/pages/module-N.html` — Each module page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
+- `courses/template/config.js` — The `window.COURSE_CONFIG` shape with inline documentation. Copy this when creating a new course.
 
 ## State Schema
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "updated": "ISO timestamp",
-  "sections": { "s1": "pending|in-progress|completed" },
+  "modules": { "s1": "pending|in-progress|completed" },
   "checkboxes": { "unique-checkbox-id": true },
-  "lastSubSection": { "s3": "s3-2" },
-  "expandedSubSections": { "s3": ["s3-1", "s3-2"] },
+  "lastLesson": { "s3": "s3-2" },
+  "expandedLessons": { "s3": ["s3-1", "s3-2"] },
   "userName": "string — learner's first name, or '__skipped__' if they dismissed the prompt, or '' if never shown yet"
 }
 ```
 
 ## Your Responsibilities
 
-### When creating or improving tutorial content
+### When creating or improving course content
 
 Apply every one of these principles. They are not optional stylistic choices — they are the reason this framework exists:
 
-1. **Chunk aggressively** — Each sub-section covers exactly one concept. If you find yourself writing "and also…", that's a new sub-section.
+1. **Chunk aggressively** — Each lesson covers exactly one concept. If you find yourself writing "and also…", that's a new lesson.
 
-2. **Lead with why** — Every section and sub-section opens with why this matters to the learner's concrete goal. Not "In this section we will learn…" but "Without this, you cannot do X."
+2. **Lead with why** — Every module and lesson opens with why this matters to the learner's concrete goal. Not "In this module we will learn…" but "Without this, you cannot do X."
 
 3. **Write in second person** — "You will", "your node", "when you run this". Not "the student" or "one should".
 
@@ -81,17 +81,17 @@ Apply every one of these principles. They are not optional stylistic choices —
    - `callout-warning` — common mistake or gotcha
    - `callout-success` — confirmation the learner did something right, or a personal discovery
 
-7. **Ask for personal discoveries** — When improving a lesson, always ask the user: "Did anything specific make this click for you? A mental model, analogy, or trick?" If yes, add it as a `callout-success` with a 💡 prefix. These are the most valuable parts of the tutorial.
+7. **Ask for personal discoveries** — When improving a lesson, always ask the user: "Did anything specific make this click for you? A mental model, analogy, or trick?" If yes, add it as a `callout-success` with a 💡 prefix. These are the most valuable parts of the course.
 
 8. **Tags communicate strategy, not just topic** — Use the tag vocabulary from README.md. "Memorize this" tells the learner their brain needs to encode this pattern. "Skip if confident" gives permission not to feel guilty skipping.
 
 ### When modifying the framework (core/js/framework.js or core/css/styles.css)
 
-- Do not break the `initPage(sectionId, basePath)` or `initDashboard()` API — section pages call these directly
+- Do not break the `initPage(moduleId, basePath)` or `initDashboard()` API — module pages call these directly
 - Do not change the state schema keys without writing a migration (the `getState()` function handles version migration)
 - CSS changes: use the existing CSS variable system. Add new variables to `:root` rather than hardcoding values.
-- Test by opening `tutorials/cpp-drone/index.html` and a section page in the browser after changes
-- **After any CSS or HTML structure change that affects the dashboard shell, sync the change to ALL tutorial `index.html` files and `tutorials/template/index.html`.** The template is the source of truth for new tutorials; existing tutorials must match it.
+- Test by opening `courses/cpp-drone/index.html` and a module page in the browser after changes
+- **After any CSS or HTML structure change that affects the dashboard shell, sync the change to ALL course `index.html` files and `courses/template/index.html`.** The template is the source of truth for new courses; existing courses must match it.
 
 **Public API additions (already implemented — do not remove or rename):**
 - `getUserName()` — returns the learner's name string, or `null` if not set / skipped
@@ -101,30 +101,30 @@ Apply every one of these principles. They are not optional stylistic choices —
 - `importProgressFromGist(url)` — async; accepts gist HTML or raw URL; calls `replaceStateFromJSON()`; returns `{ ok, error? }`
 - `.name-modal-overlay` / `.name-modal` — CSS classes for the name prompt modal; do not remove
 
-### When the create-tutorial skill is invoked
+### When the create-course skill is invoked
 
-See `.claude/skills/create-tutorial/SKILL.md` for the full skill. Summary:
-- Gather: topic, audience, prerequisites, time estimate, list of sections
-- Generate under `tutorials/{slug}/`: `config.js`, `index.html`, one HTML file per section in `pages/`, `pages/settings.html`, `states/manifest.json`
-- Asset paths in section pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
+See `.claude/skills/create-course/SKILL.md` for the full skill. Summary:
+- Gather: topic, audience, prerequisites, time estimate, list of modules
+- Generate under `courses/{slug}/`: `config.js`, `index.html`, one HTML file per module in `pages/`, `pages/settings.html`, `states/manifest.json`
+- Asset paths in module pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
 - Asset paths in index.html: `../../core/css/styles.css`, `./config.js`, `../../core/js/framework.js`
-- The user should be able to open the tutorial immediately after
-- **After generating the tutorial files, add an entry for the new tutorial to the root `index.html` `TUTORIALS` array.** Each entry needs: `title`, `icon`, `subtitle`, `description`, `href` (`./tutorials/{slug}/index.html`), `stateKey` (from config.js), `sectionCount`, and `timeCommitment`.
+- The user should be able to open the course immediately after
+- **After generating the course files, add an entry for the new course to the root `index.html` `COURSES` array.** Each entry needs: `title`, `icon`, `subtitle`, `description`, `href` (`./courses/{slug}/index.html`), `stateKey` (from config.js), `moduleCount`, and `timeCommitment`.
 
 ### When the add-lesson or improve-lesson skill is invoked
 
-Read the existing section HTML before making any changes. Match the existing style and structure. Section IDs must be unique and follow the pattern `sN` for sections and `sN-M` for sub-sections.
+Read the existing module HTML before making any changes. Match the existing style and structure. Module IDs must be unique and follow the pattern `sN` for modules and `sN-M` for lessons.
 
 ## HTML Patterns
 
-### Section page shell
+### Module page shell
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Section N — Title</title>
+<title>Module N — Title</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -138,16 +138,16 @@ Read the existing section HTML before making any changes. Match the existing sty
 </html>
 ```
 
-### Sub-section accordion
+### Lesson accordion
 ```html
-<div class="sub-section" id="sN-M">
-  <div class="sub-header" onclick="toggleSub('sN-M')">
-    <div class="sub-title">N.M Sub-section Title</div>
-    <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<div class="lesson" id="sN-M">
+  <div class="lesson-header" onclick="toggleLesson('sN-M')">
+    <div class="lesson-title">N.M Lesson Title</div>
+    <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <polyline points="6 9 12 15 18 9"/>
     </svg>
   </div>
-  <div class="sub-body">
+  <div class="lesson-body">
     <!-- content -->
   </div>
 </div>
@@ -167,13 +167,13 @@ Read the existing section HTML before making any changes. Match the existing sty
 </ul>
 ```
 
-Checkbox IDs must be globally unique across the entire tutorial (not just the section). Convention: `sN-taskname` e.g. `s2-ros-installed`.
+Checkbox IDs must be globally unique across the entire course (not just the module). Convention: `sN-taskname` e.g. `s2-ros-installed`.
 
 ## What NOT to Do
 
 - Do not add npm packages, build tools, or external CDN links
 - Do not use `localStorage` keys other than the `STATE_KEY` derived from `config.js`'s `stateKey`
-- Do not hardcode section counts (use `SECTIONS.length`)
+- Do not hardcode module counts (use `MODULES.length`)
 - Do not write comments explaining what code does — only write comments explaining WHY something non-obvious is done
 - Do not create a backend, database, or server-side component — use files and the GitHub Gist API for anything requiring persistence
 
@@ -202,8 +202,26 @@ Without the wrapper, label/track/count stack vertically and the progress bar tur
 
 ### 2. Wrong button in the backup row
 
-The settings link in `.progress-backup-row` must use `class="btn-icon"` with a gear icon SVG, NOT `class="btn"` with the text "Export / Import". The correct markup is in `tutorials/cpp-drone/index.html` — copy from there.
+The settings link in `.progress-backup-row` must use `class="btn-icon"` with a gear icon SVG, NOT `class="btn"` with the text "Export / Import". The correct markup is in `courses/cpp-drone/index.html` — copy from there.
 
-### 3. Not updating root `index.html` after creating a tutorial
+### 3. Not updating root `index.html` after creating a course
 
-Every new tutorial must have an entry in the `TUTORIALS` array in the root `index.html`. This is the homepage that lists all tutorials with their live progress. Forgetting this means the tutorial is invisible to users on the home page.
+Every new course must have an entry in the `COURSES` array in the root `index.html`. This is the homepage that lists all courses with their live progress. Forgetting this means the course is invisible to users on the home page.
+
+### 4. Missing top-card fields in config.js
+
+The dashboard header card (description, prerequisites, time commitment, goal) is rendered entirely from `config.js` by `initDashboard()`. These five fields are **required** in every config.js — never omit them:
+
+```js
+  subtitle: '...',          // tech stack / audience tagline shown under the title
+  description: '...',       // 1–2 sentence course summary
+  prerequisites: ['...'],   // minimum 2 items; rendered as a bullet list
+  timeCommitment: '...',    // e.g. "4–6 hrs/week · ~6 weeks"
+  goal: '...',              // concrete outcome the learner will achieve
+```
+
+Do NOT put this content in `index.html` — the HTML is a generic shell. Putting course-specific text in the HTML breaks the pattern and will get lost the next time the template is re-applied.
+
+### 5. Using old terminology
+
+The framework uses **Module** (not "Section") and **Lesson** (not "Sub-section"). In config.js the key is `modules:`, not `sections:`. In HTML the lesson accordion classes are `.lesson`, `.lesson-header`, `.lesson-title`, `.lesson-chevron`, `.lesson-body`. The JS function is `toggleLesson()`, not `toggleSub()`. In the dashboard HTML the list container is `id="moduleList"` with `class="module-list"`. Do not use the old names.

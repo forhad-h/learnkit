@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2.5 — C Fundamentals Refresher</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+<div id="page-content">
+  <div class="callout callout-warning">Read this if pointers, memory, or structs feel uncertain. Skip to Module 3 if all five concepts are solid.</div>
+
+  <div class="lesson" id="s25-1">
+    <div class="lesson-header" onclick="toggleLesson('s25-1')">
+      <div class="lesson-title">2.5.1 Memory: Stack vs Heap</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+void demonstrate_memory() {
+    // STACK — automatic, fast, limited (~1–8MB)
+    int altitude = 100;
+    float battery[4] = {87.2, 86.1, 85.0, 83.9};
+    printf("Stack: altitude=%d, battery[0]=%.1f\n", altitude, battery[0]);
+    // freed automatically when function returns
+
+    // HEAP — manual, slower, much larger
+    float* sensor_readings = malloc(10 * sizeof(float));
+    sensor_readings[0] = 23.8;
+    printf("Heap: sensor_readings[0]=%.1f\n", sensor_readings[0]);
+    free(sensor_readings);   // MUST free — forget = memory leak
+    sensor_readings = NULL;
+}
+
+int main() {
+    demonstrate_memory();
+    return 0;
+}</pre>
+      <div class="callout callout-warning">Never return a pointer to a stack variable.
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+// float* bad()  { float x = 100.0; return &amp;x; }  // WRONG — dangling pointer
+float* good() { float* x = malloc(sizeof(float)); *x = 100.0; return x; }
+
+int main() {
+    float* p = good();
+    printf("%.1f\n", *p);   // 100.0
+    free(p);
+    return 0;
+}</pre></div>
+      <p><strong>Why this matters:</strong> C++ smart pointers (Module 3.4) automate <code>free()</code> — but only make sense if the underlying concept is understood.</p>
+    </div>
+  </div>
+
+  <div class="lesson" id="s25-2">
+    <div class="lesson-header" onclick="toggleLesson('s25-2')">
+      <div class="lesson-title">2.5.2 Pointers</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>#include &lt;stdio.h&gt;
+
+int main() {
+    float altitude = 100.0;
+    float* ptr = &amp;altitude;       // &amp; = "address of"
+    printf("%.1f\n", *ptr);       // 100.0  (* = dereference)
+    *ptr = 200.0;
+    printf("%.1f\n", altitude);   // 200.0 — original changed
+
+    // NULL — always check before dereferencing
+    float* empty = NULL;
+    if (empty != NULL) { printf("%.1f\n", *empty); }
+    // Dereferencing NULL = segfault = most common crash
+    return 0;
+}</pre>
+      <pre>#include &lt;stdio.h&gt;
+
+int main() {
+    // Pointer arithmetic — used in sensor data buffers
+    float readings[5] = {10.0, 20.0, 30.0, 40.0, 50.0};
+    float* p = readings;
+    printf("%.1f\n", *(p+1));    // 20.0
+    return 0;
+}</pre>
+    </div>
+  </div>
+
+  <div class="lesson" id="s25-3">
+    <div class="lesson-header" onclick="toggleLesson('s25-3')">
+      <div class="lesson-title">2.5.3 Structs</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>#include &lt;stdio.h&gt;
+
+typedef struct {
+    double latitude;
+    double longitude;
+    float  altitude;
+} GPSPosition;
+
+void update_altitude(GPSPosition* pos, float new_alt) {
+    pos-&gt;altitude = new_alt;  // -&gt; for pointer to struct
+}
+
+int main() {
+    GPSPosition home = {23.8103, 90.4125, 10.0};
+    update_altitude(&amp;home, 25.0);
+    printf("%.1f\n", home.altitude);  // 25.0
+    return 0;
+}</pre>
+      <p><strong>Why this matters:</strong> Every ROS2 message works exactly like this struct. <code>sensor_msgs::msg::NavSatFix</code> has <code>latitude</code>, <code>longitude</code>, <code>altitude</code> fields — identical concept.</p>
+    </div>
+  </div>
+
+  <div class="lesson" id="s25-4">
+    <div class="lesson-header" onclick="toggleLesson('s25-4')">
+      <div class="lesson-title">2.5.4 Functions and Scope</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>#include &lt;stdio.h&gt;
+
+// Pass by value — original unchanged
+void reset_by_value(float altitude) { altitude = 0.0; }
+
+// Pass by pointer — modifies original
+void reset_by_pointer(float* altitude) { *altitude = 0.0; }
+
+int main() {
+    float alt = 100.0;
+    reset_by_value(alt);    printf("%.1f\n", alt);  // 100.0
+    reset_by_pointer(&amp;alt); printf("%.1f\n", alt);  // 0.0
+    return 0;
+}</pre>
+      <pre>#include &lt;stdio.h&gt;
+
+// Output parameter — returning multiple values
+void get_gps_error(float* h_err, float* v_err) {
+    *h_err = 2.5;  *v_err = 4.1;
+}
+
+int main() {
+    float h, v;
+    get_gps_error(&amp;h, &amp;v);
+    printf("h=%.1f, v=%.1f\n", h, v);  // h=2.5, v=4.1
+    return 0;
+}</pre>
+    </div>
+  </div>
+
+  <div class="lesson" id="s25-5">
+    <div class="lesson-header" onclick="toggleLesson('s25-5')">
+      <div class="lesson-title">2.5.5 Header Files and Compilation Units</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>// gps.h — save as gps.h
+#ifndef GPS_H
+#define GPS_H
+typedef struct { double lat; double lon; float alt; } GPSPos;
+float distance(GPSPos a, GPSPos b);
+#endif</pre>
+      <pre>// gps.c — save as gps.c
+#include "gps.h"
+#include &lt;math.h&gt;
+float distance(GPSPos a, GPSPos b) {
+    double dlat = a.lat - b.lat, dlon = a.lon - b.lon;
+    return (float)sqrt(dlat*dlat + dlon*dlon);
+}</pre>
+      <pre>// main.c — save as main.c
+#include &lt;stdio.h&gt;
+#include "gps.h"
+
+int main() {
+    GPSPos home   = {23.8103, 90.4125, 10.0};
+    GPSPos target = {23.8200, 90.4200, 15.0};
+    printf("Distance: %.6f degrees\n", distance(home, target));
+    return 0;
+}</pre>
+      <pre># Compile all three files together
+gcc main.c gps.c -o drone_nav -lm
+./drone_nav</pre>
+      <p><strong>Why this matters:</strong> CMakeLists.txt does exactly this — specifies which <code>.cpp</code> files to compile and which libraries to link.</p>
+    </div>
+  </div>
+
+  <div class="lesson" id="s25-6">
+    <div class="lesson-header" onclick="toggleLesson('s25-6')">
+      <div class="lesson-title">2.5.6 Practice Exercise — Telemetry Logger</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>Write a single C program using all five concepts. Takes 30–60 minutes. Confirms readiness for Module 3.</p>
+      <ul class="checklist" id="cl-25-6">
+        <li><input type="checkbox" id="c25a"><label for="c25a">Define a <code>TelemetryRecord</code> struct: timestamp, altitude, latitude, longitude, battery_percent</label></li>
+        <li><input type="checkbox" id="c25b"><label for="c25b">Write <code>create_log(int size)</code> — allocates array on heap, returns pointer</label></li>
+        <li><input type="checkbox" id="c25c"><label for="c25c">Write <code>fill_record(TelemetryRecord* r, ...)</code> — fills one record via pointer</label></li>
+        <li><input type="checkbox" id="c25d"><label for="c25d">Write <code>print_log(TelemetryRecord* log, int size)</code> — prints all records</label></li>
+        <li><input type="checkbox" id="c25e"><label for="c25e">Write <code>free_log(TelemetryRecord** log)</code> — frees memory, sets to NULL</label></li>
+        <li><input type="checkbox" id="c25f"><label for="c25f">Program compiles and runs with correct output</label></li>
+        <li><input type="checkbox" id="c25g"><label for="c25g">Valgrind shows zero leaks: <code>gcc -g telemetry.c -o t &amp;&amp; valgrind --leak-check=full ./t</code></label></li>
+      </ul>
+      <pre># Expected output:
+[0.0s] Alt:  0.0m  Lat: 23.810300  Lon: 90.412500  Bat: 100%
+[1.0s] Alt: 10.5m  Lat: 23.810350  Lon: 90.412550  Bat:  99%</pre>
+    </div>
+  </div>
+</div>
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s25', '../');</script>
+</body>
+</html>

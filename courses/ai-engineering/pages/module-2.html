@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Prompt Engineering Fundamentals</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Prompting is not about magic words — it's about giving the model the right information, role, and constraints so it can produce the output you actually need. Master these fundamentals and 80% of your prompt problems disappear.
+  </p>
+
+
+  <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s2-1">
+    <div class="lesson-header" onclick="toggleLesson('s2-1')">
+      <div class="lesson-title">2.1 The Four Parts of Every Good Prompt</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Every prompt that works well contains some combination of four components. You won't always need all four, but knowing which is missing is how you debug a bad output.</p>
+
+      <table>
+        <thead>
+          <tr><th>Component</th><th>What it does</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Role</strong></td><td>Sets expertise and voice</td><td>"You are a senior Python engineer."</td></tr>
+          <tr><td><strong>Context</strong></td><td>Background the model needs</td><td>"This is a FastAPI app used by 10k users/day."</td></tr>
+          <tr><td><strong>Task</strong></td><td>What you want done</td><td>"Refactor this function to be async."</td></tr>
+          <tr><td><strong>Format</strong></td><td>Shape of the output</td><td>"Return only the updated function, no explanation."</td></tr>
+        </tbody>
+      </table>
+
+      <pre># Weak prompt:
+"Fix my code."
+
+# Strong prompt (all four components):
+"""
+You are a senior Python engineer (ROLE).
+This function is called on every HTTP request in a high-traffic API (CONTEXT).
+Refactor it to remove the synchronous database call and replace it with async/await (TASK).
+Return only the updated function with no explanation or markdown fences (FORMAT).
+
+[code here]
+"""</pre>
+
+      <div class="callout callout-warning">
+        The most commonly missing component is <strong>Format</strong>. If you don't specify the output shape, the model will pick one — usually verbose markdown with headers and bullet points. Always say what you want back.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s2-2">
+    <div class="lesson-header" onclick="toggleLesson('s2-2')">
+      <div class="lesson-title">2.2 System Prompts vs User Prompts — Use Both</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The system prompt is your application's persistent configuration. The user prompt is per-request input. Mixing them together in one big user prompt works, but it wastes the cache and makes your prompts hard to maintain.</p>
+
+      <pre>import anthropic
+
+client = anthropic.Anthropic()
+
+SYSTEM = """
+You are a code review assistant for Python projects.
+Always respond with:
+1. A severity label: [CRITICAL] / [WARNING] / [INFO]
+2. The specific line number(s) affected
+3. A one-sentence explanation
+4. A corrected code snippet
+
+Never add introductions or closing remarks.
+"""
+
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    system=SYSTEM,
+    messages=[
+        {"role": "user", "content": f"Review this function:\n\n{code}"}
+    ]
+)</pre>
+
+      <div class="callout callout-info">
+        Claude supports <strong>prompt caching</strong>: if you send the same system prompt repeatedly, Anthropic caches it and charges you much less per token. A 10,000-token system prompt costs 90% less on cache hits. Always put stable content in the system prompt and dynamic content in user messages.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s2-3">
+    <div class="lesson-header" onclick="toggleLesson('s2-3')">
+      <div class="lesson-title">2.3 Few-Shot Examples: Show, Don't Tell</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>If you can't get the format right by describing it, show the model an example. Two or three well-chosen examples (few-shot) are worth a page of instructions.</p>
+
+      <pre>SYSTEM = """
+You extract action items from meeting notes.
+Output format — one item per line, no bullets, no numbering:
+
+OWNER: ACTION (DEADLINE)
+
+Examples:
+Alice: Update API docs to include new auth endpoints (Friday)
+Bob: Set up staging environment for QA team (Next Monday)
+Unassigned: Review Q2 budget proposal (EOW)
+"""
+
+user_message = """
+Meeting notes from 2026-04-22:
+- John said he'll handle the onboarding emails by Thursday
+- Sarah and the design team need to finalize the new dashboard mockups before the client call
+- No one owns the security audit yet, needs to be done by end of month
+"""</pre>
+
+      <div class="callout callout-success">
+        💡 The trick I use: write one perfect example output by hand, then use that as your few-shot example. If you struggle to write the example yourself, your format spec is too vague.
+      </div>
+
+      <div class="callout callout-warning">
+        More examples is not always better. 2–3 examples that cover edge cases outperform 10 examples of the same pattern. Include at least one example that shows what to do when the input is ambiguous or missing information.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s2-4">
+    <div class="lesson-header" onclick="toggleLesson('s2-4')">
+      <div class="lesson-title">2.4 Output Constraints: JSON, XML, and Structured Data</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>For programmatic use, you need reliable structured output. Asking nicely doesn't always work — use a JSON schema, prefill the assistant's response, or use the API's structured output features.</p>
+
+      <pre>import json
+
+SYSTEM = """
+You extract product information from user messages.
+Always respond with valid JSON matching this schema exactly:
+
+{
+  "product_name": "string",
+  "quantity": number,
+  "unit": "string",
+  "urgency": "low" | "medium" | "high"
+}
+
+Never add explanation outside the JSON object.
+"""
+
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=256,
+    system=SYSTEM,
+    messages=[{"role": "user", "content": user_input}]
+)
+
+data = json.loads(response.content[0].text)  # safe to parse directly</pre>
+
+      <div class="callout callout-info">
+        For mission-critical structured output, use Claude's <strong>tool use</strong> feature (Module 8) instead. Tool use forces the model to output JSON matching your schema — it's more reliable than asking for JSON in the prompt.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 5: VERIFY ════════════════════════════════════════════ -->
+  <div class="lesson" id="s2-5">
+    <div class="lesson-header" onclick="toggleLesson('s2-5')">
+      <div class="lesson-title">2.5 Practice: Build Your First Prompt Library</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The best prompts are tested, version-controlled, and reused. Start your prompt library now — even two or three well-crafted prompts compound into a real productivity asset.</p>
+
+      <pre># prompts/code_review.py
+SYSTEM = """
+You are a senior engineer reviewing Python code for correctness and style.
+For each issue found, respond with exactly:
+
+[SEVERITY] Line N: one-sentence description
+Suggested fix: corrected code snippet
+
+Severity options: CRITICAL | WARNING | STYLE
+If no issues found, respond: "No issues found."
+"""
+
+# prompts/summarize.py
+SYSTEM = """
+You summarize technical documents for a non-technical audience.
+Always produce:
+- A 1-sentence TL;DR
+- 3 bullet points of key takeaways (plain English, no jargon)
+- 1 "what to do next" action item
+
+Keep the entire response under 150 words.
+"""</pre>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s2-four-components"> I can name the four components of a good prompt and know which is most often missing</li>
+        <li><input type="checkbox" id="s2-system-vs-user"> I know what belongs in a system prompt vs a user message</li>
+        <li><input type="checkbox" id="s2-few-shot"> I wrote at least one few-shot prompt and tested it against 3 different inputs</li>
+        <li><input type="checkbox" id="s2-json-output"> I can reliably get structured JSON output from a prompt</li>
+        <li><input type="checkbox" id="s2-prompt-library"> I started a prompt library with at least two prompts I will reuse</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s2', '../');</script>
+</body>
+</html>

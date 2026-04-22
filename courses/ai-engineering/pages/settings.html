@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings — AI Engineering</title>
+    <link rel="stylesheet" href="../../../core/css/styles.css" />
+    <style>
+      body {
+        background: var(--bg2);
+      }
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+      .wrap h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .wrap > .desc {
+        font-size: 14px;
+        color: var(--text2);
+        margin-bottom: 28px;
+      }
+      .sec-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .step-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+      }
+      .step-num {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--accent-bg);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .step-txt {
+        font-size: 13px;
+        color: var(--text2);
+        line-height: 1.5;
+      }
+      .state-entry {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      .state-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--accent-bg);
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        flex-shrink: 0;
+      }
+      .state-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .state-name {
+        font-size: 13.5px;
+        font-weight: 500;
+      }
+      .state-meta {
+        font-size: 12px;
+        color: var(--text3);
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        color: var(--text2);
+        text-decoration: none;
+        margin-bottom: 20px;
+      }
+      .back-link:hover {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a href="../index.html" class="back-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to Dashboard
+      </a>
+
+      <h1>Settings</h1>
+      <p class="desc">
+        Manage your progress, personalization, and data export.
+      </p>
+
+      <div class="callout callout-warning" style="margin-bottom: 24px">
+        <strong>No database, no backend.</strong> Your progress lives only in
+        this browser's <code>localStorage</code>. Clearing browser data,
+        switching browsers, or using a private/incognito window will erase it.
+        <br /><br />
+        To keep or transfer your progress:
+        <strong>download a state.json file</strong> below, then import it on any
+        other browser or computer. Nothing leaves your device unless you choose
+        to share via Gist.
+      </div>
+
+      <!-- Current progress -->
+      <div class="settings-module">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          Current Progress
+        </div>
+        <div
+          id="progressSummary"
+          style="font-size: 13px; color: var(--text2); margin-bottom: 14px"
+        ></div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button class="btn btn-primary" onclick="doExport()">
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download state.json
+          </button>
+          <button
+            class="btn"
+            onclick="doReset()"
+            style="color: var(--red); border-color: #fecaca"
+          >
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-3.48" />
+            </svg>
+            Reset all progress
+          </button>
+        </div>
+        <div class="alert alert-success" id="exportAlert"></div>
+        <div class="alert alert-success" id="resetAlert">Progress cleared.</div>
+      </div>
+
+      <!-- Import from file -->
+      <div class="settings-module">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Import from File
+        </div>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px">
+          Load a previously exported state.json file, or paste JSON directly.
+        </p>
+        <label class="btn" style="cursor: pointer; margin-bottom: 10px">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Choose JSON file
+          <input
+            type="file"
+            accept=".json"
+            id="fileInput"
+            style="display: none"
+            onchange="handleFileInput(event)"
+          />
+        </label>
+        <p style="font-size: 12px; color: var(--text3); margin-bottom: 4px">
+          Or paste JSON:
+        </p>
+        <textarea
+          id="jsonInput"
+          rows="5"
+          placeholder='{"modules":{"s1":"completed"},"checkboxes":{"p1a":true}}'
+        ></textarea>
+        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap">
+          <button class="btn btn-primary" onclick="doImportMerge()">
+            Merge into current
+          </button>
+          <button class="btn" onclick="doImportReplace()">
+            Replace all progress
+          </button>
+        </div>
+        <div class="alert alert-success" id="importAlert">
+          State imported! <a href="../index.html">Go to dashboard →</a>
+        </div>
+        <div class="alert alert-error" id="importError"></div>
+      </div>
+
+      <!-- States directory — hidden until git-sync UX is improved (see README: Future Improvements) -->
+      <div class="settings-module" style="display: none">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          States Directory
+          <span
+            style="
+              font-size: 11px;
+              font-weight: 400;
+              color: var(--text3);
+              text-transform: none;
+              letter-spacing: 0;
+            "
+            >(git-based sync)</span
+          >
+        </div>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 14px">
+          Save state files to <code>states/</code> in this repo, push to GitHub,
+          pull on another machine, and load here.
+        </p>
+        <div
+          style="
+            background: var(--bg3);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 14px;
+          "
+        >
+          <div
+            style="
+              font-size: 12px;
+              font-weight: 600;
+              color: var(--text);
+              margin-bottom: 8px;
+            "
+          >
+            Workflow
+          </div>
+          <div class="step-row">
+            <div class="step-num">1</div>
+            <div class="step-txt">
+              Download state above → rename to e.g. <code>home-pc.json</code> →
+              put in <code>states/</code> folder
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">2</div>
+            <div class="step-txt">
+              Add entry to <code>states/manifest.json</code> (see format below)
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">3</div>
+            <div class="step-txt">
+              Commit &amp; push. Pull on another machine. Open this page.
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">4</div>
+            <div class="step-txt">
+              Click <strong>Check states/ directory</strong> → click
+              <strong>Load</strong> next to your state.
+            </div>
+          </div>
+        </div>
+        <button class="btn" onclick="loadManifest()" id="manifestBtn">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 1 0 .49-3.48" />
+          </svg>
+          Check states/ directory
+        </button>
+        <div id="statesList" style="margin-top: 12px"></div>
+        <div class="alert alert-error" id="manifestError"></div>
+      </div>
+
+      <!-- Share via public link — hidden; GitHub Gist API now requires auth (see README: Future Improvements) -->
+      <div class="settings-module" style="display: none">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+          Share Progress (Public Link)
+        </div>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 10px">
+          Generate a shareable URL using an anonymous GitHub Gist. No account
+          needed. Anyone with the link can see your progress data.
+        </p>
+        <div
+          class="callout callout-warning"
+          style="margin-bottom: 14px; font-size: 13px"
+        >
+          Public gist — the link is visible to anyone who has it. Do not include
+          sensitive data in course notes.
+        </div>
+        <button
+          class="btn btn-primary"
+          id="gistShareBtn"
+          onclick="doShareGist()"
+        >
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+          Generate Share Link
+        </button>
+        <div id="gistResult" style="display: none; margin-top: 12px">
+          <p style="font-size: 12px; color: var(--text3); margin-bottom: 6px">
+            Your shareable link:
+          </p>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <input
+              id="gistUrl"
+              type="text"
+              readonly
+              style="
+                flex: 1;
+                padding: 7px 10px;
+                border: 1px solid var(--border2);
+                border-radius: 7px;
+                font-size: 12px;
+                font-family: monospace;
+                background: var(--bg2);
+              "
+            />
+            <button class="btn" onclick="copyGistUrl()">Copy</button>
+          </div>
+        </div>
+        <div class="alert alert-error" id="gistError"></div>
+        <div style="margin-top: 20px">
+          <p style="font-size: 13px; color: var(--text2); margin-bottom: 8px">
+            Restore from a share link on this device:
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <input
+              id="gistImportUrl"
+              type="text"
+              placeholder="https://gist.github.com/..."
+              style="
+                flex: 1;
+                min-width: 200px;
+                padding: 7px 10px;
+                border: 1px solid var(--border2);
+                border-radius: 7px;
+                font-size: 13px;
+                font-family: inherit;
+              "
+            />
+            <button class="btn" onclick="doImportGist()">Restore</button>
+          </div>
+          <div class="alert alert-success" id="gistImportOk">
+            Progress restored! <a href="../index.html">Go to dashboard →</a>
+          </div>
+          <div class="alert alert-error" id="gistImportErr"></div>
+        </div>
+      </div>
+
+      <!-- Personalization -->
+      <div class="settings-module">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Your Name
+        </div>
+        <p
+          id="currentNameDisplay"
+          style="font-size: 13px; color: var(--text2); margin-bottom: 12px"
+        ></p>
+        <div
+          style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"
+        >
+          <input
+            id="nameInput"
+            type="text"
+            placeholder="Enter your name"
+            maxlength="40"
+            style="
+              padding: 7px 10px;
+              border: 1px solid var(--border2);
+              border-radius: 7px;
+              font-size: 13px;
+              font-family: inherit;
+            "
+          />
+          <button class="btn btn-primary" onclick="saveName()">Save</button>
+        </div>
+        <div class="alert alert-success" id="nameAlert">Name saved!</div>
+      </div>
+
+      <!-- Manifest format — hidden alongside States Directory module -->
+      <div class="settings-module" style="display: none">
+        <div class="sec-title">
+          <svg
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          manifest.json format
+        </div>
+        <pre>
+{
+  "states": [
+    {
+      "name": "Home PC — April 2026",
+      "file": "home-pc-2026-04.json",
+      "saved_at": "2026-04-15T10:00:00Z"
+    }
+  ]
+}</pre
+        >
+        <p style="font-size: 12px; color: var(--text3); margin-top: 6px">
+          Located at <code>states/manifest.json</code> in the repo root.
+        </p>
+      </div>
+    </div>
+
+    <script src="../config.js"></script>
+    <script src="../../../core/js/framework.js"></script>
+    <script>
+      // Progress summary
+      ;(function () {
+        const completed = getCompletedCount()
+        const state = getState()
+        const inProgress = MODULES.filter(
+          (s) => state.modules[s.id] === "in-progress",
+        ).length
+        document.getElementById("progressSummary").innerHTML =
+          `<strong>${completed}</strong> of ${MODULES.length} modules completed · <strong>${inProgress}</strong> in progress`
+      })()
+
+      function doExport() {
+        const fn = exportState()
+        const el = document.getElementById("exportAlert")
+        el.textContent = "Downloaded: " + fn
+        el.style.display = "block"
+        setTimeout(() => (el.style.display = "none"), 4000)
+      }
+
+      function doReset() {
+        if (!confirm("Reset ALL progress? This cannot be undone.")) return
+        clearState()
+        const el = document.getElementById("resetAlert")
+        el.style.display = "block"
+        setTimeout(() => (location.href = "../index.html"), 1500)
+      }
+
+      function handleFileInput(e) {
+        const f = e.target.files[0]
+        if (!f) return
+        const r = new FileReader()
+        r.onload = (ev) => {
+          document.getElementById("jsonInput").value = ev.target.result
+        }
+        r.readAsText(f)
+      }
+
+      function showOk() {
+        document.getElementById("importError").style.display = "none"
+        document.getElementById("importAlert").style.display = "block"
+      }
+      function showErr(m) {
+        document.getElementById("importAlert").style.display = "none"
+        const e = document.getElementById("importError")
+        e.textContent = "Error: " + m
+        e.style.display = "block"
+      }
+
+      function doImportMerge() {
+        const j = document.getElementById("jsonInput").value.trim()
+        if (!j) {
+          showErr("No JSON provided")
+          return
+        }
+        const r = importStateFromJSON(j)
+        if (r.ok) showOk()
+        else showErr(r.error)
+      }
+
+      function doImportReplace() {
+        const j = document.getElementById("jsonInput").value.trim()
+        if (!j) {
+          showErr("No JSON provided")
+          return
+        }
+        if (!confirm("Replace all current progress?")) return
+        const r = replaceStateFromJSON(j)
+        if (r.ok) showOk()
+        else showErr(r.error)
+      }
+
+      async function loadManifest() {
+        const btn = document.getElementById("manifestBtn")
+        btn.textContent = "Checking…"
+        btn.disabled = true
+        const manifest = await loadStatesManifest("../")
+        btn.disabled = false
+        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.48"/></svg> Refresh`
+
+        const list = document.getElementById("statesList")
+        const err = document.getElementById("manifestError")
+
+        if (!manifest.states || manifest.states.length === 0) {
+          list.innerHTML = `<p style="font-size:13px;color:var(--text3);padding:10px 0;">No state files found in <code>states/</code>.${location.protocol === "file:" ? " Serve via HTTP to use this feature (e.g. <code>python3 -m http.server</code>)." : ""}</p>`
+          err.style.display = "none"
+          return
+        }
+
+        err.style.display = "none"
+        window._manifest = manifest
+        list.innerHTML = manifest.states
+          .map(
+            (s, i) => `
+    <div class="state-entry">
+      <div class="state-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="state-info">
+        <div class="state-name">${s.name || s.file}</div>
+        <div class="state-meta">${s.file}${s.saved_at ? " · " + new Date(s.saved_at).toLocaleDateString() : ""}</div>
+      </div>
+      <button class="btn" onclick="loadEntry(${i})">Load</button>
+    </div>`,
+          )
+          .join("")
+      }
+
+      // Gist sharing
+      async function doShareGist() {
+        const btn = document.getElementById("gistShareBtn")
+        btn.textContent = "Generating…"
+        btn.disabled = true
+        const errEl = document.getElementById("gistError")
+        errEl.style.display = "none"
+        try {
+          const { url } = await shareProgressAsGist()
+          document.getElementById("gistUrl").value = url
+          document.getElementById("gistResult").style.display = "block"
+        } catch (e) {
+          errEl.textContent = "Error: " + e.message
+          errEl.style.display = "block"
+        }
+        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Generate Share Link`
+        btn.disabled = false
+      }
+
+      function copyGistUrl() {
+        const val = document.getElementById("gistUrl").value
+        navigator.clipboard?.writeText(val).catch(() => {})
+      }
+
+      async function doImportGist() {
+        const url = document.getElementById("gistImportUrl").value.trim()
+        if (!url) return
+        const okEl = document.getElementById("gistImportOk")
+        const errEl = document.getElementById("gistImportErr")
+        okEl.style.display = "none"
+        errEl.style.display = "none"
+        try {
+          const r = await importProgressFromGist(url)
+          if (r.ok) okEl.style.display = "block"
+          else {
+            errEl.textContent = "Error: " + r.error
+            errEl.style.display = "block"
+          }
+        } catch (e) {
+          errEl.textContent = "Error: " + e.message
+          errEl.style.display = "block"
+        }
+      }
+
+      // Name management
+      ;(function () {
+        const name = getUserName()
+        const display = document.getElementById("currentNameDisplay")
+        if (display)
+          display.textContent = name
+            ? `Currently set to: ${name}`
+            : "No name set yet. Add one below."
+        const input = document.getElementById("nameInput")
+        if (input && name) input.value = name
+      })()
+
+      function saveName() {
+        const name = (document.getElementById("nameInput")?.value || "").trim()
+        const state = getState()
+        state.userName = name || "__skipped__"
+        saveState(state)
+        const display = document.getElementById("currentNameDisplay")
+        if (display)
+          display.textContent = name
+            ? `Currently set to: ${name}`
+            : "No name set."
+        const el = document.getElementById("nameAlert")
+        el.style.display = "block"
+        setTimeout(() => (el.style.display = "none"), 2500)
+      }
+
+      async function loadEntry(i) {
+        const entry = window._manifest.states[i]
+        try {
+          const data = await loadStateFile("../", entry.file)
+          if (
+            !confirm(
+              `Load "${entry.name || entry.file}"? Merges into current progress.`,
+            )
+          )
+            return
+          const r = importStateFromJSON(JSON.stringify(data))
+          if (r.ok) showOk()
+          else alert("Error: " + r.error)
+        } catch (e) {
+          alert("Could not load file: " + e.message)
+        }
+      }
+    </script>
+  </body>
+</html>

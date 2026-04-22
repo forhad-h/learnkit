@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — How LLMs Actually Work</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Every bad prompt, every hallucination, every confusing agent behavior traces back to a misunderstanding of what an LLM is actually doing. This module gives you the mental models that will make every technique in this course feel obvious rather than magical.
+  </p>
+
+
+  <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s1-1">
+    <div class="lesson-header" onclick="toggleLesson('s1-1')">
+      <div class="lesson-title">1.1 The Autocomplete That Read the Entire Internet</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>An LLM does one thing: given a sequence of tokens, it predicts which token comes next. That's it. Everything you see — reasoning, code, stories, answers — emerges from doing this prediction billions of times with a model trained on most of the text humanity has ever written.</p>
+
+      <div class="callout callout-info">
+        A <strong>token</strong> is roughly 3–4 characters. "Hello world" is 2 tokens. "supercalifragilistic" is 6. The model never sees letters — it sees integer IDs that map to these chunks. The vocabulary is fixed at training time (Claude uses ~100k tokens).
+      </div>
+
+      <p>During training, the model is shown trillions of tokens and learns to predict each next token. It adjusts billions of internal weights until its predictions become accurate. After training, the weights are frozen — the model doesn't learn anything new from your conversations.</p>
+
+      <div class="callout callout-warning">
+        The model does <strong>not</strong> retrieve facts from a database. It compresses statistical patterns from training data into weights. This is why it can be confidently wrong — it's completing a pattern, not looking something up. This is also why RAG (Module 5) is so important.
+      </div>
+
+      <pre># A rough mental model of what happens at inference time:
+input_tokens = tokenize("The capital of France is")
+# model predicts: " Paris" with probability 0.97
+# model predicts: " Lyon" with probability 0.01
+# model predicts: " a" with probability 0.006
+# ...
+output = sample(predictions)  # usually "Paris"</pre>
+
+      <p>The <strong>temperature</strong> setting controls how much randomness is added to this sampling. Temperature 0 = always pick the most likely token. Temperature 1 = sample proportionally. This is why "temperature 0" gives you deterministic outputs.</p>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s1-2">
+    <div class="lesson-header" onclick="toggleLesson('s1-2')">
+      <div class="lesson-title">1.2 The Context Window Is Everything</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The model has no persistent memory between conversations. Each call starts fresh. The only thing the model can "see" is what's inside the context window right now — and your entire job as a prompt or context engineer is to put the right information in that window.</p>
+
+      <div class="callout callout-info">
+        Think of the context window as a shared whiteboard. You write on it, the model reads it, writes its response, and forgets everything when you close the session. The window has a fixed size — Claude's is up to 200k tokens. Once you hit the limit, old content is truncated.
+      </div>
+
+      <pre># Everything the model processes in a single API call:
+{
+  "system": "You are a helpful assistant...",   # system prompt
+  "messages": [
+    {"role": "user",      "content": "What is RAG?"},
+    {"role": "assistant", "content": "RAG stands for..."},
+    {"role": "user",      "content": "How do I implement it?"}
+  ]
+}
+# The model sees ALL of this at once, left to right, and predicts the next token.</pre>
+
+      <p>This means long conversations get expensive fast, and attention quality can degrade on very long inputs. You'll learn how to manage this deliberately in Module 4.</p>
+
+      <div class="callout callout-success">
+        💡 The mental model that made this click: the context window is not "chat history" — it's the model's entire working memory. When you say "remember what I said earlier," the model doesn't remember — it reads the transcript. If the transcript doesn't include it, it's gone.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s1-3">
+    <div class="lesson-header" onclick="toggleLesson('s1-3')">
+      <div class="lesson-title">1.3 How Training Shapes Behavior (RLHF & System Prompts)</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Raw pretraining produces a model that completes text. RLHF (Reinforcement Learning from Human Feedback) fine-tunes it to be helpful, harmless, and honest. This is why Claude follows instructions, refuses harmful requests, and maintains a consistent personality.</p>
+
+      <div class="callout callout-info">
+        The <strong>system prompt</strong> is injected before every conversation, at the highest trust level. It's where you configure the model's persona, constraints, output format, and domain expertise. The user has less influence than the system prompt in Claude's trust hierarchy.
+      </div>
+
+      <pre># Three tiers of influence (highest to lowest):
+1. Anthropic's training  →  baked into weights, can't be overridden
+2. System prompt         →  set by you (the developer/operator)
+3. User messages         →  your end-users at runtime</pre>
+
+      <p>Understanding this hierarchy explains why "jailbreaks" mostly fail and why a well-written system prompt can dramatically change the model's behavior. You're configuring a system, not arguing with a person.</p>
+
+      <div class="callout callout-warning">
+        System prompts are not secret — a determined user can often extract them via prompt injection. Never put secrets, API keys, or truly sensitive business logic in a system prompt. Use it for persona, format, and safety constraints only.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 4: VERIFY ════════════════════════════════════════════ -->
+  <div class="lesson" id="s1-4">
+    <div class="lesson-header" onclick="toggleLesson('s1-4')">
+      <div class="lesson-title">1.4 Check Your Mental Models</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Before moving on, make sure these three core ideas are solid. They are the lens through which every other technique in this course makes sense.</p>
+
+      <div class="callout callout-success">
+        If you can answer these without looking them up, you are ready for Module 2.
+      </div>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s1-token-prediction"> I can explain why an LLM "hallucinates" using the token-prediction mental model</li>
+        <li><input type="checkbox" id="s1-context-window"> I understand that the context window is the model's entire working memory — nothing persists outside it</li>
+        <li><input type="checkbox" id="s1-system-prompt"> I know the difference between a system prompt and a user message, and why that distinction matters</li>
+        <li><input type="checkbox" id="s1-temperature"> I can explain what temperature does in one sentence</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s1', '../');</script>
+</body>
+</html>

@@ -29,11 +29,11 @@ Always read the relevant files before making changes:
 
 - For JS changes: read `core/js/framework.js` (full file)
 - For CSS changes: read `core/css/styles.css`
-- For dashboard changes: read `tutorials/{name}/index.html`
-- For section page changes: read one representative section page (e.g. `tutorials/cpp-drone/pages/section-5.html`)
+- For dashboard changes: read `courses/{name}/index.html`
+- For module page changes: read one representative module page (e.g. `courses/cpp-drone/pages/module-5.html`)
 
 Understand:
-- The public API surface: `initPage()`, `initDashboard()`, `toggleSub()`, `expandAll()`, `collapseAll()`, `setStatus()`, `openSidebar()`, `closeSidebar()`, and the export/import functions
+- The public API surface: `initPage()`, `initDashboard()`, `toggleLesson()`, `expandAll()`, `collapseAll()`, `setStatus()`, `openSidebar()`, `closeSidebar()`, and the export/import functions
 - The state schema (see CLAUDE.md) — any change that adds a new state key needs a default value in `getState()`
 - The CSS variable system — all values should reference existing variables where possible
 
@@ -41,7 +41,7 @@ Understand:
 
 For any change larger than a one-liner, briefly describe what you're going to change and why before making edits. Include:
 - Which functions or CSS rules will change
-- Whether the public API changes (it should not break existing section pages)
+- Whether the public API changes (it should not break existing module pages)
 - Whether the state schema changes (and if so, how `getState()` handles old state gracefully)
 
 ## Step 4 — Implement
@@ -59,7 +59,7 @@ Add the new classes at the bottom of `core/css/styles.css` using the existing va
 ```
 
 ### For new JS features
-Add new functions near the end of their logical group (state functions near state, render functions near render). Expose on window if section pages need to call them.
+Add new functions near the end of their logical group (state functions near state, render functions near render). Expose on window if module pages need to call them.
 
 ### For state schema additions
 Add the new key with a default in `getState()`:
@@ -74,8 +74,8 @@ After making changes, describe the test steps for the user:
 
 1. `python3 -m http.server 8000` from the project root
 2. Open the dashboard — confirm no console errors
-3. Navigate to a section page — confirm sidebar, header, prev/next render correctly
-4. Toggle a section status — confirm it persists on reload
+3. Navigate to a module page — confirm sidebar, header, prev/next render correctly
+4. Toggle a module status — confirm it persists on reload
 5. If you added a new feature, describe how to see it working
 6. Export state — confirm the JSON downloads correctly
 7. Import the exported JSON — confirm state restores correctly
@@ -87,7 +87,7 @@ After making changes, describe the test steps for the user:
 - Store as `state.userName` in the state schema
 - In `renderHeader()`, add the name to the header or a greeting element
 - In `initDashboard()`, personalize the continue banner: "Welcome back, {name}"
-- In `getContinueSection()` hint text: "Pick up where you left off, {name}"
+- In `getContinueModule()` hint text: "Pick up where you left off, {name}"
 
 ### Progress sharing via GitHub Gist
 - Add a "Share progress" button to `pages/settings.html`
@@ -96,14 +96,14 @@ After making changes, describe the test steps for the user:
 - Add a "Restore from Gist URL" input field that fetches the gist and imports the JSON
 - No backend, no token required for public anonymous gists
 
-### Time-per-section tracking
-- Add `state.sessionStart` — timestamp set when a section page first loads
-- When section status changes to "completed", compute duration and store as `state.timeSpent[sectionId]`
+### Time-per-module tracking
+- Add `state.sessionStart` — timestamp set when a module page first loads
+- When module status changes to "completed", compute duration and store as `state.timeSpent[moduleId]`
 - Show in the sidebar footer or page header: "~45 min"
 
 ## Rules for framework changes
 
-- Never break the `initPage(sectionId, basePath)` signature — all section pages call it
+- Never break the `initPage(moduleId, basePath)` signature — all module pages call it
 - Never break the `initDashboard()` call — index.html calls it
 - Never change existing state key names — would break imported state JSON for all users
 - Never add npm, CDN links, or build steps
