@@ -599,8 +599,8 @@ function initPage(sectionId, basePath) {
           if (entries[0].isIntersecting && getSectionStatus(sectionId) !== "completed") {
             setSectionStatus(sectionId, "completed")
             syncStatusUI(sectionId, "completed")
+            obs.disconnect()
           }
-          obs.disconnect()
         },
         { threshold: 0.5 },
       )

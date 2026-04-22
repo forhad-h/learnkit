@@ -15,10 +15,11 @@ LearnKit is a **static-file tutorial framework** — no server, no account, no n
 ```bash
 git clone https://github.com/forhad-h/learnkit
 cd learnkit
-python3 -m http.server 8000
+python3 -m http.server 8000   # use any free port — 8080, 3000, etc.
 ```
 
 Open **http://localhost:8000/tutorials/cpp-drone/** to see a live example.
+(Replace `8000` with whatever port you chose if 8000 is already in use.)
 
 | I want to… | Go to |
 |---|---|
@@ -83,10 +84,10 @@ This is the compounding part: the tutorial gets smarter as you learn.
 ```bash
 git clone https://github.com/forhad-h/learnkit
 cd learnkit
-python3 -m http.server 8000
+python3 -m http.server 8000   # any free port works: 8080, 3000, 5500, etc.
 ```
 
-Open `http://localhost:8000/tutorials/cpp-drone/` to try the included example tutorial (C++ drone engineering). More tutorials will be added to `tutorials/` as they're created.
+Open `http://localhost:8000/tutorials/cpp-drone/` to try the included example tutorial (C++ drone engineering). If port 8000 is taken, pick any free port and update the URL accordingly. More tutorials will be added to `tutorials/` as they're created.
 
 Your progress saves automatically in your browser. No account, no login.
 
@@ -118,6 +119,7 @@ Step 1: Run /create-tutorial
 
 Step 2: Review the generated content
         Open http://localhost:8000/tutorials/your-topic/ and check the dashboard.
+        (Use whatever port you started the server on — 8000 is just the default.)
         Run /improve-lesson to flesh out any section.
 
 Step 3: Commit your tutorial

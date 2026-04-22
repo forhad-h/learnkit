@@ -1,16 +1,23 @@
+---
+description: Improve the content and structure of an existing tutorial section
+argument-hint: "[section number/name + what to improve — e.g. 'section 3 of cpp-drone, add more code examples']"
+---
+
 # /improve-lesson
 
 Improve the content of an existing tutorial section. This skill applies the psychological learning principles that make LearnKit effective and incorporates the learner's own discoveries.
 
 ## Step 1 — Identify the section
 
-If there are multiple tutorials, ask which one. Then ask: "Which section do you want to improve? (You can give the section number, title, or filename.)"
+$ARGUMENTS
 
-Read `config.js` or `js/app.js` to find the section. Then read the corresponding section HTML file in `pages/`.
+If the user specified a section above, use it as the starting point. If there are multiple tutorials, ask which one. Then confirm: "Which section do you want to improve? (You can give the section number, title, or filename.)"
+
+Read `config.js` to find the section. Then read the corresponding section HTML file in `pages/`.
 
 ## Step 2 — Gather improvement direction
 
-Ask the user these questions in a single message:
+Ask for anything still missing in a single message:
 
 1. **What's wrong or missing?** — Is the content unclear, incomplete, too shallow, has bad examples? Or just "generally improve it"?
 

@@ -1,6 +1,19 @@
+---
+description: Improve or fix the LearnKit core framework (JS or CSS)
+argument-hint: "[describe the improvement or bug — e.g. 'add dark mode toggle' or 'fix accordion animation on mobile']"
+---
+
 # /improve-framework
 
-Extend or fix the LearnKit core framework (js/app.js and css/styles.css). This skill is for UI and framework improvements, not content changes.
+Extend or fix the LearnKit core framework (core/js/framework.js and core/css/styles.css). This skill is for UI and framework improvements, not content changes.
+
+## Step 1 — Understand the request
+
+$ARGUMENTS
+
+If the user provided a description above, use it as the starting point and skip asking. Otherwise ask: "What do you want to improve or add to the framework? Describe what it should do from the learner's perspective."
+
+If the request is a bug, ask: "How do you reproduce it? What browser? What's the current behavior vs. expected behavior?"
 
 ## When to use this skill
 
@@ -8,22 +21,16 @@ Extend or fix the LearnKit core framework (js/app.js and css/styles.css). This s
 - Fixing a bug in state management, navigation, or rendering
 - Improving mobile responsiveness
 - Adding a new framework feature (e.g. progress sharing, personalization, time tracking)
-- Refactoring for the framework split (moving config out of app.js)
-
-## Step 1 — Understand the request
-
-Ask the user: "What do you want to improve or add to the framework? Describe what it should do from the learner's perspective."
-
-If the request is a bug, ask: "How do you reproduce it? What browser? What's the current behavior vs. expected behavior?"
+- Refactoring for the framework split (moving config out of framework.js)
 
 ## Step 2 — Read before writing
 
 Always read the relevant files before making changes:
 
-- For JS changes: read `js/app.js` (full file — it's 635 lines, manageable)
-- For CSS changes: read `css/styles.css`
-- For dashboard changes: read `index.html`
-- For section page changes: read one representative section page (e.g. `pages/section-5.html`)
+- For JS changes: read `core/js/framework.js` (full file)
+- For CSS changes: read `core/css/styles.css`
+- For dashboard changes: read `tutorials/{name}/index.html`
+- For section page changes: read one representative section page (e.g. `tutorials/cpp-drone/pages/section-5.html`)
 
 Understand:
 - The public API surface: `initPage()`, `initDashboard()`, `toggleSub()`, `expandAll()`, `collapseAll()`, `setStatus()`, `openSidebar()`, `closeSidebar()`, and the export/import functions
@@ -42,7 +49,7 @@ For any change larger than a one-liner, briefly describe what you're going to ch
 Make targeted, minimal edits. Do not refactor surrounding code that isn't related to the request.
 
 ### For new CSS components
-Add the new classes at the bottom of `css/styles.css` using the existing variable system. New colors go into `:root`. Example pattern:
+Add the new classes at the bottom of `core/css/styles.css` using the existing variable system. New colors go into `:root`. Example pattern:
 
 ```css
 /* New component: {name} */
@@ -60,12 +67,6 @@ Add the new key with a default in `getState()`:
 if (!state.newKey) state.newKey = {};
 ```
 This ensures old exported state JSON imports cleanly.
-
-### For the framework split (config extraction)
-Follow the plan in README.md §"Project Structure":
-1. Create `template/config.js` with `window.TUTORIAL_CONFIG` shape
-2. Wrap `js/app.js` in an IIFE, read config from `window.TUTORIAL_CONFIG`
-3. Update path references in all HTML files
 
 ## Step 5 — Verify
 
@@ -102,9 +103,9 @@ After making changes, describe the test steps for the user:
 
 ## Rules for framework changes
 
-- Never break the `initPage(sectionId, basePath)` signature — all 12 section pages call it
+- Never break the `initPage(sectionId, basePath)` signature — all section pages call it
 - Never break the `initDashboard()` call — index.html calls it
 - Never change existing state key names — would break imported state JSON for all users
 - Never add npm, CDN links, or build steps
-- Keep the total JS size reasonable — current app.js is 14KB. A full-featured framework should stay under 30KB unminified.
+- Keep the total JS size reasonable — current framework.js is ~14KB. A full-featured framework should stay under 30KB unminified.
 - CSS: never use `!important` — fix specificity properly

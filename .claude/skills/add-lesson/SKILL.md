@@ -1,16 +1,23 @@
+---
+description: Add a new section to an existing LearnKit tutorial
+argument-hint: "[lesson title + where to insert — e.g. 'Error Handling, after section 4 of cpp-drone']"
+---
+
 # /add-lesson
 
 Add a new section to an existing LearnKit tutorial.
 
-## Step 1 — Identify the tutorial
+## Step 1 — Identify the tutorial and lesson
 
-If there are multiple tutorials (monorepo layout), ask: "Which tutorial are you adding a lesson to?"
+$ARGUMENTS
 
-Read `config.js` (or `js/app.js` in the legacy layout) to understand the existing section structure — their IDs, numbers, titles, and order.
+If the user provided a lesson title or placement above, use it as a starting point. If there are multiple tutorials (monorepo layout), ask: "Which tutorial are you adding a lesson to?"
+
+Read `config.js` to understand the existing section structure — their IDs, numbers, titles, and order.
 
 ## Step 2 — Gather lesson details
 
-Ask the user in a single message:
+Ask for anything still missing in a single message:
 
 1. **Title** — What is this section called?
 2. **Position** — Where in the sequence does it go? (e.g. "after section 4", "at the end", "between 2 and 3")
@@ -28,7 +35,7 @@ Verify the new ID does not conflict with any existing section ID in the config.
 
 ## Step 4 — Generate the section HTML file
 
-Create `pages/{filename}.html` following the standard section page pattern:
+Create `tutorials/{slug}/pages/{filename}.html` following the standard section page pattern:
 
 ```html
 <!DOCTYPE html>
@@ -37,13 +44,14 @@ Create `pages/{filename}.html` following the standard section page pattern:
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Section N — {Title}</title>
-<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
 <div id="page-content">
   <!-- sub-sections here -->
 </div>
-<script src="../js/app.js"></script>
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
 <script>initPage('{sectionId}', '../');</script>
 </body>
 </html>
@@ -56,11 +64,11 @@ Apply all psychological content principles from CLAUDE.md:
 - End with a checklist or "verify" step
 - Write in second person throughout
 
-## Step 5 — Update config.js (or js/app.js)
+## Step 5 — Update config.js
 
 Insert the new section object into the `SECTIONS` array at the correct position.
 
-Also add the corresponding entry to `NUM_COLORS` — pick a color that visually groups this section with related sections.
+Also add the corresponding entry to `numColors` — pick a color that visually groups this section with related sections.
 
 Choose the `tagColor` based on the section's role (see tag vocabulary in CLAUDE.md).
 

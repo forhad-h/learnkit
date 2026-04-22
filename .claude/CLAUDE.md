@@ -30,7 +30,11 @@ project root
 │   └── template/           ← boilerplate for new tutorials (copy + edit config.js)
 └── .claude/
     ├── CLAUDE.md           ← this file
-    └── commands/           ← skill files (create-tutorial, add-lesson, improve-lesson, improve-framework)
+    └── skills/             ← Claude Code skills (each in its own subdirectory)
+        ├── create-tutorial/SKILL.md
+        ├── add-lesson/SKILL.md
+        ├── improve-lesson/SKILL.md
+        └── improve-framework/SKILL.md
 ```
 
 ## Core Files to Know
@@ -98,7 +102,7 @@ Apply every one of these principles. They are not optional stylistic choices —
 
 ### When running /create-tutorial
 
-See `.claude/commands/create-tutorial.md` for the full skill. Summary:
+See `.claude/skills/create-tutorial/SKILL.md` for the full skill. Summary:
 - Gather: topic, audience, prerequisites, time estimate, list of sections
 - Generate under `tutorials/{slug}/`: `config.js`, `index.html`, one HTML file per section in `pages/`, `pages/settings.html`, `states/manifest.json`
 - Asset paths in section pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`

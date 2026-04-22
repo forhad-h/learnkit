@@ -1,10 +1,17 @@
+---
+description: Scaffold a complete new LearnKit tutorial from scratch
+argument-hint: "[topic + audience — e.g. 'Rust for systems programmers who know C']"
+---
+
 # /create-tutorial
 
 Scaffold a complete new LearnKit tutorial from scratch. You are the tutorial generation agent.
 
 ## Step 1 — Gather requirements
 
-Ask the user for the following. Ask all at once in a single message so they can answer together:
+$ARGUMENTS
+
+If the user provided a topic/audience above, use it as a starting point. Then ask for anything still missing. Ask all questions at once in a single message so they can answer together:
 
 1. **Topic** — What is the tutorial about? (e.g. "Machine learning with Python", "Rust for systems programming")
 2. **Target audience** — Who is this for? What do they already know?
@@ -30,14 +37,14 @@ Work through the scratchpad (core concepts, project idea, depth calibration, ana
 
 Check whether we are in the monorepo layout (a `core/` directory exists) or the legacy single-tutorial layout.
 
-- **Monorepo layout**: create `{topic-slug}/` directory alongside `core/` and `template/`
-- **Legacy layout**: create the tutorial files in the current directory (user is building on top of the existing structure)
+- **Monorepo layout**: create `tutorials/{topic-slug}/` directory alongside existing tutorials
+- **Legacy layout**: create the tutorial files in the current directory
 
 Ask the user: "What folder name should I use for this tutorial?" (suggest a kebab-case slug from the topic).
 
 ## Step 3 — Generate config.js
 
-Create `config.js` (or `{folder}/config.js`) with `window.TUTORIAL_CONFIG` populated from the user's answers.
+Create `tutorials/{slug}/config.js` with `window.TUTORIAL_CONFIG` populated from the user's answers.
 
 Assign section IDs as `s1`, `s2`, `s3` … (use `s25` for 2.5 etc. if needed).
 
@@ -65,7 +72,7 @@ For `stateKey`, use a unique snake_case string: `{topic_slug}_state` (e.g. `pyth
 
 ## Step 4 — Generate index.html
 
-Create the dashboard page. Use `template/index.html` as the base. Fill in:
+Create the dashboard page. Use `tutorials/template/index.html` as the base. Fill in:
 - Title and subtitle from the user's topic and audience
 - Prerequisites list
 - Time commitment and goal from the user's answers
@@ -74,8 +81,8 @@ Create the dashboard page. Use `template/index.html` as the base. Fill in:
 ## Step 5 — Generate section pages
 
 For each section in the user's list:
-- Create `pages/section-N.html` (or `pages/section-2-5.html` for 2.5)
-- Use the section-template pattern from `template/pages/section-template.html`
+- Create `tutorials/{slug}/pages/section-N.html` (or `section-2-5.html` for 2.5)
+- Use the section-template pattern from `tutorials/template/pages/section-template.html`
 - Write placeholder content for each sub-section based on the section description
 - Apply the psychological content principles from CLAUDE.md:
   - Lead with "why this matters"
@@ -87,8 +94,8 @@ For each section in the user's list:
 
 ## Step 6 — Copy settings.html and create states/manifest.json
 
-- Copy `template/pages/settings.html` to `pages/settings.html` (or generate it from scratch using the pattern from the existing `pages/settings.html`)
-- Create `states/manifest.json` with `{"states": []}`
+- Copy `tutorials/template/pages/settings.html` to `tutorials/{slug}/pages/settings.html`
+- Create `tutorials/{slug}/states/manifest.json` with `{"states": []}`
 
 ## Step 7 — Summary
 
