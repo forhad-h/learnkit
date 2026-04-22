@@ -91,6 +91,7 @@ Apply every one of these principles. They are not optional stylistic choices —
 - Do not change the state schema keys without writing a migration (the `getState()` function handles version migration)
 - CSS changes: use the existing CSS variable system. Add new variables to `:root` rather than hardcoding values.
 - Test by opening `tutorials/cpp-drone/index.html` and a section page in the browser after changes
+- **After any CSS or HTML structure change that affects the dashboard shell, sync the change to ALL tutorial `index.html` files and `tutorials/template/index.html`.** The template is the source of truth for new tutorials; existing tutorials must match it.
 
 **Public API additions (already implemented — do not remove or rename):**
 - `getUserName()` — returns the learner's name string, or `null` if not set / skipped
@@ -108,6 +109,7 @@ See `.claude/skills/create-tutorial/SKILL.md` for the full skill. Summary:
 - Asset paths in section pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
 - Asset paths in index.html: `../../core/css/styles.css`, `./config.js`, `../../core/js/framework.js`
 - The user should be able to open the tutorial immediately after
+- **After generating the tutorial files, add an entry for the new tutorial to the root `index.html` `TUTORIALS` array.** Each entry needs: `title`, `icon`, `subtitle`, `description`, `href` (`./tutorials/{slug}/index.html`), `stateKey` (from config.js), `sectionCount`, and `timeCommitment`.
 
 ### When the add-lesson or improve-lesson skill is invoked
 
@@ -174,3 +176,34 @@ Checkbox IDs must be globally unique across the entire tutorial (not just the se
 - Do not hardcode section counts (use `SECTIONS.length`)
 - Do not write comments explaining what code does — only write comments explaining WHY something non-obvious is done
 - Do not create a backend, database, or server-side component — use files and the GitHub Gist API for anything requiring persistence
+
+## Known LLM Mistakes — Do Not Repeat
+
+These are bugs introduced by LLMs that have already been fixed. Do not regress them.
+
+### 1. Missing `<div class="progress-main">` in dashboard index.html
+
+The `.progress-card` is NOT a flex container — `.progress-main` is. The correct structure is:
+
+```html
+<div class="progress-card">
+  <div class="progress-main">           <!-- ← required; this is the flex row -->
+    <span class="progress-label">Overall progress</span>
+    <div class="progress-track"><div class="progress-fill" id="dashProgressFill"></div></div>
+    <span class="progress-count" id="dashProgressCount">0 / ?</span>
+  </div>
+  <div class="progress-backup-row">
+    <!-- icon + text + settings btn-icon -->
+  </div>
+</div>
+```
+
+Without the wrapper, label/track/count stack vertically and the progress bar turns yellow (inherits amber background from `.progress-backup-row`). Do NOT inline hacks like `flex-wrap: wrap` on `.progress-card` or negative margins on `.progress-backup-row` — the CSS already handles the layout correctly.
+
+### 2. Wrong button in the backup row
+
+The settings link in `.progress-backup-row` must use `class="btn-icon"` with a gear icon SVG, NOT `class="btn"` with the text "Export / Import". The correct markup is in `tutorials/cpp-drone/index.html` — copy from there.
+
+### 3. Not updating root `index.html` after creating a tutorial
+
+Every new tutorial must have an entry in the `TUTORIALS` array in the root `index.html`. This is the homepage that lists all tutorials with their live progress. Forgetting this means the tutorial is invisible to users on the home page.

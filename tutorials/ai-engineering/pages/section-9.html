@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section 9 — Building Agents with Claude Code</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Claude Code is Anthropic's agent framework for software engineering tasks. It gives Claude access to your filesystem, terminal, browser, and external tools — and it's extensible via hooks, skills, and MCP servers. This section shows you how to configure, extend, and build on top of it.
+  </p>
+
+
+  <!-- ═══ SUB-SECTION 1 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-1">
+    <div class="sub-header" onclick="toggleSub('s9-1')">
+      <div class="sub-title">9.1 What Claude Code Is (and How It Works)</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Claude Code is a CLI agent that wraps the Claude API with a set of built-in tools: Read, Write, Edit, Bash, WebSearch, and more. It reads your project's CLAUDE.md for instructions, manages conversation context, and can spawn subagents for parallel work.</p>
+
+      <div class="callout callout-info">
+        Unlike a bare API call, Claude Code maintains a persistent session with your project. It knows your git state, your file tree, and your recent changes. This context makes it far more capable at software tasks than the same model accessed directly.
+      </div>
+
+      <pre># Install Claude Code
+npm install -g @anthropic-ai/claude-code
+
+# Start a session in your project
+cd your-project
+claude
+
+# Or run a one-shot command
+claude "add error handling to src/api.py"
+
+# Check version
+claude --version</pre>
+
+      <p>Under the hood, every Claude Code response is a ReAct loop: the model reasons, calls a tool (Read, Bash, Edit…), observes the result, and continues. Your permission settings control which tools run automatically and which require your confirmation.</p>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 2 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-2">
+    <div class="sub-header" onclick="toggleSub('s9-2')">
+      <div class="sub-title">9.2 CLAUDE.md — Your Agent's System Prompt</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>CLAUDE.md is automatically injected into the system prompt when Claude Code starts. It's the highest-leverage file in your project — the difference between an agent that immediately understands your codebase and one that wastes 20 tool calls orienting itself.</p>
+
+      <pre># CLAUDE.md — what to put in it
+
+## Project Overview
+One paragraph: what this project does, what stack it uses, who uses it.
+
+## Architecture
+Where the key files are. What not to touch. Module boundaries.
+
+## Conventions
+Naming conventions, code style, testing approach, commit format.
+
+## Common Tasks
+How to run tests. How to start the dev server. How to deploy.
+Include the exact commands — don't make the agent guess.
+
+## What NOT to Do
+Explicit prohibitions save you from expensive mistakes:
+- Never edit generated files in build/
+- Never use `git push --force` on main
+- Never add external dependencies without asking first</pre>
+
+      <div class="callout callout-warning">
+        A CLAUDE.md that's too long is as bad as no CLAUDE.md — the agent gets lost in it. Keep it under 500 lines. Write it as if briefing a new senior engineer on their first day: what they absolutely need to know, nothing more.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 3 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-3">
+    <div class="sub-header" onclick="toggleSub('s9-3')">
+      <div class="sub-title">9.3 Hooks: Automate Behaviors Around Tool Calls</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Hooks are shell commands that Claude Code runs automatically before or after specific events — before a tool call, after a tool call, on session start, on session stop. They're how you enforce invariants without relying on the model to remember.</p>
+
+      <pre># .claude/settings.json — hook configuration
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'About to run bash command' >> /tmp/claude-audit.log"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $PROJECT_ROOT && npm run lint --silent 2>&1 | head -20"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $PROJECT_ROOT && npm test --silent 2>&1 | tail -5"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+
+      <div class="callout callout-success">
+        💡 The hook setup that changed how I use Claude Code: a PostToolUse hook on Write that runs the linter immediately after every file write. The agent sees lint errors in real-time and fixes them before moving on — instead of writing 5 files and then discovering they all have issues.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 4 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-4">
+    <div class="sub-header" onclick="toggleSub('s9-4')">
+      <div class="sub-title">9.4 Skills and MCP Servers: Extend the Agent</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Skills are reusable prompt templates stored in <code>.claude/skills/</code> — invoke them by name to run complex, multi-step tasks without re-explaining them every time. MCP (Model Context Protocol) servers add new tools and data sources to the agent.</p>
+
+      <pre># .claude/skills/create-component/SKILL.md
+# Scaffold a new React component with tests and story
+
+When this skill is invoked:
+1. Ask for: component name, props, whether it needs a story
+2. Create src/components/{Name}/{Name}.tsx
+3. Create src/components/{Name}/{Name}.test.tsx with basic render test
+4. Create src/components/{Name}/{Name}.stories.tsx if requested
+5. Export from src/components/index.ts
+6. Run: npm test -- --testPathPattern={Name} to verify
+
+Always follow the project's TypeScript strict mode. Never use `any`.
+
+---
+
+# Register an MCP server for GitHub access
+# .claude/settings.json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  }
+}</pre>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 5 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-5">
+    <div class="sub-header" onclick="toggleSub('s9-5')">
+      <div class="sub-title">9.5 Subagents and Parallel Work</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Claude Code can spawn subagents — independent agent instances with their own context window — to parallelize work. An orchestrator agent can delegate "research X" and "research Y" to two subagents simultaneously, then synthesize both results.</p>
+
+      <pre># The Agent tool: spawn a subagent from within an agent
+# (this is what Claude Code itself does internally)
+
+# From the orchestrator's perspective:
+Agent({
+  subagent_type: "general-purpose",
+  prompt: "Read all files in src/api/ and list every endpoint with its HTTP method, path, and description. Return as JSON array.",
+  run_in_background: false
+})
+
+# The subagent gets its own context window and tools.
+# Results are returned to the orchestrator as a message.
+# The orchestrator can spawn multiple subagents in parallel
+# by calling Agent() multiple times in one response.</pre>
+
+      <div class="callout callout-info">
+        Each subagent starts cold — it doesn't inherit the parent's conversation history. Brief each subagent like a new hire: give it exactly what it needs to know, no more. Long subagent prompts are expensive and often counterproductive.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 6: VERIFY ════════════════════════════════════════════ -->
+  <div class="sub-section" id="s9-6">
+    <div class="sub-header" onclick="toggleSub('s9-6')">
+      <div class="sub-title">9.6 Verify: Configure Your Project for Claude Code</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>The best way to learn Claude Code is to configure it for a real project you already work on. Set up CLAUDE.md, add one hook, and write one skill for a task you do repeatedly.</p>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s9-installed"> I installed Claude Code and ran a basic task in a real project</li>
+        <li><input type="checkbox" id="s9-claude-md"> I wrote a CLAUDE.md that covers: overview, architecture, conventions, and common commands</li>
+        <li><input type="checkbox" id="s9-hook"> I added at least one hook (PreToolUse or PostToolUse) that enforces a project invariant</li>
+        <li><input type="checkbox" id="s9-skill"> I created a skill in .claude/skills/ for a task I repeat more than once a week</li>
+        <li><input type="checkbox" id="s9-mcp"> I connected at least one MCP server (GitHub, filesystem, or a custom one)</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s9', '../');</script>
+</body>
+</html>

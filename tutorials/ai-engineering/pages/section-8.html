@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section 8 — Tool Use & Function Calling</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Tool use is how you give the model hands. Without tools, an agent can only produce text. With tools, it can search the web, read files, call APIs, write code, and interact with the world. This section shows you exactly how the mechanism works and how to build reliable tools.
+  </p>
+
+
+  <!-- ═══ SUB-SECTION 1 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s8-1">
+    <div class="sub-header" onclick="toggleSub('s8-1')">
+      <div class="sub-title">8.1 How Tool Use Works Under the Hood</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>The model doesn't execute tools — you do. The API is a structured negotiation: you describe your tools, the model tells you which one to call with what arguments, you call it, and you feed the result back. It's a request-response cycle, not magic.</p>
+
+      <pre># The tool use loop:
+#
+# 1. You send: messages + tool definitions (JSON schemas)
+# 2. Model responds with: stop_reason="tool_use" + tool_use block
+# 3. You: extract tool name + args, execute the real function
+# 4. You send: tool_result block back to the model
+# 5. Model: reads result, continues reasoning or calls another tool
+# 6. Model: eventually responds with stop_reason="end_turn" (final answer)
+
+import anthropic, json
+
+client = anthropic.Anthropic()
+
+tools = [
+    {
+        "name": "get_weather",
+        "description": "Returns current weather for a city. Use this when the user asks about weather.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "description": "City name, e.g. 'Tokyo' or 'New York'"
+                }
+            },
+            "required": ["city"]
+        }
+    }
+]</pre>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 2 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s8-2">
+    <div class="sub-header" onclick="toggleSub('s8-2')">
+      <div class="sub-title">8.2 Implementing the Tool Loop</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>The tool loop is a while loop in your code — keep calling the API until the model's stop reason is "end_turn". Each iteration either processes a tool call or returns the final answer.</p>
+
+      <pre">import anthropic, json
+
+client = anthropic.Anthropic()
+
+# Your actual tool implementations
+def get_weather(city: str) -> dict:
+    # In production: call a real weather API
+    return {"city": city, "temp_c": 18, "condition": "partly cloudy"}
+
+def search_web(query: str) -> str:
+    # In production: call a search API
+    return f"[Search results for '{query}']"
+
+TOOL_MAP = {
+    "get_weather": get_weather,
+    "search_web": search_web,
+}
+
+def run_agent(user_message: str) -> str:
+    messages = [{"role": "user", "content": user_message}]
+
+    while True:
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1024,
+            tools=tools,
+            messages=messages
+        )
+
+        # Final answer — no more tool calls
+        if response.stop_reason == "end_turn":
+            return response.content[0].text
+
+        # Process tool calls
+        tool_results = []
+        for block in response.content:
+            if block.type == "tool_use":
+                fn = TOOL_MAP[block.name]
+                result = fn(**block.input)
+                tool_results.append({
+                    "type": "tool_result",
+                    "tool_use_id": block.id,
+                    "content": json.dumps(result)
+                })
+
+        # Append assistant turn + tool results to history
+        messages.append({"role": "assistant", "content": response.content})
+        messages.append({"role": "user", "content": tool_results})
+
+print(run_agent("What's the weather in Tokyo? Should I bring a jacket?"))</pre>
+
+      <div class="callout callout-warning">
+        Always add a max-iterations guard to your tool loop. An agent that calls the wrong tool, gets an error, calls the wrong tool again, and loops forever will drain your API credits fast. Set a hard limit of 10–20 iterations and surface a graceful error when hit.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 3 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s8-3">
+    <div class="sub-header" onclick="toggleSub('s8-3')">
+      <div class="sub-title">8.3 Writing Good Tool Descriptions</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>The model decides which tool to call based entirely on your tool description. A vague description leads to the wrong tool being called — or no tool being called when one should be. Tool descriptions are part of your prompt engineering.</p>
+
+      <pre># Weak tool description — model often skips this or misuses it:
+{
+    "name": "query_db",
+    "description": "Query the database.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string"}
+        }
+    }
+}
+
+# Strong tool description — model knows exactly when and how to use it:
+{
+    "name": "query_orders_db",
+    "description": (
+        "Query the orders database to look up order status, history, and details. "
+        "Use this when the user asks about a specific order, their order history, "
+        "shipping status, or whether an item was delivered. "
+        "Do NOT use this for product catalog questions — use search_products instead. "
+        "Pass a natural language question; the tool converts it to SQL internally."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "question": {
+                "type": "string",
+                "description": "Natural language question about orders, e.g. 'What is the status of order #12345?'"
+            },
+            "customer_id": {
+                "type": "string",
+                "description": "Customer ID to scope the query (required for privacy)"
+            }
+        },
+        "required": ["question", "customer_id"]
+    }
+}</pre>
+
+      <div class="callout callout-success">
+        💡 The clearest signal of a bad tool description: the model calls the tool with obviously wrong arguments, or never calls it when it should. Read your description as if you've never seen the tool before — if it's ambiguous, so is the model's understanding.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 4: VERIFY ════════════════════════════════════════════ -->
+  <div class="sub-section" id="s8-4">
+    <div class="sub-header" onclick="toggleSub('s8-4')">
+      <div class="sub-title">8.4 Verify: Build a Two-Tool Agent</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Build an agent with two tools that require the model to decide which to call — don't make it obvious. A good test: one tool for current facts, one for historical data, and a question that could use either.</p>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s8-loop"> I implemented the tool loop: messages → API call → parse tool_use → execute → append tool_result → repeat</li>
+        <li><input type="checkbox" id="s8-guard"> I added a max-iterations guard that surfaces a graceful error when the limit is hit</li>
+        <li><input type="checkbox" id="s8-descriptions"> I wrote tool descriptions that clearly state when to use the tool and when NOT to</li>
+        <li><input type="checkbox" id="s8-two-tools"> My agent correctly chooses between two tools based on the user's question</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s8', '../');</script>
+</body>
+</html>

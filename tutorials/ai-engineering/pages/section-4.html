@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section 4 — Context Engineering & Window Management</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    What goes into the context window determines the quality of every response. Context engineering is the discipline of deciding what to include, what to exclude, and in what order — because the model's attention is finite and its behavior is shaped by everything it sees.
+  </p>
+
+
+  <!-- ═══ SUB-SECTION 1 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s4-1">
+    <div class="sub-header" onclick="toggleSub('s4-1')">
+      <div class="sub-title">4.1 What Belongs in the Context Window</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Every token in your context window costs money and competes for attention. Fill it deliberately. The model doesn't benefit from reading irrelevant content — it's distracted by it.</p>
+
+      <table>
+        <thead>
+          <tr><th>Include</th><th>Exclude</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>The specific document, code, or data relevant to this task</td><td>Entire codebases, full database dumps</td></tr>
+          <tr><td>The last 3–5 messages of conversation history</td><td>Full conversation history back to session start</td></tr>
+          <tr><td>Examples that match the current task type</td><td>Examples for task types not being requested</td></tr>
+          <tr><td>Relevant retrieved chunks (from RAG)</td><td>All retrieved results including low-relevance ones</td></tr>
+          <tr><td>Constraints and format instructions</td><td>Lengthy explanations of why constraints exist</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        Research shows model performance degrades when the relevant information is buried in the middle of a long context ("lost in the middle" problem). Put the most important content at the <strong>beginning</strong> (system prompt) or <strong>end</strong> (most recent user message), not in the middle.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 2 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s4-2">
+    <div class="sub-header" onclick="toggleSub('s4-2')">
+      <div class="sub-title">4.2 Conversation History Management</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Long conversations eat your context budget fast. You need a strategy for managing history — which messages to keep, which to summarize, and which to drop.</p>
+
+      <pre>def build_context(messages: list[dict], max_tokens=4000) -> list[dict]:
+    """Keep recent messages; summarize older ones when budget is tight."""
+    recent = messages[-6:]  # always keep last 3 turns (6 messages)
+    older = messages[:-6]
+
+    if not older:
+        return recent
+
+    # Summarize the older history into a single system message
+    summary_prompt = "Summarize this conversation history in 3 bullet points, preserving key decisions and facts."
+    summary = call(summary_prompt, format_messages(older))
+
+    return [
+        {"role": "user", "content": f"[Earlier conversation summary]\n{summary}"},
+        {"role": "assistant", "content": "Understood, I have the context from our earlier discussion."},
+        *recent
+    ]</pre>
+
+      <div class="callout callout-warning">
+        Naively truncating old messages loses important context ("we already decided X three turns ago"). Summarization preserves the decisions while cutting the token cost. For production apps, store the full history in a database — only send the condensed version to the API.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 3 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s4-3">
+    <div class="sub-header" onclick="toggleSub('s4-3')">
+      <div class="sub-title">4.3 Prompt Caching for Cost and Speed</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>Claude's prompt caching lets you pay up to 90% less for repeated content. Any prefix you send identically in multiple requests gets cached — reads cost 10% of a fresh token, writes cost 25% more than normal but only happen once every 5 minutes.</p>
+
+      <pre>import anthropic
+
+client = anthropic.Anthropic()
+
+# Mark stable content for caching with cache_control
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    system=[
+        {
+            "type": "text",
+            "text": LARGE_SYSTEM_PROMPT,  # 5,000+ tokens of stable instructions
+            "cache_control": {"type": "ephemeral"}  # cache this prefix
+        }
+    ],
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": LARGE_DOCUMENT,  # document being analyzed
+                    "cache_control": {"type": "ephemeral"}
+                },
+                {
+                    "type": "text",
+                    "text": user_question  # dynamic — not cached
+                }
+            ]
+        }
+    ]
+)
+
+# Check cache performance in response headers
+usage = response.usage
+print(f"Cache read tokens: {usage.cache_read_input_tokens}")
+print(f"Cache write tokens: {usage.cache_creation_input_tokens}")</pre>
+
+      <div class="callout callout-success">
+        💡 The pattern that cut my costs by 70%: cache the system prompt + any large document that's fixed for a session (like a codebase or report). Only the user's question is dynamic. Every follow-up question in that session reads the cache.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SUB-SECTION 4 ═══════════════════════════════════════════════════ -->
+  <div class="sub-section" id="s4-4">
+    <div class="sub-header" onclick="toggleSub('s4-4')">
+      <div class="sub-title">4.4 Verify: Audit Your Context Usage</div>
+      <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="sub-body">
+
+      <p>For every prompt you write, ask: "If I removed this from the context, would the output get worse?" If not, remove it. Do this audit on your existing prompts now.</p>
+
+      <pre># Quick token counter (approximate — install tiktoken or use the API)
+import anthropic
+
+client = anthropic.Anthropic()
+
+def count_tokens(system: str, user: str) -> int:
+    response = client.messages.count_tokens(
+        model="claude-sonnet-4-6",
+        system=system,
+        messages=[{"role": "user", "content": user}]
+    )
+    return response.input_tokens
+
+print(f"Tokens before optimization: {count_tokens(verbose_system, verbose_user)}")
+print(f"Tokens after optimization:  {count_tokens(lean_system, lean_user)}")</pre>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s4-placement"> I know to put critical information at the top (system prompt) or bottom (latest user message), not in the middle</li>
+        <li><input type="checkbox" id="s4-history"> I implemented a conversation history management strategy that doesn't grow unbounded</li>
+        <li><input type="checkbox" id="s4-caching"> I added prompt caching to at least one prompt with a large stable prefix</li>
+        <li><input type="checkbox" id="s4-audit"> I audited an existing prompt and removed at least one section that wasn't affecting output quality</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s4', '../');</script>
+</body>
+</html>
