@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 10 — Production: Observability, Evals & Deployment</title>
+<title>Module 7 — Ship It: Three Real-World Agent Projects</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -16,9 +16,9 @@
 
 
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s10-1">
-    <div class="lesson-header" onclick="toggleLesson('s10-1')">
-      <div class="lesson-title">10.1 Observability: Log Everything, Trace Every Call</div>
+  <div class="lesson" id="s7-1">
+    <div class="lesson-header" onclick="toggleLesson('s7-1')">
+      <div class="lesson-title">7.1 Observability: Log Everything, Trace Every Call</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -67,9 +67,9 @@ def traced_call(system: str, messages: list, trace_id: str = None) -> dict:
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s10-2">
-    <div class="lesson-header" onclick="toggleLesson('s10-2')">
-      <div class="lesson-title">10.2 Evals: Measure Quality Before It Becomes a Problem</div>
+  <div class="lesson" id="s7-2">
+    <div class="lesson-header" onclick="toggleLesson('s7-2')">
+      <div class="lesson-title">7.2 Evals: Measure Quality Before It Becomes a Problem</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -124,9 +124,9 @@ def run_evals(system: str, cases: list[EvalCase]) -> dict:
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s10-3">
-    <div class="lesson-header" onclick="toggleLesson('s10-3')">
-      <div class="lesson-title">10.3 Cost Management and Rate Limits</div>
+  <div class="lesson" id="s7-3">
+    <div class="lesson-header" onclick="toggleLesson('s7-3')">
+      <div class="lesson-title">7.3 Cost Management and Rate Limits</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -171,9 +171,9 @@ def cached_call(system: str, user: str, ttl_minutes: int = 60) -> str:
 
 
   <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s10-4">
-    <div class="lesson-header" onclick="toggleLesson('s10-4')">
-      <div class="lesson-title">10.4 Deployment Patterns for AI Applications</div>
+  <div class="lesson" id="s7-4">
+    <div class="lesson-header" onclick="toggleLesson('s7-4')">
+      <div class="lesson-title">7.4 Deployment Patterns for AI Applications</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -220,9 +220,9 @@ PROMPTS_V2 = {
 
 
   <!-- ═══ LESSON 5: CAPSTONE ══════════════════════════════════════════ -->
-  <div class="lesson" id="s10-5">
-    <div class="lesson-header" onclick="toggleLesson('s10-5')">
-      <div class="lesson-title">10.5 Capstone: Your Production-Ready Agent Pipeline</div>
+  <div class="lesson" id="s7-5">
+    <div class="lesson-header" onclick="toggleLesson('s7-5')">
+      <div class="lesson-title">7.5 Capstone: Your Production-Ready Agent Pipeline</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -236,14 +236,14 @@ PROMPTS_V2 = {
       </div>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s10-tracing"> My agent logs a trace ID, token counts, and latency for every API call</li>
-        <li><input type="checkbox" id="s10-evals"> I have an eval suite with at least 20 test cases covering core behavior and known failure modes</li>
-        <li><input type="checkbox" id="s10-caching"> I implemented prompt caching and can see cache hit rate in my logs</li>
-        <li><input type="checkbox" id="s10-cost-routing"> I route simple tasks to a cheaper/faster model and complex tasks to a more capable one</li>
-        <li><input type="checkbox" id="s10-rag-tools"> My agent has at least one RAG retrieval tool and one external API tool</li>
-        <li><input type="checkbox" id="s10-graceful"> My agent degrades gracefully on API errors and never exposes raw errors to end users</li>
-        <li><input type="checkbox" id="s10-prompts-versioned"> My prompts are stored as versioned files, not hardcoded strings</li>
-        <li><input type="checkbox" id="s10-deployed"> I deployed the pipeline somewhere publicly accessible (Render, Railway, Fly.io, or similar)</li>
+        <li><input type="checkbox" id="s7-tracing"> My agent logs a trace ID, token counts, and latency for every API call</li>
+        <li><input type="checkbox" id="s7-evals"> I have an eval suite with at least 20 test cases covering core behavior and known failure modes</li>
+        <li><input type="checkbox" id="s7-caching"> I implemented prompt caching and can see cache hit rate in my logs</li>
+        <li><input type="checkbox" id="s7-cost-routing"> I route simple tasks to a cheaper/faster model and complex tasks to a more capable one</li>
+        <li><input type="checkbox" id="s7-rag-tools"> My agent has at least one RAG retrieval tool and one external API tool</li>
+        <li><input type="checkbox" id="s7-graceful"> My agent degrades gracefully on API errors and never exposes raw errors to end users</li>
+        <li><input type="checkbox" id="s7-prompts-versioned"> My prompts are stored as versioned files, not hardcoded strings</li>
+        <li><input type="checkbox" id="s7-deployed"> I deployed the pipeline somewhere publicly accessible (Render, Railway, Fly.io, or similar)</li>
       </ul>
 
     </div>
@@ -253,6 +253,6 @@ PROMPTS_V2 = {
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s10', '../');</script>
+<script>initPage('s7', '../');</script>
 </body>
 </html>

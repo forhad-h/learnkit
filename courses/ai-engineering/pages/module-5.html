@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 5 — RAG: Retrieval-Augmented Generation</title>
+<title>Module 6 — RAG: Give Your Agent Knowledge</title>
 <link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
@@ -16,9 +16,9 @@
 
 
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s5-1">
-    <div class="lesson-header" onclick="toggleLesson('s5-1')">
-      <div class="lesson-title">5.1 The Core RAG Pattern</div>
+  <div class="lesson" id="s6-1">
+    <div class="lesson-header" onclick="toggleLesson('s6-1')">
+      <div class="lesson-title">6.1 The Core RAG Pattern</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -61,9 +61,9 @@ Question: {user_question}"""
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s5-2">
-    <div class="lesson-header" onclick="toggleLesson('s5-2')">
-      <div class="lesson-title">5.2 Chunking Strategy: The Hidden Quality Driver</div>
+  <div class="lesson" id="s6-2">
+    <div class="lesson-header" onclick="toggleLesson('s6-2')">
+      <div class="lesson-title">6.2 Chunking Strategy: The Hidden Quality Driver</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -104,9 +104,9 @@ print(f"Split {len(document_text)} chars into {len(chunks)} chunks")</pre>
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s5-3">
-    <div class="lesson-header" onclick="toggleLesson('s5-3')">
-      <div class="lesson-title">5.3 Building a Simple RAG Pipeline from Scratch</div>
+  <div class="lesson" id="s6-3">
+    <div class="lesson-header" onclick="toggleLesson('s6-3')">
+      <div class="lesson-title">6.3 Building a Simple RAG Pipeline from Scratch</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -170,9 +170,9 @@ def answer(question: str) -> str:
 
 
   <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s5-4">
-    <div class="lesson-header" onclick="toggleLesson('s5-4')">
-      <div class="lesson-title">5.4 Verify: Working RAG Pipeline</div>
+  <div class="lesson" id="s6-4">
+    <div class="lesson-header" onclick="toggleLesson('s6-4')">
+      <div class="lesson-title">6.4 Verify: Working RAG Pipeline</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -186,10 +186,10 @@ def answer(question: str) -> str:
       </div>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s5-pipeline"> I built an end-to-end RAG pipeline: ingest → embed → retrieve → generate</li>
-        <li><input type="checkbox" id="s5-chunks"> I inspected the retrieved chunks for several queries and confirmed they are actually relevant</li>
-        <li><input type="checkbox" id="s5-metadata"> Every chunk in my store has source metadata so answers can be traced</li>
-        <li><input type="checkbox" id="s5-grounding"> My prompt grounds the model to the context and says what to do when the answer isn't there</li>
+        <li><input type="checkbox" id="s6-pipeline"> I built an end-to-end RAG pipeline: ingest → embed → retrieve → generate</li>
+        <li><input type="checkbox" id="s6-chunks"> I inspected the retrieved chunks for several queries and confirmed they are actually relevant</li>
+        <li><input type="checkbox" id="s6-metadata"> Every chunk in my store has source metadata so answers can be traced</li>
+        <li><input type="checkbox" id="s6-grounding"> My prompt grounds the model to the context and says what to do when the answer isn't there</li>
       </ul>
 
     </div>
@@ -199,6 +199,6 @@ def answer(question: str) -> str:
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s5', '../');</script>
+<script>initPage('s6', '../');</script>
 </body>
 </html>

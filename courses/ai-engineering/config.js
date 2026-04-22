@@ -10,7 +10,6 @@ window.COURSE_CONFIG = {
   prerequisites: [
     'Python basics (functions, loops, dicts)',
     'Command line basics (cd, ls, pip install)',
-    'A free Anthropic API key (claude.ai/settings → API keys)',
   ],
   timeCommitment: '2–3 hrs/day · 3–5 days',
   goal: 'Build and ship three working AI agents with Claude Code that solve real problems you care about',
@@ -19,7 +18,7 @@ window.COURSE_CONFIG = {
     {
       id: 's1',
       num: '1',
-      title: 'Claude API Setup & Your First Agent',
+      title: 'How LLMs Actually Work',
       tag: 'Do first',
       tagColor: 'green',
       file: 'module-1.html'

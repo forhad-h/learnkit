@@ -16,8 +16,8 @@
 
 
   <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s11-1">
-    <div class="lesson-header" onclick="toggleLesson('s11-1')">
+  <div class="lesson" id="s8-1">
+    <div class="lesson-header" onclick="toggleLesson('s8-1')">
       <div class="lesson-title">8.1 What Is Context Engineering (and Why Agents Fail Without It)</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
@@ -59,8 +59,8 @@
 
 
   <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s11-2">
-    <div class="lesson-header" onclick="toggleLesson('s11-2')">
+  <div class="lesson" id="s8-2">
+    <div class="lesson-header" onclick="toggleLesson('s8-2')">
       <div class="lesson-title">8.2 Structuring Your System Prompt</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
@@ -120,8 +120,8 @@ bullet points with severity [HIGH/MED/LOW], (3) end with a concrete next step."<
 
 
   <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s11-3">
-    <div class="lesson-header" onclick="toggleLesson('s11-3')">
+  <div class="lesson" id="s8-3">
+    <div class="lesson-header" onclick="toggleLesson('s8-3')">
       <div class="lesson-title">8.3 Dynamic Context Assembly</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
@@ -203,8 +203,8 @@ def compress_history(messages: list, client) -> list:
 
 
   <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s11-4">
-    <div class="lesson-header" onclick="toggleLesson('s11-4')">
+  <div class="lesson" id="s8-4">
+    <div class="lesson-header" onclick="toggleLesson('s8-4')">
       <div class="lesson-title">8.4 Prompt Caching for Speed and Cost</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
@@ -265,8 +265,8 @@ result2 = ask_with_caching("How do I run the tests?")</pre>
 
 
   <!-- ═══ LESSON 5 ═══════════════════════════════════════════════════ -->
-  <div class="lesson" id="s11-5">
-    <div class="lesson-header" onclick="toggleLesson('s11-5')">
+  <div class="lesson" id="s8-5">
+    <div class="lesson-header" onclick="toggleLesson('s8-5')">
       <div class="lesson-title">8.5 Verify: Audit Your Context Quality</div>
       <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="6 9 12 15 18 9"/>
@@ -277,12 +277,12 @@ result2 = ask_with_caching("How do I run the tests?")</pre>
       <p>The fastest way to improve an agent is to print its context at the moment it makes a bad decision, then ask: "What is wrong with what the model sees here?" You will find the answer almost every time.</p>
 
       <ul class="checklist">
-        <li><input type="checkbox" id="s11-structure"> My system prompt has four clearly separated sections: identity, capabilities, constraints, and output format</li>
-        <li><input type="checkbox" id="s11-ordering"> My most critical constraints appear at the top of the system prompt, not the bottom</li>
-        <li><input type="checkbox" id="s11-dynamic"> I assemble context dynamically — I only inject the information relevant to the current query, not everything I have</li>
-        <li><input type="checkbox" id="s11-truncation"> I have a truncation or compression strategy for long agent loops (sliding window or summarize-and-compress)</li>
-        <li><input type="checkbox" id="s11-caching"> I implemented prompt caching with <code>cache_control</code> on my stable system prompt prefix</li>
-        <li><input type="checkbox" id="s11-audit"> I can print the full context my agent sees at any step, and I've used it to debug at least one bad output</li>
+        <li><input type="checkbox" id="s8-structure"> My system prompt has four clearly separated sections: identity, capabilities, constraints, and output format</li>
+        <li><input type="checkbox" id="s8-ordering"> My most critical constraints appear at the top of the system prompt, not the bottom</li>
+        <li><input type="checkbox" id="s8-dynamic"> I assemble context dynamically — I only inject the information relevant to the current query, not everything I have</li>
+        <li><input type="checkbox" id="s8-truncation"> I have a truncation or compression strategy for long agent loops (sliding window or summarize-and-compress)</li>
+        <li><input type="checkbox" id="s8-caching"> I implemented prompt caching with <code>cache_control</code> on my stable system prompt prefix</li>
+        <li><input type="checkbox" id="s8-audit"> I can print the full context my agent sees at any step, and I've used it to debug at least one bad output</li>
       </ul>
 
     </div>
@@ -292,6 +292,6 @@ result2 = ask_with_caching("How do I run the tests?")</pre>
 
 <script src="../config.js"></script>
 <script src="../../../core/js/framework.js"></script>
-<script>initPage('s11', '../');</script>
+<script>initPage('s8', '../');</script>
 </body>
 </html>
