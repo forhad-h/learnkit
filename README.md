@@ -13,7 +13,7 @@ LearnKit is a framework for building and following structured technical tutorial
 
 The framework is intentionally simple: plain HTML, CSS, and JavaScript. No npm, no build step, no server needed. Your progress lives in your browser's localStorage and can be exported as a JSON file to commit to git, share, or move between machines.
 
-This repo ships with a C++ drone engineering tutorial as its first tutorial. New tutorials on any topic can be created from the template in minutes.
+This repo ships with a **C++ drone engineering tutorial** as a reference example of what LearnKit can produce. It is not the product — the framework is. New tutorials on any topic can be created from the template in minutes, and the cpp-drone tutorial may be replaced with a better showcase example as the framework matures.
 
 ---
 
@@ -53,7 +53,7 @@ This is the compounding part: the tutorial gets smarter as you learn.
 - **Copy buttons** — every code block gets an auto-attached Copy button
 - **Sidebar navigation** — fixed left nav with live status dots and progress bar, fully mobile-responsive
 - **Export / import state** — download your progress as JSON, commit it to git, import on another machine
-- **Git-based state sync** — `states/` directory holds named JSON snapshots; check them into your fork to sync across devices
+- **Git-based state sync** — each tutorial's `states/` directory holds named JSON snapshots; check them into your fork to sync across devices
 - **Personalization** — first-visit prompt asks your name; greetings and banners address you by name throughout the tutorial
 - **Progress sharing via public URL** — one-click share via anonymous GitHub Gist (no account required); paste URL on any device to restore your progress
 
@@ -75,7 +75,7 @@ cd learnkit
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/` (for the C++ drone tutorial, open `http://localhost:8000/cpp-drone/` after the monorepo restructure, or just `http://localhost:8000/` in the current layout).
+Open `http://localhost:8000/tutorials/cpp-drone/` to try the included example tutorial (C++ drone engineering). More tutorials will be added to `tutorials/` as they're created.
 
 Your progress saves automatically in your browser. No account, no login.
 
@@ -102,20 +102,21 @@ After cloning and opening Claude Code (`claude` in the terminal):
 ```
 Step 1: Run /create-tutorial
         Claude will ask you for your topic, audience, sections, and time estimate.
-        It creates all the files — config, dashboard, section pages.
+        It creates all the files under tutorials/your-topic/:
+        config.js, index.html, pages/, states/
 
 Step 2: Review the generated content
-        Open http://localhost:8000 and check the dashboard.
+        Open http://localhost:8000/tutorials/your-topic/ and check the dashboard.
         Run /improve-lesson to flesh out any section.
 
 Step 3: Commit your tutorial
         git add .
-        git commit -m "Initial tutorial: Your Topic"
+        git commit -m "add tutorial: Your Topic"
         git push
 
 Step 4: Publish on GitHub Pages
         Go to your repo settings → Pages → Source: main branch / root
-        Your tutorial is live at https://YOU.github.io/learnkit/
+        Your tutorial is live at https://YOU.github.io/learnkit/tutorials/your-topic/
 ```
 
 ---
@@ -125,27 +126,30 @@ Step 4: Publish on GitHub Pages
 ```
 learnkit/
 │
-├── core/                        ← shared framework (after restructure)
-│   ├── js/framework.js          ← all runtime logic
-│   └── css/styles.css           ← design system (136 CSS variables)
+├── core/                             ← shared framework — never tutorial-specific
+│   ├── js/framework.js               ← all runtime logic
+│   └── css/styles.css                ← design system (136 CSS variables)
 │
-├── template/                    ← copy this to start a new tutorial
-│   ├── config.js                ← fill in: title, sections, colors
-│   ├── index.html               ← edit: intro, prereqs, time estimate
-│   ├── pages/
-│   │   ├── settings.html        ← export/import — copy verbatim
-│   │   └── section-template.html
-│   └── states/
-│       └── manifest.json
-│
-├── cpp-drone/                   ← C++ drone engineering tutorial
-│   ├── config.js
-│   ├── index.html
-│   ├── pages/
-│   └── states/
+├── tutorials/
+│   ├── template/                     ← copy this to start a new tutorial
+│   │   ├── config.js                 ← fill in: title, icon, sections, colors, prereqs
+│   │   ├── index.html                ← generic shell — no edits needed
+│   │   ├── pages/
+│   │   │   └── section-template.html ← boilerplate for a section page
+│   │   └── states/
+│   │       └── manifest.json
+│   │
+│   └── cpp-drone/                    ← example tutorial (C++ drone engineering)
+│       ├── config.js                 ← reference for what a filled-in config looks like
+│       ├── index.html
+│       ├── pages/
+│       │   ├── section-1.html … section-10.html
+│       │   └── settings.html
+│       └── states/
+│           └── manifest.json
 │
 └── .claude/
-    ├── CLAUDE.md                ← Claude Code project instructions
+    ├── CLAUDE.md                     ← Claude Code project instructions
     └── commands/
         ├── create-tutorial.md
         ├── add-lesson.md
@@ -153,14 +157,13 @@ learnkit/
         └── improve-framework.md
 ```
 
-> **Current layout note:** Until the monorepo restructure is complete, `js/app.js`, `css/styles.css`, and `index.html` live directly in the project root. The structure above is the target.
-
 ### Key files explained
 
 | File | Purpose |
 |------|---------|
-| `config.js` | Tutorial-specific data: sections list, title, icon, colors. The only file you edit to define a tutorial's structure. |
-| `core/js/framework.js` | All runtime logic. Reads `window.TUTORIAL_CONFIG`. Never edit per-tutorial. |
+| `tutorials/{name}/config.js` | Tutorial-specific data: title, icon, stateKey, sections list, colors, prerequisites, goal. The only file you edit to define a tutorial. |
+| `tutorials/{name}/index.html` | Dashboard shell. Identical across all tutorials — `initDashboard()` populates it from `config.js`. |
+| `core/js/framework.js` | All runtime logic. Reads `window.TUTORIAL_CONFIG`. Shared by every tutorial. Never edit per-tutorial. |
 | `core/css/styles.css` | Design system. 136 CSS custom properties. Monospace fonts. Dark code blocks. Responsive. |
 | `pages/settings.html` | Export/import/clear state. Identical across all tutorials. |
 | `states/manifest.json` | Index of named JSON snapshots for git-based sync. |
@@ -179,7 +182,7 @@ LearnKit has zero runtime dependencies by design.
 | **No account** | Nothing to log in to. Nothing sent anywhere. |
 | **Multi-device sync** | Export state as JSON, commit to your git fork, import on the other device. |
 | **Deployment** | GitHub Pages, Netlify, Vercel, any static host, or a USB drive. |
-| **Backup** | `git commit` your `states/` directory. Your progress is in version control. |
+| **Backup** | `git commit` your tutorial's `states/` directory. Your progress is in version control. |
 
 This is intentional. The target audience is developers who understand files and git. Backend infrastructure would add zero value and introduce a dependency that breaks when it goes down.
 
@@ -265,7 +268,7 @@ This project is designed to get better as people use it.
 
 **Content improvements** — if something in a tutorial section is wrong, unclear, or missing a better example, run `/improve-lesson` and commit. The skill specifically asks what clicked for you personally — those insights are the most valuable additions.
 
-**New tutorials** — run `/create-tutorial`, generate a tutorial on any topic, and host it on your own fork. If it's high quality, share it. Anyone can fork yours and extend it.
+**New tutorials** — run `/create-tutorial`, generate a tutorial on any topic, and add it under `tutorials/`. If it's high quality it may replace `cpp-drone` as the primary showcase example. Anyone can fork the repo and host their own tutorial collection.
 
 ---
 
@@ -278,3 +281,15 @@ This is not a consumer product. It assumes:
 - You're comfortable with "your browser is the app"
 
 If that's you, LearnKit gives you something polished consumer tools don't: full ownership, zero subscription, and a learning environment you can extend with AI.
+
+---
+
+## Future Improvements
+
+These features are partially implemented but hidden from the UI until they can be made reliable:
+
+**Share Progress via Public Link (GitHub Gist)**
+GitHub's Gist API [now requires authentication](https://docs.github.com/en/rest/gists/gists) even for public gist creation — anonymous POST to `/gists` returns 401. The `shareProgressAsGist()` function in `core/js/framework.js` and the "Share Progress (Public Link)" UI in `pages/settings.html` are fully implemented but hidden. To re-enable: add a GitHub Personal Access Token (PAT) flow in the settings page, or proxy the request through a small serverless function.
+
+**States Directory (git-based sync)**
+The `states/manifest.json` workflow lets you sync progress across machines via git. It works correctly when served over HTTP, but requires manual steps (download → rename → commit → push) that are too rough for a general audience. To re-enable: improve the UX (e.g. drag-and-drop into the states folder, auto-detect via a local server helper) and update the workflow steps in `pages/settings.html`.

@@ -17,30 +17,30 @@ A zero-dependency static HTML/CSS/JS tutorial framework with:
 ## Project Layout
 
 ```
-project root (current — pre-restructure)
-├── js/app.js           ← core framework + tutorial config (to be split)
-├── css/styles.css      ← design system, 136 CSS custom properties
-├── index.html          ← dashboard
-├── pages/              ← section content pages (section-1.html … section-10.html, settings.html)
-├── states/             ← JSON state exports + manifest.json
-├── template/           ← boilerplate for new tutorials
+project root
+├── core/
+│   ├── js/framework.js     ← shared framework (state, nav, sidebar, rendering)
+│   └── css/styles.css      ← design system, 136 CSS custom properties
+├── tutorials/
+│   ├── cpp-drone/          ← C++ Drone Engineering tutorial
+│   │   ├── config.js       ← tutorial identity, sections, colors
+│   │   ├── index.html      ← dashboard (generic shell, no tutorial-specific content)
+│   │   ├── pages/          ← section-1.html … section-10.html, settings.html
+│   │   └── states/         ← JSON state exports + manifest.json
+│   └── template/           ← boilerplate for new tutorials (copy + edit config.js)
 └── .claude/
-    ├── CLAUDE.md       ← this file
-    └── commands/       ← skill files (create-tutorial, add-lesson, improve-lesson, improve-framework)
-
-Target layout (post-restructure — see README.md)
-├── core/js/framework.js
-├── core/css/styles.css
-├── cpp-drone/          ← current tutorial migrated here
-└── template/
+    ├── CLAUDE.md           ← this file
+    └── commands/           ← skill files (create-tutorial, add-lesson, improve-lesson, improve-framework)
 ```
 
 ## Core Files to Know
 
-- `js/app.js` — All framework logic + the SECTIONS array. The SECTIONS array (lines 7–74) defines the tutorial structure. After the framework split, this becomes `core/js/framework.js` + `{tutorial}/config.js`.
-- `css/styles.css` — Never edit for content changes. Edit only when adding new UI components or fixing design system bugs.
-- `pages/section-N.html` — Each section page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
-- `template/config.js` — The `window.TUTORIAL_CONFIG` shape. This is what a new tutorial author fills in.
+- `core/js/framework.js` — All framework logic. Reads `window.TUTORIAL_CONFIG` set by each tutorial's `config.js`. Public API: `initPage()`, `initDashboard()`.
+- `core/css/styles.css` — Never edit for content changes. Edit only when adding new UI components or fixing design system bugs.
+- `tutorials/{name}/config.js` — Tutorial identity (title, icon, stateKey, sections, numColors, prerequisites, etc.). This is the only file a tutorial author must edit.
+- `tutorials/{name}/index.html` — Generic dashboard shell. Identical across all tutorials — do not put tutorial-specific content here.
+- `tutorials/{name}/pages/section-N.html` — Each section page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
+- `tutorials/template/config.js` — The `window.TUTORIAL_CONFIG` shape with inline documentation. Copy this when creating a new tutorial.
 
 ## State Schema
 
@@ -81,12 +81,12 @@ Apply every one of these principles. They are not optional stylistic choices —
 
 8. **Tags communicate strategy, not just topic** — Use the tag vocabulary from README.md. "Memorize this" tells the learner their brain needs to encode this pattern. "Skip if confident" gives permission not to feel guilty skipping.
 
-### When modifying the framework (js/app.js or css/styles.css)
+### When modifying the framework (core/js/framework.js or core/css/styles.css)
 
 - Do not break the `initPage(sectionId, basePath)` or `initDashboard()` API — section pages call these directly
 - Do not change the state schema keys without writing a migration (the `getState()` function handles version migration)
 - CSS changes: use the existing CSS variable system. Add new variables to `:root` rather than hardcoding values.
-- Test by opening `index.html` and a section page in the browser after changes
+- Test by opening `tutorials/cpp-drone/index.html` and a section page in the browser after changes
 
 **Public API additions (already implemented — do not remove or rename):**
 - `getUserName()` — returns the learner's name string, or `null` if not set / skipped
@@ -100,7 +100,9 @@ Apply every one of these principles. They are not optional stylistic choices —
 
 See `.claude/commands/create-tutorial.md` for the full skill. Summary:
 - Gather: topic, audience, prerequisites, time estimate, list of sections
-- Generate: `config.js`, `index.html`, one HTML file per section, `pages/settings.html`, `states/manifest.json`
+- Generate under `tutorials/{slug}/`: `config.js`, `index.html`, one HTML file per section in `pages/`, `pages/settings.html`, `states/manifest.json`
+- Asset paths in section pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
+- Asset paths in index.html: `../../core/css/styles.css`, `./config.js`, `../../core/js/framework.js`
 - The user should be able to open the tutorial immediately after
 
 ### When running /add-lesson or /improve-lesson
@@ -117,22 +119,17 @@ Read the existing section HTML before making any changes. Match the existing sty
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Section N — Title</title>
-<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../../../core/css/styles.css">
 </head>
 <body>
 <div id="page-content">
   <!-- content here -->
 </div>
-<script src="../js/app.js"></script>
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
 <script>initPage('sN', '../');</script>
 </body>
 </html>
-```
-
-After framework split, the two script tags become:
-```html
-<script src="../config.js"></script>
-<script src="../core/js/framework.js"></script>
 ```
 
 ### Sub-section accordion
@@ -169,7 +166,7 @@ Checkbox IDs must be globally unique across the entire tutorial (not just the se
 ## What NOT to Do
 
 - Do not add npm packages, build tools, or external CDN links
-- Do not use `localStorage` keys other than the `STATE_KEY` defined in `app.js` / `config.js`
+- Do not use `localStorage` keys other than the `STATE_KEY` derived from `config.js`'s `stateKey`
 - Do not hardcode section counts (use `SECTIONS.length`)
 - Do not write comments explaining what code does — only write comments explaining WHY something non-obvious is done
 - Do not create a backend, database, or server-side component — use files and the GitHub Gist API for anything requiring persistence

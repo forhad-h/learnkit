@@ -2,15 +2,11 @@
    LearnKit Tutorial Config
    ═══════════════════════════════════════════
 
-   This is the only file you MUST edit to define your tutorial's structure.
-   Everything else (js/app.js, css/styles.css) reads from this.
+   This is the only file you edit to define your tutorial's structure.
+   The framework (core/js/framework.js) reads everything from this.
 
-   After the framework split:
-     - This file lives in your tutorial folder (e.g. my-tutorial/config.js)
-     - The framework lives in core/js/framework.js
-     - Each section page loads config.js first, then framework.js
-
-   For now (legacy layout): edit js/app.js directly and use this as a reference.
+   This file lives in your tutorial folder: tutorials/my-tutorial/config.js
+   Each section page loads config.js first, then ../../core/js/framework.js
    ═══════════════════════════════════════════ */
 
 window.TUTORIAL_CONFIG = {
