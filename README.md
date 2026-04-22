@@ -32,6 +32,7 @@ This is the compounding part: the tutorial gets smarter as you learn.
 ## Current Features
 
 ### For learners
+
 - **3-state progress tracking** — Pending / In Progress / Completed per section, saved in browser localStorage
 - **Smart "continue" banner** — resumes the right section with the right verb based on your state
 - **Sub-section memory** — remembers which accordion panels you opened; scrolls back to your last position on revisit
@@ -44,6 +45,7 @@ This is the compounding part: the tutorial gets smarter as you learn.
 - **Progress sharing via public URL** — one-click share via anonymous GitHub Gist (no account required); paste URL on any device to restore your progress
 
 ### For authors (via Claude Code)
+
 - **`/create-tutorial`** — scaffold a complete new tutorial from a conversation
 - **`/add-lesson`** — add a new section to an existing tutorial
 - **`/improve-lesson`** — improve content of a specific section; includes prompting for personal discoveries
@@ -75,7 +77,7 @@ Your progress saves automatically in your browser. No account, no login.
 6. Enable GitHub Pages on your fork to publish it for free
 
 ```bash
-git clone https://github.com/YOU/learnkit
+git clone https://github.com/<your-github-username>/learnkit
 cd learnkit
 claude  # opens Claude Code
 # In Claude Code: /create-tutorial
@@ -102,7 +104,7 @@ Step 3: Commit your tutorial
 
 Step 4: Publish on GitHub Pages
         Go to your repo settings → Pages → Source: main branch / root
-        Your tutorial is live at https://YOU.github.io/learnkit/tutorials/your-topic/
+        Your tutorial is live at https://<your-github-username>.github.io/learnkit/tutorials/your-topic/
 ```
 
 ---
@@ -145,14 +147,14 @@ learnkit/
 
 ### Key files explained
 
-| File | Purpose |
-|------|---------|
-| `tutorials/{name}/config.js` | Tutorial-specific data: title, icon, stateKey, sections list, colors, prerequisites, goal. The only file you edit to define a tutorial. |
-| `tutorials/{name}/index.html` | Dashboard shell. Identical across all tutorials — `initDashboard()` populates it from `config.js`. |
-| `core/js/framework.js` | All runtime logic. Reads `window.TUTORIAL_CONFIG`. Shared by every tutorial. Never edit per-tutorial. |
-| `core/css/styles.css` | Design system. 136 CSS custom properties. Monospace fonts. Dark code blocks. Responsive. |
-| `pages/settings.html` | Export/import/clear state. Identical across all tutorials. |
-| `states/manifest.json` | Index of named JSON snapshots for git-based sync. |
+| File                          | Purpose                                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `tutorials/{name}/config.js`  | Tutorial-specific data: title, icon, stateKey, sections list, colors, prerequisites, goal. The only file you edit to define a tutorial. |
+| `tutorials/{name}/index.html` | Dashboard shell. Identical across all tutorials — `initDashboard()` populates it from `config.js`.                                      |
+| `core/js/framework.js`        | All runtime logic. Reads `window.TUTORIAL_CONFIG`. Shared by every tutorial. Never edit per-tutorial.                                   |
+| `core/css/styles.css`         | Design system. 136 CSS custom properties. Monospace fonts. Dark code blocks. Responsive.                                                |
+| `pages/settings.html`         | Export/import/clear state. Identical across all tutorials.                                                                              |
+| `states/manifest.json`        | Index of named JSON snapshots for git-based sync.                                                                                       |
 
 ---
 
@@ -160,15 +162,15 @@ learnkit/
 
 LearnKit has zero runtime dependencies by design.
 
-| Concern | How it's solved |
-|---------|----------------|
-| **No server needed** | Pure static files. Open `index.html` directly or via `python3 -m http.server`. |
-| **No database** | All state lives in browser localStorage. Exported to JSON files when you want portability. |
-| **No build tool** | No npm, no webpack, no compilation. Edit HTML/JS/CSS and refresh. |
-| **No account** | Nothing to log in to. Nothing sent anywhere. |
-| **Multi-device sync** | Export state as JSON, commit to your git fork, import on the other device. |
-| **Deployment** | GitHub Pages, Netlify, Vercel, any static host, or a USB drive. |
-| **Backup** | `git commit` your tutorial's `states/` directory. Your progress is in version control. |
+| Concern               | How it's solved                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| **No server needed**  | Pure static files. Open `index.html` directly or via `python3 -m http.server`.             |
+| **No database**       | All state lives in browser localStorage. Exported to JSON files when you want portability. |
+| **No build tool**     | No npm, no webpack, no compilation. Edit HTML/JS/CSS and refresh.                          |
+| **No account**        | Nothing to log in to. Nothing sent anywhere.                                               |
+| **Multi-device sync** | Export state as JSON, commit to your git fork, import on the other device.                 |
+| **Deployment**        | GitHub Pages, Netlify, Vercel, any static host, or a USB drive.                            |
+| **Backup**            | `git commit` your tutorial's `states/` directory. Your progress is in version control.     |
 
 This is intentional. The target audience is developers who understand files and git. Backend infrastructure would add zero value and introduce a dependency that breaks when it goes down.
 
@@ -177,12 +179,15 @@ This is intentional. The target audience is developers who understand files and 
 ## Upcoming Features
 
 ### Estimated time per section
+
 Each section in `config.js` can declare an estimated duration. Displayed on section cards and in the nav footer. Helps with session planning ("I have 45 minutes — what can I finish?").
 
 ### Learning velocity tracking
+
 Track time spent per section (session start → status change to completed). Display average pace vs. estimate. Purely client-side; stored in the state JSON.
 
 ### AI-generated review questions
+
 After marking a section completed, a callout appears with 2-3 comprehension questions. These are authored at tutorial-creation time by Claude and embedded directly in the HTML. No API calls at runtime.
 
 ---
@@ -192,6 +197,7 @@ After marking a section completed, a callout appears with 2-3 comprehension ques
 When writing or generating section content, apply these patterns:
 
 ### Structure every section as
+
 1. **What** — a one-line statement of what this section covers
 2. **Why** — why this matters to the learner's goal
 3. **How** — the actual content in sub-sections
@@ -222,7 +228,7 @@ When writing or generating section content, apply these patterns:
 
 <!-- Checklist (state is persisted) -->
 <ul class="checklist">
-  <li><input type="checkbox" id="unique-id"> Task description</li>
+  <li><input type="checkbox" id="unique-id" /> Task description</li>
 </ul>
 
 <!-- Code block (gets Copy button automatically) -->
@@ -231,18 +237,18 @@ When writing or generating section content, apply these patterns:
 
 ### Tag vocabulary
 
-| Tag | Color | Meaning |
-|-----|-------|---------|
-| `Read first` | blue | Required context before doing anything |
-| `Do first` | green | Setup/installation — unblock yourself |
-| `Core skill` | blue | Must internalize, will use repeatedly |
-| `Memorize this` | blue | Pattern or API worth committing to memory |
-| `Skip if confident` | orange | Optional for those with prior experience |
-| `Core framework` | purple | Foundational tool/concept for this domain |
-| `Month 3+` | amber | Advanced — return to this after basics are solid |
-| `Portfolio booster` | purple | Externally visible achievement |
-| `Track progress` | green | Meta — managing your own learning |
-| `Quick reference` | blue | Reference material, not linear reading |
+| Tag                 | Color  | Meaning                                          |
+| ------------------- | ------ | ------------------------------------------------ |
+| `Read first`        | blue   | Required context before doing anything           |
+| `Do first`          | green  | Setup/installation — unblock yourself            |
+| `Core skill`        | blue   | Must internalize, will use repeatedly            |
+| `Memorize this`     | blue   | Pattern or API worth committing to memory        |
+| `Skip if confident` | orange | Optional for those with prior experience         |
+| `Core framework`    | purple | Foundational tool/concept for this domain        |
+| `Month 3+`          | amber  | Advanced — return to this after basics are solid |
+| `Portfolio booster` | purple | Externally visible achievement                   |
+| `Track progress`    | green  | Meta — managing your own learning                |
+| `Quick reference`   | blue   | Reference material, not linear reading           |
 
 ---
 
@@ -261,6 +267,7 @@ This project is designed to get better as people use it.
 ## Designed for technical people who understand GitHub and files
 
 This is not a consumer product. It assumes:
+
 - You have git installed and know how to fork/clone
 - You can run a terminal command
 - You understand that files on your machine are real and persistent
