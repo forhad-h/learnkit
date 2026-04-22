@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 9 — Multi-Agent Orchestration</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+
+<div id="page-content">
+
+  <p style="color:var(--text2);margin-bottom:20px;">
+    Single agents are powerful. Multi-agent systems are transformative. When you coordinate multiple specialized agents — each with its own tools, context window, and expertise — you can solve problems that no single agent could handle. This module shows you how to design, build, and debug multi-agent workflows.
+  </p>
+
+
+  <!-- ═══ LESSON 1 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-1">
+    <div class="lesson-header" onclick="toggleLesson('s12-1')">
+      <div class="lesson-title">9.1 When to Use Multiple Agents (and When Not To)</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Multi-agent systems are not a default. They're a deliberate architectural choice. Use them when:</p>
+
+      <pre># 1. The problem decomposes cleanly into independent subproblems
+# Example: "Research the top 3 Python web frameworks and write a comparison."
+# → Agent A: research FastAPI
+# → Agent B: research Django
+# → Agent C: research Flask
+# → Orchestrator: synthesize all three reports into a comparison
+
+# 2. You need different toolsets or permissions
+# Example: "Deploy this app to AWS."
+# → Agent A: builds the Docker image (needs Docker, build tools)
+# → Agent B: pushes to ECR (needs AWS credentials)
+# → Agent C: updates the ECS service (needs ECS permissions)
+
+# 3. You need to parallelize work for speed
+# Example: "Run all unit tests, integration tests, and lint checks."
+# → Agent A: unit tests
+# → Agent B: integration tests
+# → Agent C: linting
+# All three run simultaneously, finish in the time of the slowest.
+
+# 4. You need specialized expertise
+# Example: "Review this PR for security, performance, and readability."
+# → Security agent: trained on OWASP, looks for injection, XSS
+# → Performance agent: trained on profiling, looks for N+1 queries
+# → Readability agent: trained on style guides, looks for naming</pre>
+
+      <div class="callout callout-warning">
+        Do NOT use multiple agents for a single, linear task. If the work is sequential — step B depends on step A's result — a single agent with a well‑designed loop is simpler, cheaper, and more reliable. Multi‑agent overhead (coordination, context switching) outweighs the benefit.
+      </div>
+
+      <p>Signs you should stick with a single agent:</p>
+
+      <ul>
+        <li>The task is a straight line: A → B → C → done</li>
+        <li>All steps need the same context (the same files, the same git state)</li>
+        <li>You can't clearly define hand‑off boundaries between agents</li>
+        <li>The cost of spawning and coordinating agents exceeds the time saved</li>
+      </ul>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 2 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-2">
+    <div class="lesson-header" onclick="toggleLesson('s12-2')">
+      <div class="lesson-title">9.2 Orchestrator‑Worker Pattern</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>The orchestrator‑worker pattern is the most common multi‑agent architecture. One orchestrator agent decides what needs to be done, spawns worker agents to do it, waits for their results, and synthesizes the final output.</p>
+
+      <pre>import asyncio
+import anthropic
+from typing import List, Dict, Any
+
+client = anthropic.Anthropic()
+
+async def run_worker(prompt: str, tools: List[Dict]) -> str:
+    """Run a single worker agent with its own context."""
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        tools=tools,
+        system="You are a specialized worker agent. Focus only on your assigned task.",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.content[0].text
+
+
+async def orchestrator(main_task: str) -> str:
+    """Orchestrator: break down the task, run workers in parallel, combine results."""
+    # Step 1: Break down the task
+    breakdown_prompt = f"""
+    Break this task into independent subtasks that can be worked on in parallel.
+    Task: {main_task}
+
+    Return a JSON array of subtask descriptions.
+    """
+    breakdown = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=512,
+        messages=[{"role": "user", "content": breakdown_prompt}]
+    )
+    subtasks = json.loads(breakdown.content[0].text)
+
+    # Step 2: Run workers in parallel
+    worker_tasks = []
+    for i, subtask in enumerate(subtasks):
+        worker_prompt = f"""
+        You are worker {i+1}/{len(subtasks)}.
+        Your subtask: {subtask}
+        Focus only on this. Do not try to do the whole task.
+        """
+        worker_tasks.append(run_worker(worker_prompt, []))
+
+    results = await asyncio.gather(*worker_tasks)
+
+    # Step 3: Synthesize
+    synthesis_prompt = f"""
+    Original task: {main_task}
+
+    Worker results:
+    {chr(10).join(f"- Worker {i+1}: {r}" for i, r in enumerate(results))}
+
+    Synthesize these into a single, coherent answer.
+    """
+    final = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": synthesis_prompt}]
+    )
+    return final.content[0].text
+
+
+# Usage
+result = asyncio.run(orchestrator(
+    "Compare Python's FastAPI, Django, and Flask frameworks for building a REST API."
+))</pre>
+
+      <div class="callout callout-info">
+        The orchestrator should be a lightweight coordinator, not a heavy worker. Its job is to decompose, assign, wait, and synthesize — not to do the actual work. Give it minimal tools (maybe just the ability to spawn workers) and a clear, focused system prompt.
+      </div>
+
+      <p>Worker design principles:</p>
+
+      <ul>
+        <li><strong>Single responsibility</strong> — each worker does exactly one thing</li>
+        <li><strong>Minimal context</strong> — workers get only the information they need for their subtask</li>
+        <li><strong>Specialized tools</strong> — workers have the tools they need, and no more</li>
+        <li><strong>Timeout guards</strong> — every worker has a max runtime; kill it if it stalls</li>
+      </ul>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 3 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-3">
+    <div class="lesson-header" onclick="toggleLesson('s12-3')">
+      <div class="lesson-title">9.3 Agent Communication and Hand‑Off</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Agents cannot share memory. They communicate through messages — structured data passed from one agent to another. The quality of your hand‑off determines whether the next agent can pick up where the last left off.</p>
+
+      <div class="callout callout-warning">
+        Never hand off raw conversation history. That's dumping your entire context window into the next agent's context window — expensive, noisy, and confusing. Instead, extract the essential facts and decisions, structure them, and pass only those.
+      </div>
+
+      <pre># BAD hand‑off — dumping everything
+handoff = f"""
+Previous agent said:
+{previous_agent_full_conversation}
+Now you continue.
+"""
+
+# GOOD hand‑off — structured summary
+handoff = {
+    "task": "Implement user authentication endpoint",
+    "decisions_made": [
+        "Use JWT tokens, not sessions",
+        "Store passwords hashed with bcrypt",
+        "Endpoint path: /api/auth/login"
+    ],
+    "artifacts_produced": [
+        "schema.sql — users table definition",
+        "auth.py — bcrypt helper functions"
+    ],
+    "open_questions": [
+        "Should we rate‑limit login attempts?",
+        "Do we need refresh tokens?"
+    ],
+    "next_step": "Write the FastAPI route for /api/auth/login"
+}
+
+handoff_json = json.dumps(handoff, indent=2)
+
+next_agent_prompt = f"""
+You are taking over a task in progress.
+
+Context:
+{handoff_json}
+
+Continue from here. Focus on the 'next_step'.
+"""</pre>
+
+      <p>Three hand‑off patterns:</p>
+
+      <pre># 1. Request‑response — one agent asks another for help
+# Agent A: "I need to know the current AWS region."
+# → calls Agent B (AWS specialist)
+# ← receives region string
+# → continues
+
+# 2. Pipeline — each agent does one stage, passes output downstream
+# Agent A: research → Agent B: write → Agent C: review → done
+
+# 3. Blackboard — agents read/write to a shared data structure
+# All agents can read/write a shared JSON file or database table
+# Each agent contributes when it has something to add
+# Useful for collaborative tasks like design documents</pre>
+
+      <div class="callout callout-success">
+        💡 What worked for me: using a shared SQLite database as the blackboard. Each agent writes its findings to a `findings` table with columns `agent_id`, `timestamp`, `category`, `content`. The orchestrator queries the table to synthesize. This scales better than passing giant JSON blobs between agents, and it persists across sessions.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 4 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-4">
+    <div class="lesson-header" onclick="toggleLesson('s12-4')">
+      <div class="lesson-title">9.4 Debugging Multi‑Agent Systems</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Multi‑agent failures are harder to debug because you have multiple points of failure. The key is structured logging and traceability.</p>
+
+      <pre>import uuid
+import logging
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class AgentRun:
+    def __init__(self, task_id: str, agent_name: str):
+        self.task_id = task_id
+        self.agent_name = agent_name
+        self.start_time = datetime.utcnow()
+
+    def log(self, event: str, data: dict = None):
+        """Structured log entry for this agent run."""
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "task_id": self.task_id,
+            "agent": self.agent_name,
+            "event": event,
+            "data": data or {}
+        }
+        logger.info(json.dumps(entry))
+        # Also write to a file or database for later analysis
+        with open(f"agent_logs/{self.task_id}.jsonl", "a") as f:
+            f.write(json.dumps(entry) + "\n")
+
+    def run_with_logging(self, prompt: str) -> str:
+        self.log("agent_started", {"prompt_preview": prompt[:100]})
+        try:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            result = response.content[0].text
+            self.log("agent_completed", {
+                "input_tokens": response.usage.input_tokens,
+                "output_tokens": response.usage.output_tokens,
+                "result_preview": result[:200]
+            })
+            return result
+        except Exception as e:
+            self.log("agent_failed", {"error": str(e)})
+            raise
+
+
+# Usage
+task_id = str(uuid.uuid4())
+orchestrator_run = AgentRun(task_id, "orchestrator")
+orchestrator_run.log("task_received", {"task": main_task})
+
+# Later, when a worker runs
+worker_run = AgentRun(task_id, "worker_research")
+result = worker_run.run_with_logging(research_prompt)</pre>
+
+      <p>When something goes wrong, you can reconstruct the exact flow:</p>
+
+      <pre>$ cat agent_logs/abc123.jsonl | jq -r '.timestamp + " " + .agent + " " + .event'
+2026-04-22T14:30:01 orchestrator task_received
+2026-04-22T14:30:02 orchestrator agent_started
+2026-04-22T14:30:12 orchestrator agent_completed
+2026-04-22T14:30:13 worker_research agent_started
+2026-04-22T14:30:25 worker_research agent_completed
+2026-04-22T14:30:26 worker_writer agent_started
+2026-04-22T14:30:45 worker_writer agent_failed  ← HERE</pre>
+
+      <div class="callout callout-info">
+        Add a unique trace ID to every agent call and propagate it through the system. When you see an error in production logs, you can filter by that trace ID and see the entire multi‑agent journey — which agent failed, what it was trying to do, what the previous agents had decided.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 5 ═══════════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-5">
+    <div class="lesson-header" onclick="toggleLesson('s12-5')">
+      <div class="lesson-title">9.5 Project: Build a Multi‑Agent Code Review System</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Build a system that reviews a GitHub pull request using three specialized agents:</p>
+
+      <ol>
+        <li><strong>Security agent</strong> — looks for injection, XSS, insecure dependencies</li>
+        <li><strong>Performance agent</strong> — looks for N+1 queries, inefficient loops, missing indexes</li>
+        <li><strong>Readability agent</strong> — checks naming, function length, comments</li>
+      </ol>
+
+      <p>Each agent runs in parallel, writes its findings to a shared SQLite table, and the orchestrator synthesizes a final review comment.</p>
+
+      <pre># Project structure
+multi_agent_review/
+├── main.py              # orchestrator
+├── agents/
+│   ├── security.py      # security agent
+│   ├── performance.py   # performance agent
+│   └── readability.py   # readability agent
+├── shared/
+│   └── database.py      # SQLite blackboard
+├── logs/
+│   └── (auto‑created)   # structured logs
+└── requirements.txt</pre>
+
+      <p>Implementation steps:</p>
+
+      <pre>1. Set up the SQLite blackboard with a `findings` table.
+2. Write each agent as a separate Python script that:
+   - Reads the PR diff (from GitHub API or local file)
+   - Runs its specialized analysis
+   - Writes findings to the blackboard
+3. Write the orchestrator that:
+   - Fetches the PR diff
+   - Spawns the three agents as subprocesses or threads
+   - Waits for all to finish
+   - Queries the blackboard, synthesizes a report
+   - Posts the review comment via GitHub API
+4. Add structured logging with trace IDs.
+5. Add timeouts — kill any agent that runs longer than 2 minutes.</pre>
+
+      <div class="callout callout-success">
+        💡 What worked for me: starting with a local file diff instead of the GitHub API. I saved a PR diff as `test.diff`, had each agent read it, and ran the whole system locally. Once it worked, I swapped in the real GitHub API. This let me iterate fast without hitting rate limits.
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══ LESSON 6: VERIFY ════════════════════════════════════════════ -->
+  <div class="lesson" id="s12-6">
+    <div class="lesson-header" onclick="toggleLesson('s12-6')">
+      <div class="lesson-title">9.6 Verify: Design and Run a Multi‑Agent Workflow</div>
+      <svg class="lesson-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="lesson-body">
+
+      <p>Apply what you've learned by designing and implementing a multi‑agent system for a real task you care about.</p>
+
+      <ul class="checklist">
+        <li><input type="checkbox" id="s12-when"> I can articulate when a multi‑agent approach is appropriate and when it's overkill</li>
+        <li><input type="checkbox" id="s12-orchestrator"> I implemented an orchestrator‑worker pattern with at least two parallel workers</li>
+        <li><input type="checkbox" id="s12-handoff"> My agents hand off structured summaries, not raw conversation history</li>
+        <li><input type="checkbox" id="s12-logging"> I added structured logging with trace IDs that follow the flow across agents</li>
+        <li><input type="checkbox" id="s12-project"> I built the multi‑agent code review system (or an equivalent project) and it works end‑to‑end</li>
+        <li><input type="checkbox" id="s12-debug"> I used the logs to debug at least one multi‑agent failure and fixed it</li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s12', '../');</script>
+</body>
+</html>

@@ -72,6 +72,22 @@ window.COURSE_CONFIG = {
       tagColor: 'green',
       file: 'module-10.html'
     },
+    {
+      id: 's8',
+      num: '8',
+      title: 'Context Engineering',
+      tag: 'Core skill',
+      tagColor: 'blue',
+      file: 'module-11.html'
+    },
+    {
+      id: 's9',
+      num: '9',
+      title: 'Multi‑Agent Orchestration',
+      tag: 'Core concept',
+      tagColor: 'purple',
+      file: 'module-12.html'
+    },
   ],
 
   numColors: {
@@ -82,6 +98,8 @@ window.COURSE_CONFIG = {
     s5: 'background:#f3e8ff;color:#6b21a8;',
     s6: 'background:#eff6ff;color:#1d4ed8;',
     s7: 'background:#fef3c7;color:#92400e;',
+    s8: 'background:#eff6ff;color:#1d4ed8;',
+    s9: 'background:#f3e8ff;color:#6b21a8;',
   },
 
 };
