@@ -7,53 +7,278 @@
 <link rel="stylesheet" href="../../core/css/styles.css">
 <style>
   body { padding-top: 0; }
-  .dash-layout { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+  .dash-master-detail {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    min-height: calc(100vh - 80px);
+  }
+  .dash-sidebar {
+    position: sticky;
+    top: 40px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .dash-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
   .dash-top-bar {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+    margin-bottom: 4px; flex-wrap: wrap; gap: 12px;
   }
   .dash-top-bar h2 { font-size: 13px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
-  #continueBanner { display: none; margin-bottom: 20px; }
+  #continueBanner { display: none; }
+  /* Sidebar course info */
+  .dash-course-identity { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .dash-course-icon { font-size: 22px; flex-shrink: 0; line-height: 1.2; }
+  .dash-course-name { flex: 1; min-width: 0; }
+  .dash-course-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .dash-course-subtitle { font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.4; }
+  .dash-course-desc { font-size: 12.5px; color: var(--text2); line-height: 1.5; margin-bottom: 14px; }
+  .dash-course-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .dash-meta-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+  }
+  .dash-meta-value { font-size: 12.5px; color: var(--text2); line-height: 1.4; }
+  .prereq-list { list-style: none; padding: 0; margin: 0; font-size: 12.5px; color: var(--text2); line-height: 1.7; }
+  .prereq-list li::before { content: "✓ "; color: var(--green); font-weight: 600; }
+  .dash-progress-section { margin-bottom: 14px; }
+  .dash-progress-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  /* Progress bar */
+  .hero-progress-track {
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .hero-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #14b8a6);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .hero-progress-stats { display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--text2); }
+  .hero-progress-count { font-weight: 600; color: var(--text); }
+  /* KPI chips */
+  .hero-kpi-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .hero-kpi-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: var(--bg3);
+    color: var(--text3);
+  }
+  .hero-kpi-chip.done { background: var(--green-bg); color: var(--green); }
+  .hero-kpi-chip.in-progress { background: var(--amber-bg); color: var(--amber); }
+  .dash-course-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  /* Module grid */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .module-grid-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.15s;
+  }
+  .module-grid-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.15), 0 0 0 3px var(--accent-bg);
+    transform: translateY(-3px);
+  }
+  .module-grid-card-header { display: flex; align-items: flex-start; gap: 12px; }
+  .module-grid-card-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .module-grid-card-info { flex: 1; min-width: 0; }
+  .module-grid-card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .module-grid-card-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .module-grid-card-tag { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+  .module-grid-card-status { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+  .module-grid-card-status.pending { background: var(--bg3); color: var(--text3); }
+  .module-grid-card-status.in-progress { background: var(--amber-bg); color: var(--amber); }
+  .module-grid-card-status.completed { background: var(--green-bg); color: var(--green); }
+  .module-grid-card-body { font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+  .module-grid-card-footer { display: flex; justify-content: flex-end; margin-top: auto; }
+  .module-grid-card-time { font-size: 12px; color: var(--text3); }
+  .module-grid-card-action-btn {
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.12s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .module-grid-card-action-btn:hover,
+  .module-grid-card-action-btn:focus { background: var(--bg3); color: var(--text); border-color: var(--border2); outline: none; }
+  .module-grid-card-action-btn:focus-visible { box-shadow: 0 0 0 3px var(--accent-bg); }
+  .module-grid-card-action-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .module-grid-card-action-btn.primary:hover,
+  .module-grid-card-action-btn.primary:focus { background: var(--accent-hover); border-color: var(--accent-hover); outline: none; }
+  .module-grid-card-action-btn.primary:focus-visible { box-shadow: 0 0 0 3px var(--accent-bg), inset 0 0 0 1px white; }
+  /* Navigation sidebar cards */
+  .nav-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .nav-card-warning { border-color: var(--amber-border); background: var(--amber-bg); }
+  .nav-card-warning svg { stroke: var(--amber); }
+  .nav-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+  .nav-module-list { display: flex; flex-direction: column; gap: 6px; }
+  .nav-module-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text2);
+    transition: all 0.12s;
+  }
+  .nav-module-item:hover,
+  .nav-module-item:focus { background: var(--bg3); color: var(--text); outline: none; }
+  .nav-module-item:focus-visible { box-shadow: 0 0 0 3px var(--accent-bg); }
+  .nav-module-item.active {
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+    border-left: 3px solid var(--accent);
+    margin-left: -3px;
+    padding-left: 15px;
+  }
+  .nav-module-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--bg3);
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+  .nav-module-item.active .nav-module-num { background: var(--accent); color: white; }
+  .nav-module-text { flex: 1; min-width: 0; }
+  .nav-module-title { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-module-hint { font-size: 11px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-module-item.active .nav-module-hint { color: var(--accent); opacity: 0.7; }
+  .nav-module-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .nav-module-status.pending { background: var(--bg3); }
+  .nav-module-status.in-progress { background: var(--amber); }
+  .nav-module-status.completed { background: var(--green); }
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .dash-master-detail { grid-template-columns: 1fr; gap: 30px; }
+    .dash-sidebar { position: static; max-height: none; overflow-y: visible; }
+    .module-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .module-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<div class="dash-layout">
+<div class="dash-master-detail">
+  <!-- Left Sidebar -->
+  <aside class="dash-sidebar">
+    <!-- Course info + progress — populated by initDashboard() -->
+    <div id="dashHeader"></div>
 
-  <!-- Header card — populated by initDashboard() from config.js -->
-  <div id="dashHeader"></div>
+  </aside>
 
-  <!-- Overall progress + backup warning -->
-  <div class="progress-card">
-    <div class="progress-main">
-      <span class="progress-label">Overall progress</span>
-      <div class="progress-track"><div class="progress-fill" id="dashProgressFill"></div></div>
-      <span class="progress-count" id="dashProgressCount">0 / ?</span>
+  <!-- Main Content Area -->
+  <main class="dash-main">
+    <!-- Continue banner — populated by initDashboard() -->
+    <div id="continueBanner"></div>
+
+    <!-- Module grid heading -->
+    <div class="dash-top-bar">
+      <h2>All modules</h2>
     </div>
-    <div class="progress-backup-row">
-      <svg class="progress-backup-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="progress-backup-text">Progress stays in this browser only — switching browsers or clearing data will reset it.</span>
-      <a href="pages/settings.html" class="btn-icon-labeled" title="Export / Import" style="flex-shrink:0;">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Export / Import
-      </a>
-    </div>
-  </div>
 
-  <!-- Continue banner — populated by initDashboard() -->
-  <div id="continueBanner"></div>
+    <!-- Module grid — populated by initDashboard() -->
+    <div class="module-grid" id="moduleList"></div>
 
-  <!-- Module list heading -->
-  <div class="dash-top-bar">
-    <h2>All modules</h2>
-  </div>
-
-  <!-- Module cards — populated by initDashboard() -->
-  <div class="module-list" id="moduleList"></div>
-
-  <!-- Footer — populated by initDashboard() -->
-  <div class="page-footer" id="dashFooter"></div>
-
+    <!-- Footer — populated by initDashboard() -->
+    <div class="page-footer" id="dashFooter"></div>
+  </main>
 </div>
 
 <script src="./config.js"></script>
