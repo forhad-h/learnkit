@@ -6,6 +6,29 @@
 
 ---
 
+## Quick Start
+
+LearnKit is a **static-file tutorial framework** — no server, no account, no npm. You open an HTML file in your browser, follow structured lessons, and your progress saves locally. Authors use Claude Code AI skills to generate and improve tutorials in minutes.
+
+**Try it in 30 seconds:**
+
+```bash
+git clone https://github.com/forhad-h/learnkit
+cd learnkit
+python3 -m http.server 8000
+```
+
+Open **http://localhost:8000/tutorials/cpp-drone/** to see a live example.
+
+| I want to… | Go to |
+|---|---|
+| Follow an existing tutorial | [Getting Started → Option A](#option-a-follow-an-existing-tutorial-read-only) |
+| Build my own tutorial with AI | [Getting Started → Option B](#option-b-create-your-own-tutorial-fork) |
+| Understand the framework | [Project Structure](#project-structure) |
+| Contribute or improve content | [Contributing](#contributing-and-the-self-improvement-loop) |
+
+---
+
 ## What Is This?
 
 LearnKit is a framework for building and following structured technical tutorials. It has two modes:
