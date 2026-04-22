@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LearnKit — All Tutorials</title>
+  <title>LearnKit — All Courses</title>
   <link rel="stylesheet" href="./core/css/styles.css" />
   <style>
     body {
@@ -47,7 +47,7 @@
       margin-top: 2px;
     }
 
-    .home-section-label {
+    .home-module-label {
       font-size: 11px;
       font-weight: 600;
       color: var(--text3);
@@ -56,14 +56,14 @@
       margin: 36px 0 12px;
     }
 
-    /* ── Tutorial card grid ── */
-    .tutorial-grid {
+    /* ── Course card grid ── */
+    .course-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
       gap: 14px;
     }
 
-    .tutorial-card {
+    .course-card {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: calc(var(--radius) + 2px);
@@ -78,18 +78,18 @@
       position: relative;
       overflow: hidden;
     }
-    .tutorial-card:hover {
+    .course-card:hover {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-bg), var(--shadow-md);
       transform: translateY(-2px);
     }
 
-    .tutorial-card-top {
+    .course-card-top {
       display: flex;
       align-items: flex-start;
       gap: 14px;
     }
-    .tutorial-icon {
+    .course-icon {
       width: 44px;
       height: 44px;
       border-radius: 11px;
@@ -101,36 +101,36 @@
       font-size: 22px;
       flex-shrink: 0;
     }
-    .tutorial-card-info {
+    .course-card-info {
       flex: 1;
       min-width: 0;
     }
-    .tutorial-card-title {
+    .course-card-title {
       font-size: 15.5px;
       font-weight: 600;
       color: var(--text);
       line-height: 1.3;
       margin-bottom: 4px;
     }
-    .tutorial-card-subtitle {
+    .course-card-subtitle {
       font-size: 12px;
       color: var(--text3);
       line-height: 1.5;
     }
 
-    .tutorial-card-desc {
+    .course-card-desc {
       font-size: 13.5px;
       color: var(--text2);
       line-height: 1.6;
     }
 
-    .tutorial-card-meta {
+    .course-card-meta {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
     }
-    .tutorial-meta-pill {
+    .course-meta-pill {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -142,30 +142,30 @@
       padding: 3px 10px;
       white-space: nowrap;
     }
-    .tutorial-meta-pill svg {
+    .course-meta-pill svg {
       flex-shrink: 0;
     }
 
     /* ── Progress strip inside card ── */
-    .tutorial-progress {
+    .course-progress {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .tutorial-progress-track {
+    .course-progress-track {
       flex: 1;
       height: 5px;
       background: var(--bg3);
       border-radius: 99px;
       overflow: hidden;
     }
-    .tutorial-progress-fill {
+    .course-progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), #14b8a6);
       border-radius: 99px;
       transition: width 0.4s ease;
     }
-    .tutorial-progress-label {
+    .course-progress-label {
       font-size: 12px;
       font-weight: 500;
       color: var(--text3);
@@ -174,7 +174,7 @@
       text-align: right;
     }
 
-    .tutorial-cta {
+    .course-cta {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -183,10 +183,10 @@
       color: var(--accent);
       align-self: flex-start;
     }
-    .tutorial-cta svg {
+    .course-cta svg {
       transition: transform 0.15s;
     }
-    .tutorial-card:hover .tutorial-cta svg {
+    .course-card:hover .course-cta svg {
       transform: translateX(3px);
     }
 
@@ -226,7 +226,7 @@
     }
 
     @media (max-width: 560px) {
-      .tutorial-grid {
+      .course-grid {
         grid-template-columns: 1fr;
       }
       .home-brand h1 {
@@ -242,101 +242,111 @@
       <div class="home-brand-icon">📚</div>
       <div>
         <h1>LearnKit</h1>
-        <p>Structured, hands-on tutorials — track your progress as you learn.</p>
+        <p>Structured, hands-on courses — track your progress as you learn.</p>
       </div>
     </div>
 
-    <p class="home-section-label">Available tutorials</p>
+    <p class="home-module-label">Available courses</p>
 
-    <div class="tutorial-grid" id="tutorialGrid"></div>
+    <div class="course-grid" id="courseGrid"></div>
 
     <div class="home-footer">
-      <span class="home-footer-text">LearnKit · open-source tutorial framework</span>
+      <span class="home-footer-text">LearnKit · open-source course framework</span>
       <a class="home-footer-link" href="https://github.com/ForhadHossainKhan/LearnKit" target="_blank" rel="noopener">View on GitHub →</a>
     </div>
 
   </div>
 
   <script>
-    const TUTORIALS = [
+    const COURSES = [
       {
         title: 'C++ for Drone Engineering',
         icon: '🚁',
         subtitle: 'Ubuntu 24.04 · ROS2 Jazzy · ArduPilot SITL · C++17',
         description: 'From zero to job-ready portfolio. Write real ROS2 drone software in C++ with a GitHub portfolio to show for it.',
-        href: './tutorials/cpp-drone/index.html',
-        stateKey: 'drone_tutorial_state',
-        sectionCount: 11,
+        href: './courses/cpp-drone/index.html',
+        stateKey: 'drone_course_state',
+        moduleCount: 11,
         timeCommitment: '8–9 hrs/week · ~3 months',
+      },
+      {
+        title: 'AI Engineering with Claude',
+        icon: '🤖',
+        subtitle: 'Claude API · Tool Use · Agent Loops · Real Projects',
+        description: 'A fast, practical course — build and ship working AI agents with Claude Code that solve real problems by day 5.',
+        href: './courses/ai-engineering/index.html',
+        stateKey: 'ai_engineering_state',
+        moduleCount: 7,
+        timeCommitment: '2–3 hrs/day · 3–5 days',
       },
     ];
 
-    function getProgress(stateKey, sectionCount) {
+    function getProgress(stateKey, moduleCount) {
       try {
         const raw = localStorage.getItem(stateKey);
-        if (!raw) return { completed: 0, total: sectionCount, started: false };
+        if (!raw) return { completed: 0, total: moduleCount, started: false };
         const state = JSON.parse(raw);
-        const sections = state.sections || {};
-        const completed = Object.values(sections).filter(v => v === 'completed').length;
-        const inProgress = Object.values(sections).filter(v => v === 'in-progress').length;
+        const modules = state.modules || {};
+        const completed = Object.values(modules).filter(v => v === 'completed').length;
+        const inProgress = Object.values(modules).filter(v => v === 'in-progress').length;
         return {
           completed,
-          total: sectionCount,
+          total: moduleCount,
           started: completed > 0 || inProgress > 0,
         };
       } catch {
-        return { completed: 0, total: sectionCount, started: false };
+        return { completed: 0, total: moduleCount, started: false };
       }
     }
 
     function renderCards() {
-      const grid = document.getElementById('tutorialGrid');
+      const grid = document.getElementById('courseGrid');
 
-      if (TUTORIALS.length === 0) {
+      if (COURSES.length === 0) {
         grid.innerHTML = `
           <div class="empty-state">
             <div style="font-size:32px">🔭</div>
-            <p>No tutorials yet. Add one via <code>/create-tutorial</code>.</p>
+            <p>No courses yet. Open Claude Code and ask it to create a course.</p>
           </div>`;
         return;
       }
 
-      TUTORIALS.forEach(t => {
-        const prog = getProgress(t.stateKey, t.sectionCount);
+      COURSES.forEach(t => {
+        const prog = getProgress(t.stateKey, t.moduleCount);
         const pct = prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
         const ctaLabel = prog.completed === prog.total && prog.total > 0
           ? 'Review'
           : prog.started ? 'Continue' : 'Start learning';
 
         const card = document.createElement('a');
-        card.className = 'tutorial-card';
+        card.className = 'course-card';
         card.href = t.href;
         card.innerHTML = `
-          <div class="tutorial-card-top">
-            <div class="tutorial-icon">${t.icon}</div>
-            <div class="tutorial-card-info">
-              <div class="tutorial-card-title">${t.title}</div>
-              <div class="tutorial-card-subtitle">${t.subtitle}</div>
+          <div class="course-card-top">
+            <div class="course-icon">${t.icon}</div>
+            <div class="course-card-info">
+              <div class="course-card-title">${t.title}</div>
+              <div class="course-card-subtitle">${t.subtitle}</div>
             </div>
           </div>
-          <div class="tutorial-card-desc">${t.description}</div>
-          <div class="tutorial-card-meta">
-            <span class="tutorial-meta-pill">
+          <div class="course-card-desc">${t.description}</div>
+          <div class="course-card-meta">
+            <span class="course-meta-pill">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-              ${t.sectionCount} sections
+              ${t.moduleCount} modules
             </span>
-            <span class="tutorial-meta-pill">
+            <span class="course-meta-pill">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${t.timeCommitment}
             </span>
           </div>
-          <div class="tutorial-progress">
-            <div class="tutorial-progress-track">
-              <div class="tutorial-progress-fill" style="width:${pct}%"></div>
+          <div class="course-progress">
+            <div class="course-progress-track">
+              <div class="course-progress-fill" style="width:${pct}%"></div>
             </div>
-            <span class="tutorial-progress-label">${pct}%</span>
+            <span class="course-progress-label">${pct}%</span>
           </div>
-          <span class="tutorial-cta">
+          <span class="course-cta">
             ${ctaLabel}
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
           </span>

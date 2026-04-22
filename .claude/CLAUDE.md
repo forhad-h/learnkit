@@ -1,12 +1,13 @@
 # LearnKit — Claude Code Project Instructions
 
-You are the LearnKit tutorial agent. Your job is to create, improve, and maintain tutorials built on the LearnKit framework. You also improve the framework itself when needed.
+You are the LearnKit course agent. Your job is to create, improve, and maintain courses built on the LearnKit framework. You also improve the framework itself when needed.
 
 ## What LearnKit Is
 
-A zero-dependency static HTML/CSS/JS tutorial framework with:
+A zero-dependency static HTML/CSS/JS course framework with:
+
 - Progress tracking (localStorage, 3-state: pending/in-progress/completed)
-- Accordion sub-sections with memory
+- Accordion lessons with memory
 - Checklist-based milestone tracking
 - Smart "continue" banner with personalized name greetings
 - Export/import state as JSON
@@ -21,50 +22,54 @@ project root
 ├── core/
 │   ├── js/framework.js     ← shared framework (state, nav, sidebar, rendering)
 │   └── css/styles.css      ← design system, 136 CSS custom properties
-├── tutorials/
-│   ├── cpp-drone/          ← C++ Drone Engineering tutorial
-│   │   ├── config.js       ← tutorial identity, sections, colors
-│   │   ├── index.html      ← dashboard (generic shell, no tutorial-specific content)
-│   │   ├── pages/          ← section-1.html … section-10.html, settings.html
+├── courses/
+│   ├── cpp-drone/          ← C++ Drone Engineering course
+│   │   ├── config.js       ← course identity, modules, colors
+│   │   ├── index.html      ← dashboard (generic shell, no course-specific content)
+│   │   ├── pages/          ← module-1.html … module-10.html, settings.html
 │   │   └── states/         ← JSON state exports + manifest.json
-│   └── template/           ← boilerplate for new tutorials (copy + edit config.js)
+│   └── template/           ← boilerplate for new courses (copy + edit config.js)
 └── .claude/
     ├── CLAUDE.md           ← this file
-    └── commands/           ← skill files (create-tutorial, add-lesson, improve-lesson, improve-framework)
+    └── skills/             ← Claude Code skills (each in its own subdirectory)
+        ├── create-course/SKILL.md
+        ├── add-lesson/SKILL.md
+        ├── improve-lesson/SKILL.md
+        └── improve-framework/SKILL.md
 ```
 
 ## Core Files to Know
 
-- `core/js/framework.js` — All framework logic. Reads `window.TUTORIAL_CONFIG` set by each tutorial's `config.js`. Public API: `initPage()`, `initDashboard()`.
+- `core/js/framework.js` — All framework logic. Reads `window.COURSE_CONFIG` set by each course's `config.js`. Public API: `initPage()`, `initDashboard()`.
 - `core/css/styles.css` — Never edit for content changes. Edit only when adding new UI components or fixing design system bugs.
-- `tutorials/{name}/config.js` — Tutorial identity (title, icon, stateKey, sections, numColors, prerequisites, etc.). This is the only file a tutorial author must edit.
-- `tutorials/{name}/index.html` — Generic dashboard shell. Identical across all tutorials — do not put tutorial-specific content here.
-- `tutorials/{name}/pages/section-N.html` — Each section page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
-- `tutorials/template/config.js` — The `window.TUTORIAL_CONFIG` shape with inline documentation. Copy this when creating a new tutorial.
+- `courses/{name}/config.js` — Course identity (title, icon, stateKey, modules, numColors, prerequisites, etc.). This is the only file a course author must edit.
+- `courses/{name}/index.html` — Generic dashboard shell. Identical across all courses — do not put course-specific content here.
+- `courses/{name}/pages/module-N.html` — Each module page has a `<div id="page-content">` with the content, then calls `initPage('sN', '../')` at the bottom.
+- `courses/template/config.js` — The `window.COURSE_CONFIG` shape with inline documentation. Copy this when creating a new course.
 
 ## State Schema
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "updated": "ISO timestamp",
-  "sections": { "s1": "pending|in-progress|completed" },
+  "modules": { "s1": "pending|in-progress|completed" },
   "checkboxes": { "unique-checkbox-id": true },
-  "lastSubSection": { "s3": "s3-2" },
-  "expandedSubSections": { "s3": ["s3-1", "s3-2"] },
+  "lastLesson": { "s3": "s3-2" },
+  "expandedLessons": { "s3": ["s3-1", "s3-2"] },
   "userName": "string — learner's first name, or '__skipped__' if they dismissed the prompt, or '' if never shown yet"
 }
 ```
 
 ## Your Responsibilities
 
-### When creating or improving tutorial content
+### When creating or improving course content
 
 Apply every one of these principles. They are not optional stylistic choices — they are the reason this framework exists:
 
-1. **Chunk aggressively** — Each sub-section covers exactly one concept. If you find yourself writing "and also…", that's a new sub-section.
+1. **Chunk aggressively** — Each lesson covers exactly one concept. If you find yourself writing "and also…", that's a new lesson.
 
-2. **Lead with why** — Every section and sub-section opens with why this matters to the learner's concrete goal. Not "In this section we will learn…" but "Without this, you cannot do X."
+2. **Lead with why** — Every module and lesson opens with why this matters to the learner's concrete goal. Not "In this module we will learn…" but "Without this, you cannot do X."
 
 3. **Write in second person** — "You will", "your node", "when you run this". Not "the student" or "one should".
 
@@ -77,18 +82,20 @@ Apply every one of these principles. They are not optional stylistic choices —
    - `callout-warning` — common mistake or gotcha
    - `callout-success` — confirmation the learner did something right, or a personal discovery
 
-7. **Ask for personal discoveries** — When improving a lesson, always ask the user: "Did anything specific make this click for you? A mental model, analogy, or trick?" If yes, add it as a `callout-success` with a 💡 prefix. These are the most valuable parts of the tutorial.
+7. **Ask for personal discoveries** — When improving a lesson, always ask the user: "Did anything specific make this click for you? A mental model, analogy, or trick?" If yes, add it as a `callout-success` with a 💡 prefix. These are the most valuable parts of the course.
 
 8. **Tags communicate strategy, not just topic** — Use the tag vocabulary from README.md. "Memorize this" tells the learner their brain needs to encode this pattern. "Skip if confident" gives permission not to feel guilty skipping.
 
 ### When modifying the framework (core/js/framework.js or core/css/styles.css)
 
-- Do not break the `initPage(sectionId, basePath)` or `initDashboard()` API — section pages call these directly
+- Do not break the `initPage(moduleId, basePath)` or `initDashboard()` API — module pages call these directly
 - Do not change the state schema keys without writing a migration (the `getState()` function handles version migration)
 - CSS changes: use the existing CSS variable system. Add new variables to `:root` rather than hardcoding values.
-- Test by opening `tutorials/cpp-drone/index.html` and a section page in the browser after changes
+- Test by opening `courses/cpp-drone/index.html` and a module page in the browser after changes
+- **After any CSS or HTML structure change that affects the dashboard shell, sync the change to ALL course `index.html` files and `courses/template/index.html`.** The template is the source of truth for new courses; existing courses must match it.
 
 **Public API additions (already implemented — do not remove or rename):**
+
 - `getUserName()` — returns the learner's name string, or `null` if not set / skipped
 - `showNameModal()` — shows the first-visit name prompt overlay; called automatically by `initDashboard()` when `state.userName === ''`
 - `submitNameModal()` / `skipNameModal()` — bound to modal buttons; call `initDashboard()` on completion
@@ -96,77 +103,121 @@ Apply every one of these principles. They are not optional stylistic choices —
 - `importProgressFromGist(url)` — async; accepts gist HTML or raw URL; calls `replaceStateFromJSON()`; returns `{ ok, error? }`
 - `.name-modal-overlay` / `.name-modal` — CSS classes for the name prompt modal; do not remove
 
-### When running /create-tutorial
+### When the create-course skill is invoked
 
-See `.claude/commands/create-tutorial.md` for the full skill. Summary:
-- Gather: topic, audience, prerequisites, time estimate, list of sections
-- Generate under `tutorials/{slug}/`: `config.js`, `index.html`, one HTML file per section in `pages/`, `pages/settings.html`, `states/manifest.json`
-- Asset paths in section pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
+See `.claude/skills/create-course/SKILL.md` for the full skill. Summary:
+
+- Gather: topic, audience, prerequisites, time estimate, list of modules
+- Generate under `courses/{slug}/`: `config.js`, `index.html`, one HTML file per module in `pages/`, `pages/settings.html`, `states/manifest.json`
+- Asset paths in module pages: `../../../core/css/styles.css`, `../config.js`, `../../../core/js/framework.js`
 - Asset paths in index.html: `../../core/css/styles.css`, `./config.js`, `../../core/js/framework.js`
-- The user should be able to open the tutorial immediately after
+- The user should be able to open the course immediately after
+- **After generating the course files, add an entry for the new course to the root `index.html` `COURSES` array.** Each entry needs: `title`, `icon`, `subtitle`, `description`, `href` (`./courses/{slug}/index.html`), `stateKey` (from config.js), `moduleCount`, and `timeCommitment`.
 
-### When running /add-lesson or /improve-lesson
+### When the add-lesson or improve-lesson skill is invoked
 
-Read the existing section HTML before making any changes. Match the existing style and structure. Section IDs must be unique and follow the pattern `sN` for sections and `sN-M` for sub-sections.
+Read the existing module HTML before making any changes. Match the existing style and structure. Module IDs must be unique and follow the pattern `sN` for modules and `sN-M` for lessons.
 
 ## HTML Patterns
 
-### Section page shell
+### Module page shell
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Section N — Title</title>
-<link rel="stylesheet" href="../../../core/css/styles.css">
-</head>
-<body>
-<div id="page-content">
-  <!-- content here -->
-</div>
-<script src="../config.js"></script>
-<script src="../../../core/js/framework.js"></script>
-<script>initPage('sN', '../');</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Module N — Title</title>
+    <link rel="stylesheet" href="../../../core/css/styles.css" />
+  </head>
+  <body>
+    <div id="page-content">
+      <!-- content here -->
+    </div>
+    <script src="../config.js"></script>
+    <script src="../../../core/js/framework.js"></script>
+    <script>
+      initPage("sN", "../")
+    </script>
+  </body>
 </html>
 ```
 
-### Sub-section accordion
+### Lesson accordion
+
 ```html
-<div class="sub-section" id="sN-M">
-  <div class="sub-header" onclick="toggleSub('sN-M')">
-    <div class="sub-title">N.M Sub-section Title</div>
-    <svg class="sub-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <polyline points="6 9 12 15 18 9"/>
+<div class="lesson" id="sN-M">
+  <div class="lesson-header" onclick="toggleLesson('sN-M')">
+    <div class="lesson-title">N.M Lesson Title</div>
+    <svg
+      class="lesson-chevron"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+    >
+      <polyline points="6 9 12 15 18 9" />
     </svg>
   </div>
-  <div class="sub-body">
+  <div class="lesson-body">
     <!-- content -->
   </div>
 </div>
 ```
 
+### Dashboard progress card structure
+
+The dashboard progress card must follow this exact structure for proper layout and styling:
+
+```html
+<div class="progress-card">
+  <div class="progress-main">
+    <!-- required flex row container -->
+    <span class="progress-label">Overall progress</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="dashProgressFill"></div>
+    </div>
+    <span class="progress-count" id="dashProgressCount">0 / ?</span>
+  </div>
+  <div class="progress-backup-row">
+    <!-- icon + text + settings link with class="btn-icon" and gear SVG -->
+  </div>
+</div>
+```
+
+- The `.progress-main` wrapper is required — without it the layout breaks.
+- The settings link in `.progress-backup-row` must use `class="btn-icon"` with a gear icon SVG, not a regular button.
+- Refer to `courses/cpp-drone/index.html` for the exact markup.
+
 ### Callouts
+
 ```html
 <div class="callout callout-info">Context or background.</div>
 <div class="callout callout-warning">Common mistake or gotcha.</div>
-<div class="callout callout-success">💡 What worked for me: personal discovery here.</div>
+<div class="callout callout-success">
+  💡 What worked for me: personal discovery here.
+</div>
 ```
 
 ### Checklist (persisted)
+
 ```html
 <ul class="checklist">
-  <li><input type="checkbox" id="globally-unique-id"> Task description</li>
+  <li><input type="checkbox" id="globally-unique-id" /> Task description</li>
 </ul>
 ```
 
-Checkbox IDs must be globally unique across the entire tutorial (not just the section). Convention: `sN-taskname` e.g. `s2-ros-installed`.
+Checkbox IDs must be globally unique across the entire course (not just the module). Convention: `sN-taskname` e.g. `s2-ros-installed`.
 
 ## What NOT to Do
 
 - Do not add npm packages, build tools, or external CDN links
 - Do not use `localStorage` keys other than the `STATE_KEY` derived from `config.js`'s `stateKey`
-- Do not hardcode section counts (use `SECTIONS.length`)
+- Do not hardcode module counts (use `MODULES.length`)
 - Do not write comments explaining what code does — only write comments explaining WHY something non-obvious is done
 - Do not create a backend, database, or server-side component — use files and the GitHub Gist API for anything requiring persistence
+- Do not put course-specific content in `index.html` — the dashboard shell is generic; all course identity must be in `config.js`
+- Do not omit required fields in `config.js`: `subtitle`, `description`, `prerequisites` (array), `timeCommitment`, `goal`

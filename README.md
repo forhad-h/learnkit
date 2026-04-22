@@ -1,29 +1,30 @@
-# LearnKit — AI-Powered Tutorial Framework
+# LearnKit — AI-Powered Course Framework
 
 ![LearnKit Banner](learnkit-banner.png)
 
-> A zero-backend, static-file tutorial framework that uses psychology-backed learning design and Claude Code as your personal learning agent.
+> A zero-backend, static-file course framework that uses psychology-backed learning design and Claude Code as your personal learning agent.
 
 ---
 
 ## Quick Start
 
-LearnKit is a **static-file tutorial framework** — no server, no account, no npm. You open an HTML file in your browser, follow structured lessons, and your progress saves locally. Authors use Claude Code AI skills to generate and improve tutorials in minutes.
+LearnKit is a **static-file course framework** — no server, no account, no npm. You open an HTML file in your browser, follow structured lessons, and your progress saves locally. Authors use Claude Code AI skills to generate and improve courses in minutes.
 
 **Try it in 30 seconds:**
 
 ```bash
 git clone https://github.com/forhad-h/learnkit
 cd learnkit
-python3 -m http.server 8000
+python3 -m http.server 8000   # use any free port — 8080, 3000, etc.
 ```
 
-Open **http://localhost:8000/tutorials/cpp-drone/** to see a live example.
+Open **http://localhost:8000/courses/cpp-drone/** to see a live example.
+(Replace `8000` with whatever port you chose if 8000 is already in use.)
 
 | I want to… | Go to |
 |---|---|
-| Follow an existing tutorial | [Getting Started → Option A](#option-a-follow-an-existing-tutorial-read-only) |
-| Build my own tutorial with AI | [Getting Started → Option B](#option-b-create-your-own-tutorial-fork) |
+| Follow an existing course | [Getting Started → Option A](#option-a-follow-an-existing-course-read-only) |
+| Build my own course with AI | [Getting Started → Option B](#option-b-create-your-own-course-fork) |
 | Understand the framework | [Project Structure](#project-structure) |
 | Contribute or improve content | [Contributing](#contributing-and-the-self-improvement-loop) |
 
@@ -31,14 +32,14 @@ Open **http://localhost:8000/tutorials/cpp-drone/** to see a live example.
 
 ## What Is This?
 
-LearnKit is a framework for building and following structured technical tutorials. It has two modes:
+LearnKit is a framework for building and following structured technical courses. It has two modes:
 
-- **Learner mode** — follow an existing tutorial with progress tracking, smart resume, and checklist-based milestones
-- **Author mode** — use Claude Code as an agent to create, expand, and improve tutorials on any topic
+- **Learner mode** — follow an existing course with progress tracking, smart resume, and checklist-based milestones
+- **Author mode** — use Claude Code as an agent to create, expand, and improve courses on any topic
 
 The framework is intentionally simple: plain HTML, CSS, and JavaScript. No npm, no build step, no server needed. Your progress lives in your browser's localStorage and can be exported as a JSON file to commit to git, share, or move between machines.
 
-This repo ships with a **C++ drone engineering tutorial** as a reference example of what LearnKit can produce. It is not the product — the framework is. New tutorials on any topic can be created from the template in minutes, and the cpp-drone tutorial may be replaced with a better showcase example as the framework matures.
+This repo ships with a **C++ drone engineering course** as a reference example of what LearnKit can produce. It is not the product — the framework is. New courses on any topic can be created from the template in minutes, and the cpp-drone course may be replaced with a better showcase example as the framework matures.
 
 ---
 
@@ -46,9 +47,9 @@ This repo ships with a **C++ drone engineering tutorial** as a reference example
 
 ### Self-improvement loop
 
-When you discover a technique, mental model, or shortcut that makes something click — you can add it back to the tutorial. The `/improve-lesson` skill prompts you for exactly this. Your personal discoveries get embedded as "What worked for me" callouts directly in the section that benefited from them.
+When you discover a technique, mental model, or shortcut that makes something click — you can add it back to the course. The `improve-lesson` skill prompts you for exactly this. Your personal discoveries get embedded as "What worked for me" callouts directly in the module that benefited from them.
 
-This is the compounding part: the tutorial gets smarter as you learn.
+This is the compounding part: the course gets smarter as you learn.
 
 ---
 
@@ -56,54 +57,56 @@ This is the compounding part: the tutorial gets smarter as you learn.
 
 ### For learners
 
-- **3-state progress tracking** — Pending / In Progress / Completed per section, saved in browser localStorage
-- **Smart "continue" banner** — resumes the right section with the right verb based on your state
-- **Sub-section memory** — remembers which accordion panels you opened; scrolls back to your last position on revisit
+- **3-state progress tracking** — Pending / In Progress / Completed per module, saved in browser localStorage
+- **Smart "continue" banner** — resumes the right module with the right verb based on your state
+- **Lesson memory** — remembers which accordion panels you opened; scrolls back to your last position on revisit
 - **Checklist persistence** — project milestone checkboxes survive page reloads
 - **Copy buttons** — every code block gets an auto-attached Copy button
 - **Sidebar navigation** — fixed left nav with live status dots and progress bar, fully mobile-responsive
 - **Export / import state** — download your progress as JSON, commit it to git, import on another machine
-- **Git-based state sync** — each tutorial's `states/` directory holds named JSON snapshots; check them into your fork to sync across devices
-- **Personalization** — first-visit prompt asks your name; greetings and banners address you by name throughout the tutorial
+- **Git-based state sync** — each course's `states/` directory holds named JSON snapshots; check them into your fork to sync across devices
+- **Personalization** — first-visit prompt asks your name; greetings and banners address you by name throughout the course
 - **Progress sharing via public URL** — one-click share via anonymous GitHub Gist (no account required); paste URL on any device to restore your progress
 
 ### For authors (via Claude Code)
 
-- **`/create-tutorial`** — scaffold a complete new tutorial from a conversation
-- **`/add-lesson`** — add a new section to an existing tutorial
-- **`/improve-lesson`** — improve content of a specific section; includes prompting for personal discoveries
-- **`/improve-framework`** — extend or fix the core LearnKit framework itself
+Claude Code has four built-in AI skills for authoring. Ask Claude naturally, or use the skill name directly in conversation:
+
+- **`create-course`** — scaffold a complete new course from a conversation
+- **`add-lesson`** — add a new module to an existing course
+- **`improve-lesson`** — improve content of a specific module; includes prompting for personal discoveries
+- **`improve-framework`** — extend or fix the core LearnKit framework itself
 
 ---
 
 ## Getting Started
 
-### Option A: Follow an existing tutorial (read-only)
+### Option A: Follow an existing course (read-only)
 
 ```bash
 git clone https://github.com/forhad-h/learnkit
 cd learnkit
-python3 -m http.server 8000
+python3 -m http.server 8000   # any free port works: 8080, 3000, 5500, etc.
 ```
 
-Open `http://localhost:8000/tutorials/cpp-drone/` to try the included example tutorial (C++ drone engineering). More tutorials will be added to `tutorials/` as they're created.
+Open `http://localhost:8000/courses/cpp-drone/` to try the included example course (C++ drone engineering). If port 8000 is taken, pick any free port and update the URL accordingly. More courses will be added to `courses/` as they're created.
 
 Your progress saves automatically in your browser. No account, no login.
 
-### Option B: Create your own tutorial (fork)
+### Option B: Create your own course (fork)
 
-1. **Fork this repo** on GitHub — your fork is your tutorial's home
+1. **Fork this repo** on GitHub — your fork is your course's home
 2. Clone your fork locally
 3. Open Claude Code in the project directory: `claude` (or open via VS Code extension)
-4. Run `/create-tutorial` and answer the prompts
-5. Commit your new tutorial files to your fork
+4. Ask Claude: "create a course on [your topic]" — it will gather requirements and generate all the files
+5. Commit your new course files to your fork
 6. Enable GitHub Pages on your fork to publish it for free
 
 ```bash
 git clone https://github.com/<your-github-username>/learnkit
 cd learnkit
 claude  # opens Claude Code
-# In Claude Code: /create-tutorial
+# In Claude Code: ask "create a course on [your topic]"
 ```
 
 ### Setup walkthrough with Claude Code
@@ -111,23 +114,24 @@ claude  # opens Claude Code
 After cloning and opening Claude Code (`claude` in the terminal):
 
 ```
-Step 1: Run /create-tutorial
-        Claude will ask you for your topic, audience, sections, and time estimate.
-        It creates all the files under tutorials/your-topic/:
+Step 1: Ask Claude "create a course on [topic]"
+        Claude will ask you for your topic, audience, modules, and time estimate.
+        It creates all the files under courses/your-topic/:
         config.js, index.html, pages/, states/
 
 Step 2: Review the generated content
-        Open http://localhost:8000/tutorials/your-topic/ and check the dashboard.
-        Run /improve-lesson to flesh out any section.
+        Open http://localhost:8000/courses/your-topic/ and check the dashboard.
+        (Use whatever port you started the server on — 8000 is just the default.)
+        Ask Claude to improve any module you want fleshed out.
 
-Step 3: Commit your tutorial
+Step 3: Commit your course
         git add .
-        git commit -m "add tutorial: Your Topic"
+        git commit -m "add course: Your Topic"
         git push
 
 Step 4: Publish on GitHub Pages
         Go to your repo settings → Pages → Source: main branch / root
-        Your tutorial is live at https://<your-github-username>.github.io/learnkit/tutorials/your-topic/
+        Your course is live at https://<your-github-username>.github.io/learnkit/courses/your-topic/
 ```
 
 ---
@@ -137,24 +141,24 @@ Step 4: Publish on GitHub Pages
 ```
 learnkit/
 │
-├── core/                             ← shared framework — never tutorial-specific
+├── core/                             ← shared framework — never course-specific
 │   ├── js/framework.js               ← all runtime logic
 │   └── css/styles.css                ← design system (136 CSS variables)
 │
-├── tutorials/
-│   ├── template/                     ← copy this to start a new tutorial
-│   │   ├── config.js                 ← fill in: title, icon, sections, colors, prereqs
+├── courses/
+│   ├── template/                     ← copy this to start a new course
+│   │   ├── config.js                 ← fill in: title, icon, modules, colors, prereqs
 │   │   ├── index.html                ← generic shell — no edits needed
 │   │   ├── pages/
-│   │   │   └── section-template.html ← boilerplate for a section page
+│   │   │   └── module-template.html ← boilerplate for a module page
 │   │   └── states/
 │   │       └── manifest.json
 │   │
-│   └── cpp-drone/                    ← example tutorial (C++ drone engineering)
+│   └── cpp-drone/                    ← example course (C++ drone engineering)
 │       ├── config.js                 ← reference for what a filled-in config looks like
 │       ├── index.html
 │       ├── pages/
-│       │   ├── section-1.html … section-10.html
+│       │   ├── module-1.html … module-10.html
 │       │   └── settings.html
 │       └── states/
 │           └── manifest.json
@@ -162,7 +166,7 @@ learnkit/
 └── .claude/
     ├── CLAUDE.md                     ← Claude Code project instructions
     └── commands/
-        ├── create-tutorial.md
+        ├── create-course.md
         ├── add-lesson.md
         ├── improve-lesson.md
         └── improve-framework.md
@@ -172,11 +176,11 @@ learnkit/
 
 | File                          | Purpose                                                                                                                                 |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `tutorials/{name}/config.js`  | Tutorial-specific data: title, icon, stateKey, sections list, colors, prerequisites, goal. The only file you edit to define a tutorial. |
-| `tutorials/{name}/index.html` | Dashboard shell. Identical across all tutorials — `initDashboard()` populates it from `config.js`.                                      |
-| `core/js/framework.js`        | All runtime logic. Reads `window.TUTORIAL_CONFIG`. Shared by every tutorial. Never edit per-tutorial.                                   |
+| `courses/{name}/config.js`  | Course-specific data: title, icon, stateKey, modules list, colors, prerequisites, goal. The only file you edit to define a course. |
+| `courses/{name}/index.html` | Dashboard shell. Identical across all courses — `initDashboard()` populates it from `config.js`.                                      |
+| `core/js/framework.js`        | All runtime logic. Reads `window.COURSE_CONFIG`. Shared by every course. Never edit per-course.                                   |
 | `core/css/styles.css`         | Design system. 136 CSS custom properties. Monospace fonts. Dark code blocks. Responsive.                                                |
-| `pages/settings.html`         | Export/import/clear state. Identical across all tutorials.                                                                              |
+| `pages/settings.html`         | Export/import/clear state. Identical across all courses.                                                                              |
 | `states/manifest.json`        | Index of named JSON snapshots for git-based sync.                                                                                       |
 
 ---
@@ -193,7 +197,7 @@ LearnKit has zero runtime dependencies by design.
 | **No account**        | Nothing to log in to. Nothing sent anywhere.                                               |
 | **Multi-device sync** | Export state as JSON, commit to your git fork, import on the other device.                 |
 | **Deployment**        | GitHub Pages, Netlify, Vercel, any static host, or a USB drive.                            |
-| **Backup**            | `git commit` your tutorial's `states/` directory. Your progress is in version control.     |
+| **Backup**            | `git commit` your course's `states/` directory. Your progress is in version control.     |
 
 This is intentional. The target audience is developers who understand files and git. Backend infrastructure would add zero value and introduce a dependency that breaks when it goes down.
 
@@ -201,41 +205,41 @@ This is intentional. The target audience is developers who understand files and 
 
 ## Upcoming Features
 
-### Estimated time per section
+### Estimated time per module
 
-Each section in `config.js` can declare an estimated duration. Displayed on section cards and in the nav footer. Helps with session planning ("I have 45 minutes — what can I finish?").
+Each module in `config.js` can declare an estimated duration. Displayed on module cards and in the nav footer. Helps with session planning ("I have 45 minutes — what can I finish?").
 
 ### Learning velocity tracking
 
-Track time spent per section (session start → status change to completed). Display average pace vs. estimate. Purely client-side; stored in the state JSON.
+Track time spent per module (session start → status change to completed). Display average pace vs. estimate. Purely client-side; stored in the state JSON.
 
 ### AI-generated review questions
 
-After marking a section completed, a callout appears with 2-3 comprehension questions. These are authored at tutorial-creation time by Claude and embedded directly in the HTML. No API calls at runtime.
+After marking a module completed, a callout appears with 2-3 comprehension questions. These are authored at course-creation time by Claude and embedded directly in the HTML. No API calls at runtime.
 
 ---
 
-## For Tutorial Authors: Content Guidelines
+## For Course Authors: Content Guidelines
 
-When writing or generating section content, apply these patterns:
+When writing or generating module content, apply these patterns:
 
-### Structure every section as
+### Structure every module as
 
-1. **What** — a one-line statement of what this section covers
+1. **What** — a one-line statement of what this module covers
 2. **Why** — why this matters to the learner's goal
-3. **How** — the actual content in sub-sections
+3. **How** — the actual content in lessons
 4. **Verify** — a checklist or code snippet they can run to confirm understanding
 
 ### Use the available components
 
 ```html
-<!-- Accordion sub-section (collapsible, state-remembered) -->
-<div class="sub-section" id="s3-1">
-  <div class="sub-header" onclick="toggleSub('s3-1')">
-    <div class="sub-title">3.1 Your Sub-section Title</div>
-    <svg class="sub-chevron" ...>...</svg>
+<!-- Accordion lesson (collapsible, state-remembered) -->
+<div class="lesson" id="s3-1">
+  <div class="lesson-header" onclick="toggleLesson('s3-1')">
+    <div class="lesson-title">3.1 Your Lesson Title</div>
+    <svg class="lesson-chevron" ...>...</svg>
   </div>
-  <div class="sub-body">
+  <div class="lesson-body">
     <!-- content here -->
   </div>
 </div>
@@ -279,11 +283,11 @@ When writing or generating section content, apply these patterns:
 
 This project is designed to get better as people use it.
 
-**Framework improvements** — if you improve the core UX (new component, better mobile behavior, new feature), open a PR or run `/improve-framework` and commit the result.
+**Framework improvements** — if you improve the core UX (new component, better mobile behavior, new feature), open a PR or ask Claude to improve the framework and commit the result.
 
-**Content improvements** — if something in a tutorial section is wrong, unclear, or missing a better example, run `/improve-lesson` and commit. The skill specifically asks what clicked for you personally — those insights are the most valuable additions.
+**Content improvements** — if something in a course module is wrong, unclear, or missing a better example, ask Claude to improve the lesson and commit. The skill specifically asks what clicked for you personally — those insights are the most valuable additions.
 
-**New tutorials** — run `/create-tutorial`, generate a tutorial on any topic, and add it under `tutorials/`. If it's high quality it may replace `cpp-drone` as the primary showcase example. Anyone can fork the repo and host their own tutorial collection.
+**New courses** — ask Claude to create a course on any topic, and add it under `courses/`. If it's high quality it may replace `cpp-drone` as the primary showcase example. Anyone can fork the repo and host their own course collection.
 
 ---
 

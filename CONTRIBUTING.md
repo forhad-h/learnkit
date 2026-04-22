@@ -1,13 +1,13 @@
 # Contributing to LearnKit
 
-Thanks for your interest in contributing. LearnKit is a static-file tutorial framework — contributions range from fixing a typo in a tutorial section to building new framework features.
+Thanks for your interest in contributing. LearnKit is a static-file course framework — contributions range from fixing a typo in a course module to building new framework features.
 
 ## Ways to contribute
 
-- **Content fixes** — typos, outdated commands, broken examples in `tutorials/cpp-drone/pages/`
-- **New tutorial** — run `/create-tutorial` in Claude Code, generate a tutorial on any topic, open a PR
+- **Content fixes** — typos, outdated commands, broken examples in `courses/cpp-drone/pages/`
+- **New course** — open Claude Code in the repo, ask Claude to create a course on any topic, open a PR
 - **Framework improvements** — new components, mobile fixes, performance changes in `core/`
-- **Skill improvements** — better prompt logic in `.claude/commands/`
+- **Skill improvements** — better prompt logic in `.claude/skills/`
 
 ## How to run locally
 
@@ -17,24 +17,24 @@ No install step. Open a terminal in the repo root:
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/tutorials/cpp-drone/` to see the included tutorial.
+Open `http://localhost:8000/courses/cpp-drone/` to see the included course.
 
 ## Project structure
 
 ```
 core/js/framework.js   ← all runtime logic (shared)
 core/css/styles.css    ← design system (136 CSS variables)
-tutorials/template/    ← copy this to start a new tutorial
-tutorials/cpp-drone/   ← reference tutorial
-.claude/commands/      ← Claude Code skills
+courses/template/    ← copy this to start a new course
+courses/cpp-drone/   ← reference course
+.claude/skills/        ← Claude Code skills
 ```
 
 ## Ground rules
 
 - No npm, no build tools, no external CDN links — zero-dependency is a hard constraint
-- Do not modify `core/` files to fix tutorial-specific content; only change the relevant section page
+- Do not modify `core/` files to fix course-specific content; only change the relevant module page
 - New CSS must use existing variables from `:root`; add new variables there rather than hardcoding values
-- Checkbox IDs must be globally unique across a tutorial; use the convention `sN-taskname`
+- Checkbox IDs must be globally unique across a course; use the convention `sN-taskname`
 - Do not add comments explaining what code does — only add them when the WHY is non-obvious
 
 ## Submitting a PR

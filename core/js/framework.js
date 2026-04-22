@@ -3,9 +3,9 @@
    State management, navigation, sidebar
    ═══════════════════════════════════════════ */
 
-const SECTIONS = window.TUTORIAL_CONFIG.sections
-const NUM_COLORS = window.TUTORIAL_CONFIG.numColors
-const STATE_KEY = window.TUTORIAL_CONFIG.stateKey
+const MODULES = window.COURSE_CONFIG.modules
+const NUM_COLORS = window.COURSE_CONFIG.numColors
+const STATE_KEY = window.COURSE_CONFIG.stateKey
 
 const TAG_COLORS = {
   blue:   "background:var(--tag-blue-bg);color:var(--tag-blue);",
@@ -16,31 +16,31 @@ const TAG_COLORS = {
 }
 
 // ─── STATE MANAGEMENT ─────────────────────────
-let currentSectionId = null
+let currentModuleId = null
 
 function getState() {
   try {
     const raw = localStorage.getItem(STATE_KEY)
     const state = raw ? JSON.parse(raw) : {}
-    if (!state.sections) state.sections = {}
+    if (!state.modules) state.modules = {}
     if (!state.checkboxes) state.checkboxes = {}
-    if (!state.lastSubSection) state.lastSubSection = {}
-    if (!state.expandedSubSections) state.expandedSubSections = {}
+    if (!state.lastLesson) state.lastLesson = {}
+    if (!state.expandedLessons) state.expandedLessons = {}
     if (state.userName === undefined) state.userName = ""
     return state
   } catch (e) {
     return {
-      sections: {},
+      modules: {},
       checkboxes: {},
-      lastSubSection: {},
-      expandedSubSections: {},
+      lastLesson: {},
+      expandedLessons: {},
       userName: "",
     }
   }
 }
 
 function saveState(state) {
-  state.version = 2
+  state.version = 3
   state.updated = new Date().toISOString()
   try {
     localStorage.setItem(STATE_KEY, JSON.stringify(state))
@@ -49,29 +49,29 @@ function saveState(state) {
   }
 }
 
-function getSectionStatus(id) {
-  return getState().sections[id] || "pending"
+function getModuleStatus(id) {
+  return getState().modules[id] || "pending"
 }
 
-function setSectionStatus(id, status) {
+function setModuleStatus(id, status) {
   const state = getState()
-  state.sections[id] = status
+  state.modules[id] = status
   saveState(state)
 }
 
 function getCompletedCount() {
   const state = getState()
-  return SECTIONS.filter((s) => state.sections[s.id] === "completed").length
+  return MODULES.filter((s) => state.modules[s.id] === "completed").length
 }
 
-// ─── CONTINUE SECTION ────────────────────────
-// Returns the section to resume: in-progress first, then first non-completed,
+// ─── CONTINUE MODULE ─────────────────────────
+// Returns the module to resume: in-progress first, then first non-completed,
 // then null if everything is completed.
-function getContinueSection() {
+function getContinueModule() {
   const state = getState()
-  const inProgress = SECTIONS.find((s) => state.sections[s.id] === "in-progress")
+  const inProgress = MODULES.find((s) => state.modules[s.id] === "in-progress")
   if (inProgress) return inProgress
-  const nextUp = SECTIONS.find((s) => state.sections[s.id] !== "completed")
+  const nextUp = MODULES.find((s) => state.modules[s.id] !== "completed")
   if (nextUp) return nextUp
   return null
 }
@@ -122,11 +122,12 @@ function exportState() {
 function importStateFromJSON(json) {
   try {
     const incoming = JSON.parse(json)
-    if (!incoming.sections && !incoming.checkboxes) {
-      throw new Error("Invalid state format — missing sections or checkboxes")
+    if (!incoming.modules && !incoming.checkboxes) {
+      throw new Error("Invalid state format — missing modules or checkboxes")
     }
     const state = getState()
-    if (incoming.sections) Object.assign(state.sections, incoming.sections)
+    const incomingModules = incoming.modules || {}
+    Object.assign(state.modules, incomingModules)
     if (incoming.checkboxes) Object.assign(state.checkboxes, incoming.checkboxes)
     saveState(state)
     return { ok: true }
@@ -138,10 +139,10 @@ function importStateFromJSON(json) {
 function replaceStateFromJSON(json) {
   try {
     const incoming = JSON.parse(json)
-    if (!incoming.sections && !incoming.checkboxes) {
+    if (!incoming.modules && !incoming.checkboxes) {
       throw new Error("Invalid state format")
     }
-    if (!incoming.sections) incoming.sections = {}
+    if (!incoming.modules) incoming.modules = {}
     if (!incoming.checkboxes) incoming.checkboxes = {}
     saveState(incoming)
     return { ok: true }
@@ -165,8 +166,8 @@ function showNameModal() {
   overlay.className = "name-modal-overlay"
   overlay.innerHTML = `
     <div class="name-modal">
-      <div class="name-modal-title">Welcome to the tutorial!</div>
-      <p class="name-modal-desc">What should we call you? Your name will appear in greetings throughout the tutorial.</p>
+      <div class="name-modal-title">Welcome to the course!</div>
+      <p class="name-modal-desc">What should we call you? Your name will appear in greetings throughout the course.</p>
       <input class="name-modal-input" id="nameModalInput" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name">
       <div class="name-modal-actions">
         <button class="btn" onclick="skipNameModal()">Skip for now</button>
@@ -228,7 +229,7 @@ async function shareProgressAsGist() {
       Accept: "application/vnd.github+json",
     },
     body: JSON.stringify({
-      description: "LearnKit tutorial progress",
+      description: "LearnKit course progress",
       public: true,
       files: { "learnkit-progress.json": { content: json } },
     }),
@@ -271,50 +272,50 @@ async function loadStateFile(basePath, filename) {
   return resp.json()
 }
 
-// ─── SUB-SECTION ACCORDIONS ──────────────────
-function toggleSub(id) {
+// ─── LESSON ACCORDIONS ───────────────────────
+function toggleLesson(id) {
   const el = document.getElementById(id)
   if (!el) return
   const wasOpen = el.classList.contains("open")
   el.classList.toggle("open")
-  if (!wasOpen && currentSectionId) {
-    recordSubSectionExpanded(currentSectionId, id)
+  if (!wasOpen && currentModuleId) {
+    recordLessonExpanded(currentModuleId, id)
   }
 }
 
 function expandAll() {
-  document.querySelectorAll(".sub-section").forEach((s) => s.classList.add("open"))
+  document.querySelectorAll(".lesson").forEach((s) => s.classList.add("open"))
 }
 
 function collapseAll() {
-  document.querySelectorAll(".sub-section").forEach((s) => s.classList.remove("open"))
+  document.querySelectorAll(".lesson").forEach((s) => s.classList.remove("open"))
 }
 
-function recordSubSectionExpanded(sectionId, subId) {
+function recordLessonExpanded(moduleId, lessonId) {
   const state = getState()
 
-  state.lastSubSection[sectionId] = subId
+  state.lastLesson[moduleId] = lessonId
 
-  if (!state.expandedSubSections[sectionId]) state.expandedSubSections[sectionId] = []
-  if (!state.expandedSubSections[sectionId].includes(subId)) {
-    state.expandedSubSections[sectionId].push(subId)
+  if (!state.expandedLessons[moduleId]) state.expandedLessons[moduleId] = []
+  if (!state.expandedLessons[moduleId].includes(lessonId)) {
+    state.expandedLessons[moduleId].push(lessonId)
   }
 
-  const currentStatus = state.sections[sectionId] || "pending"
-  const totalSubSections = document.querySelectorAll(".sub-section").length
+  const currentStatus = state.modules[moduleId] || "pending"
+  const totalLessons = document.querySelectorAll(".lesson").length
 
-  if (state.expandedSubSections[sectionId].length >= totalSubSections) {
-    state.sections[sectionId] = "completed"
-    syncStatusUI(sectionId, "completed")
+  if (state.expandedLessons[moduleId].length >= totalLessons) {
+    state.modules[moduleId] = "completed"
+    syncStatusUI(moduleId, "completed")
   } else if (currentStatus === "pending") {
-    state.sections[sectionId] = "in-progress"
-    syncStatusUI(sectionId, "in-progress")
+    state.modules[moduleId] = "in-progress"
+    syncStatusUI(moduleId, "in-progress")
   }
 
   saveState(state)
 }
 
-function syncStatusUI(sectionId, status) {
+function syncStatusUI(moduleId, status) {
   const picker = document.querySelector(".status-picker")
   if (picker) {
     picker.querySelectorAll(".status-btn").forEach((b) => {
@@ -323,39 +324,39 @@ function syncStatusUI(sectionId, status) {
   }
   const sidebarDot = document.querySelector(".sidebar-link.active .sidebar-status")
   if (sidebarDot) sidebarDot.className = `sidebar-status ${status}`
-  const pct = Math.round((getCompletedCount() / SECTIONS.length) * 100)
+  const pct = Math.round((getCompletedCount() / MODULES.length) * 100)
   const fill = document.querySelector(".sidebar-progress-fill")
   const count = document.querySelector(".sidebar-progress-count")
   if (fill) fill.style.width = pct + "%"
-  if (count) count.textContent = getCompletedCount() + " / " + SECTIONS.length + " completed"
+  if (count) count.textContent = getCompletedCount() + " / " + MODULES.length + " completed"
 }
 
-function restoreLastSubSection(sectionId) {
+function restoreLastLesson(moduleId) {
   const state = getState()
-  const lastSub = state.lastSubSection[sectionId]
-  if (!lastSub) return
-  const el = document.getElementById(lastSub)
+  const lastLesson = state.lastLesson[moduleId]
+  if (!lastLesson) return
+  const el = document.getElementById(lastLesson)
   if (!el) return
   if (!el.classList.contains("open")) el.classList.add("open")
   setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150)
 }
 
-function getSubSectionDisplay(sectionId, subId) {
-  const section = SECTIONS.find((s) => s.id === sectionId)
-  if (!section) return ""
-  const subNum = subId.startsWith(sectionId + "-") ? subId.slice(sectionId.length + 1) : ""
-  return subNum ? `${section.num}.${subNum}` : section.num
+function getLessonDisplay(moduleId, lessonId) {
+  const module = MODULES.find((s) => s.id === moduleId)
+  if (!module) return ""
+  const lessonNum = lessonId.startsWith(moduleId + "-") ? lessonId.slice(moduleId.length + 1) : ""
+  return lessonNum ? `${module.num}.${lessonNum}` : module.num
 }
 
 // ─── SIDEBAR ──────────────────────────────────
-function renderSidebar(currentSectionId, basePath) {
+function renderSidebar(currentModuleId, basePath) {
   const state = getState()
-  const completed = SECTIONS.filter((s) => state.sections[s.id] === "completed").length
-  const pct = Math.round((completed / SECTIONS.length) * 100)
+  const completed = MODULES.filter((s) => state.modules[s.id] === "completed").length
+  const pct = Math.round((completed / MODULES.length) * 100)
 
-  const items = SECTIONS.map((s) => {
-    const status = state.sections[s.id] || "pending"
-    const isActive = s.id === currentSectionId
+  const items = MODULES.map((s) => {
+    const status = state.modules[s.id] || "pending"
+    const isActive = s.id === currentModuleId
     return `
       <li class="sidebar-item">
         <a href="${basePath}pages/${s.file}" class="sidebar-link${isActive ? " active" : ""}">
@@ -368,28 +369,22 @@ function renderSidebar(currentSectionId, basePath) {
 
   return `
     <nav class="sidebar" id="sidebar">
-      <ul class="sidebar-section-list">
+      <ul class="sidebar-module-list">
         ${items}
       </ul>
       <div class="sidebar-divider"></div>
-      <a href="${basePath}pages/settings.html" class="sidebar-link" style="margin-bottom:4px;">
-        <span class="sidebar-num" style="background:var(--bg3);">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </span>
-        <span class="sidebar-title">Settings</span>
-      </a>
       <div class="sidebar-footer">
         <div class="sidebar-progress-label">Progress</div>
         <div class="sidebar-progress-track">
           <div class="sidebar-progress-fill" style="width:${pct}%"></div>
         </div>
-        <div class="sidebar-progress-count">${completed} / ${SECTIONS.length} completed</div>
+        <div class="sidebar-progress-count">${completed} / ${MODULES.length} completed</div>
         <div class="sidebar-backup-note">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;color:var(--amber);">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-          <span>Back up your progress — <a href="${basePath}pages/settings.html" style="color:var(--accent);">Settings</a></span>
+          <span>Back up your progress — <a href="${basePath}pages/settings.html" style="color:var(--accent);">Export / Import</a></span>
         </div>
       </div>
     </nav>
@@ -407,8 +402,8 @@ function closeSidebar() {
 }
 
 // ─── STATUS PICKER ────────────────────────────
-function renderStatusPicker(sectionId) {
-  const current = getSectionStatus(sectionId)
+function renderStatusPicker(moduleId) {
+  const current = getModuleStatus(moduleId)
   const statuses = [
     { id: "pending", label: "Pending" },
     { id: "in-progress", label: "In Progress" },
@@ -418,8 +413,8 @@ function renderStatusPicker(sectionId) {
     .map(
       (s) =>
         `<button class="status-btn${s.id === current ? " active" : ""}"
-       data-status="${s.id}" data-section="${sectionId}"
-       onclick="setStatus('${sectionId}','${s.id}',this)">
+       data-status="${s.id}" data-module="${moduleId}"
+       onclick="setStatus('${moduleId}','${s.id}',this)">
        <span class="dot"></span>${s.label}
      </button>`,
     )
@@ -432,29 +427,29 @@ function renderStatusPicker(sectionId) {
     </div>`
 }
 
-function setStatus(sectionId, status, btn) {
-  setSectionStatus(sectionId, status)
+function setStatus(moduleId, status, btn) {
+  setModuleStatus(moduleId, status)
   const picker = btn.closest(".status-picker")
   picker.querySelectorAll(".status-btn").forEach((b) => b.classList.remove("active"))
   btn.classList.add("active")
   const sidebarDot = document.querySelector(".sidebar-link.active .sidebar-status")
   if (sidebarDot) sidebarDot.className = `sidebar-status ${status}`
-  const pct = Math.round((getCompletedCount() / SECTIONS.length) * 100)
+  const pct = Math.round((getCompletedCount() / MODULES.length) * 100)
   const fill = document.querySelector(".sidebar-progress-fill")
   const count = document.querySelector(".sidebar-progress-count")
   if (fill) fill.style.width = pct + "%"
-  if (count) count.textContent = getCompletedCount() + " / " + SECTIONS.length + " completed"
+  if (count) count.textContent = getCompletedCount() + " / " + MODULES.length + " completed"
 }
 
 // ─── PAGE HEADER ──────────────────────────────
-function renderPageHeader(sectionId) {
-  const s = SECTIONS.find((x) => x.id === sectionId)
+function renderPageHeader(moduleId) {
+  const s = MODULES.find((x) => x.id === moduleId)
   if (!s) return ""
-  const numColor = (NUM_COLORS && NUM_COLORS[sectionId]) || "background:var(--bg3);color:var(--text2);"
+  const numColor = (NUM_COLORS && NUM_COLORS[moduleId]) || "background:var(--bg3);color:var(--text2);"
   return `
     <div class="page-header">
       <div class="page-header-top">
-        <div class="section-num-badge" style="${numColor}">${s.num}</div>
+        <div class="module-num-badge" style="${numColor}">${s.num}</div>
         <div class="page-header-info">
           <h1>${s.title}</h1>
           <div class="page-header-meta">
@@ -462,15 +457,15 @@ function renderPageHeader(sectionId) {
           </div>
         </div>
       </div>
-      ${renderStatusPicker(sectionId)}
+      ${renderStatusPicker(moduleId)}
     </div>`
 }
 
-// ─── SECTION NAV ──────────────────────────────
-function renderSectionNav(sectionId, basePath) {
-  const idx = SECTIONS.findIndex((s) => s.id === sectionId)
-  const prev = SECTIONS[idx - 1]
-  const next = SECTIONS[idx + 1]
+// ─── MODULE NAV ───────────────────────────────
+function renderModuleNav(moduleId, basePath) {
+  const idx = MODULES.findIndex((s) => s.id === moduleId)
+  const prev = MODULES[idx - 1]
+  const next = MODULES[idx + 1]
 
   const prevBtn = prev
     ? `<a class="nav-btn" href="${basePath}pages/${prev.file}">
@@ -493,16 +488,16 @@ function renderSectionNav(sectionId, basePath) {
        </a>`
 
   return `
-    <div class="section-nav">
+    <div class="module-nav">
       ${prevBtn}
-      <span class="nav-center">${idx + 1} / ${SECTIONS.length}</span>
+      <span class="nav-center">${idx + 1} / ${MODULES.length}</span>
       ${nextBtn}
     </div>`
 }
 
 // ─── HEADER ───────────────────────────────────
 function renderHeader(basePath) {
-  const cfg = window.TUTORIAL_CONFIG
+  const cfg = window.COURSE_CONFIG
   return `
     <header class="site-header">
       <button class="btn-menu" onclick="openSidebar()" title="Toggle menu">
@@ -564,43 +559,43 @@ function attachCopyButtons() {
 }
 
 // ─── PAGE INIT ────────────────────────────────
-function initPage(sectionId, basePath) {
-  currentSectionId = sectionId
+function initPage(moduleId, basePath) {
+  currentModuleId = moduleId
   basePath = basePath || "../"
   document.body.innerHTML =
     renderHeader(basePath) +
     `<div class="layout">
-      ${renderSidebar(sectionId, basePath)}
+      ${renderSidebar(moduleId, basePath)}
       <main class="main">
-        ${renderPageHeader(sectionId)}
-        <div class="section-content" id="section-body">
+        ${renderPageHeader(moduleId)}
+        <div class="module-content" id="module-body">
           ${document.getElementById("page-content").innerHTML}
         </div>
-        ${renderSectionNav(sectionId, basePath)}
-        <div class="page-footer">${window.TUTORIAL_CONFIG.footer}</div>
+        ${renderModuleNav(moduleId, basePath)}
+        <div class="page-footer">${window.COURSE_CONFIG.footer}</div>
       </main>
     </div>`
 
   bindCheckboxes()
   attachCopyButtons()
-  restoreLastSubSection(sectionId)
+  restoreLastLesson(moduleId)
 
-  // Auto-track status for pages without accordions
-  const hasSubs = document.querySelectorAll(".sub-section").length > 0
-  if (!hasSubs) {
-    if (getSectionStatus(sectionId) === "pending") {
-      setSectionStatus(sectionId, "in-progress")
-      syncStatusUI(sectionId, "in-progress")
+  // Auto-track status for pages without lessons
+  const hasLessons = document.querySelectorAll(".lesson").length > 0
+  if (!hasLessons) {
+    if (getModuleStatus(moduleId) === "pending") {
+      setModuleStatus(moduleId, "in-progress")
+      syncStatusUI(moduleId, "in-progress")
     }
-    const navEl = document.querySelector(".section-nav")
+    const navEl = document.querySelector(".module-nav")
     if (navEl) {
       const obs = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && getSectionStatus(sectionId) !== "completed") {
-            setSectionStatus(sectionId, "completed")
-            syncStatusUI(sectionId, "completed")
+          if (entries[0].isIntersecting && getModuleStatus(moduleId) !== "completed") {
+            setModuleStatus(moduleId, "completed")
+            syncStatusUI(moduleId, "completed")
+            obs.disconnect()
           }
-          obs.disconnect()
         },
         { threshold: 0.5 },
       )
@@ -611,11 +606,11 @@ function initPage(sectionId, basePath) {
 
 // ─── DASHBOARD INIT ───────────────────────────
 function initDashboard() {
-  const cfg = window.TUTORIAL_CONFIG
+  const cfg = window.COURSE_CONFIG
   const state = getState()
   const name = state.userName && state.userName !== "__skipped__" ? state.userName : null
   const completed = getCompletedCount()
-  const pct = Math.round((completed / SECTIONS.length) * 100)
+  const pct = Math.round((completed / MODULES.length) * 100)
 
   // Set page title
   document.title = cfg.title
@@ -663,34 +658,34 @@ function initDashboard() {
   const fill = document.getElementById("dashProgressFill")
   const count = document.getElementById("dashProgressCount")
   if (fill) fill.style.width = pct + "%"
-  if (count) count.textContent = completed + " / " + SECTIONS.length + " completed"
+  if (count) count.textContent = completed + " / " + MODULES.length + " completed"
 
   // Render footer
   const footer = document.getElementById("dashFooter")
   if (footer) footer.textContent = cfg.footer
 
   // Render "continue" banner
-  const continueSection = getContinueSection()
+  const continueModule = getContinueModule()
   const banner = document.getElementById("continueBanner")
   if (banner) {
-    if (continueSection) {
-      const s = continueSection
-      const sectionStatus = state.sections[s.id] || "pending"
-      const isInProgress = sectionStatus === "in-progress"
+    if (continueModule) {
+      const s = continueModule
+      const moduleStatus = state.modules[s.id] || "pending"
+      const isInProgress = moduleStatus === "in-progress"
       const verb = isInProgress ? "Continue" : completed === 0 ? "Start" : "Resume"
-      const lastSub = state.lastSubSection[s.id]
-      const subDisplay = lastSub ? getSubSectionDisplay(s.id, lastSub) : null
+      const lastLesson = state.lastLesson[s.id]
+      const lessonDisplay = lastLesson ? getLessonDisplay(s.id, lastLesson) : null
       const hint = isInProgress
-        ? subDisplay
-          ? `Last viewed: §${subDisplay}`
+        ? lessonDisplay
+          ? `Last viewed: §${lessonDisplay}`
           : name
             ? `Ready to continue, ${name}`
             : "Pick up where you left off"
         : completed === 0
           ? name
             ? `Welcome, ${name} — let's start`
-            : "Begin the tutorial"
-          : `Next up after ${completed} completed section${completed > 1 ? "s" : ""}`
+            : "Begin the course"
+          : `Next up after ${completed} completed module${completed > 1 ? "s" : ""}`
 
       banner.innerHTML = `
         <a href="pages/${s.file}" class="continue-card">
@@ -709,7 +704,7 @@ function initDashboard() {
           </svg>
         </a>`
       banner.style.display = "block"
-    } else if (completed === SECTIONS.length) {
+    } else if (completed === MODULES.length) {
       banner.innerHTML = `
         <div class="continue-card continue-done">
           <div class="continue-icon" style="background:var(--green-bg);color:var(--green);">
@@ -718,36 +713,36 @@ function initDashboard() {
             </svg>
           </div>
           <div class="continue-body">
-            <div class="continue-verb" style="color:var(--green);">All sections completed!</div>
-            <div class="continue-title">${name ? `Incredible work, ${name}!` : "You've finished the entire tutorial."}</div>
-            <div class="continue-hint">Review any section from the list below.</div>
+            <div class="continue-verb" style="color:var(--green);">All modules completed!</div>
+            <div class="continue-title">${name ? `Incredible work, ${name}!` : "You've finished the entire course."}</div>
+            <div class="continue-hint">Review any module from the list below.</div>
           </div>
         </div>`
       banner.style.display = "block"
     }
   }
 
-  // Render section cards
-  const list = document.getElementById("sectionList")
+  // Render module cards
+  const list = document.getElementById("moduleList")
   if (!list) return
 
-  list.innerHTML = SECTIONS.map((s) => {
-    const status = state.sections[s.id] || "pending"
+  list.innerHTML = MODULES.map((s) => {
+    const status = state.modules[s.id] || "pending"
     const statusLabel =
       status === "in-progress" ? "In Progress" : status.charAt(0).toUpperCase() + status.slice(1)
-    const isContinue = continueSection && continueSection.id === s.id
+    const isContinue = continueModule && continueModule.id === s.id
     const numColor = (NUM_COLORS && NUM_COLORS[s.id]) || "background:var(--bg3);color:var(--text2);"
     return `
-      <a href="pages/${s.file}" class="section-card${isContinue ? " section-card-current" : ""}">
+      <a href="pages/${s.file}" class="module-card${isContinue ? " module-card-current" : ""}">
         <div class="snum" style="${numColor}">${s.num}</div>
-        <div class="section-card-body">
-          <div class="section-card-title">${s.title}</div>
-          <div class="section-card-meta">
+        <div class="module-card-body">
+          <div class="module-card-title">${s.title}</div>
+          <div class="module-card-meta">
             <span class="tag" style="${TAG_COLORS[s.tagColor]}">${s.tag}</span>
           </div>
         </div>
-        <span class="section-card-status ${status}">${statusLabel}</span>
-        <svg class="section-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <span class="module-card-status ${status}">${statusLabel}</span>
+        <svg class="module-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </a>`
@@ -755,4 +750,3 @@ function initDashboard() {
 
   if (state.userName === "") showNameModal()
 }
-

@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest a new framework feature or tutorial topic
+about: Suggest a new framework feature or course topic
 labels: enhancement
 ---
 
@@ -11,4 +11,4 @@ labels: enhancement
 **How should it work?**
 A rough description of expected behavior. No need for code — a user story or mockup works.
 
-**Is this a framework change (core/) or a tutorial content change?**
+**Is this a framework change (core/) or a course content change?**

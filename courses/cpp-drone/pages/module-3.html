@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — C++ Fundamentals for Drone Development</title>
+<link rel="stylesheet" href="../../../core/css/styles.css">
+</head>
+<body>
+<div id="page-content">
+
+  <div class="lesson" id="s3-1">
+    <div class="lesson-header" onclick="toggleLesson('s3-1')">
+      <div class="lesson-title">3.1 Why C++ Feels Hard + Compilation Basics</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>C++ has three things higher-level languages hide: manual memory management, compilation, and explicit types everywhere. These are features — they make C++ fast enough for real-time drone control.</p>
+      <pre>cat &gt; hello.cpp &lt;&lt; 'EOF'
+#include &lt;iostream&gt;
+int main() {
+    std::cout &lt;&lt; "Drone software starts here" &lt;&lt; std::endl;
+    return 0;
+}
+EOF
+g++ hello.cpp -o hello &amp;&amp; ./hello</pre>
+      <table>
+        <tr><th>Language</th><th>Compilation</th><th>Memory</th><th>Speed vs C++</th></tr>
+        <tr><td>Python</td><td>Interpreted</td><td>Automatic GC</td><td>~50–100x slower</td></tr>
+        <tr><td>JavaScript</td><td>JIT compiled</td><td>Automatic GC</td><td>~10–50x slower</td></tr>
+        <tr><td>C++</td><td>AOT compiled</td><td>Manual / Smart ptrs</td><td>Baseline</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-2">
+    <div class="lesson-header" onclick="toggleLesson('s3-2')">
+      <div class="lesson-title">3.2 Classes</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>A class is a struct with functions attached and access control. Every ROS2 node, every sensor driver, every controller is a class.</p>
+      <pre>#include &lt;cmath&gt;
+class Point {
+public:
+    Point(float x, float y) : x_(x), y_(y) {}
+    float distance_to_origin() const { return std::sqrt(x_*x_ + y_*y_); }
+    float x() const { return x_; }
+    float y() const { return y_; }
+private:
+    float x_, y_;
+};
+
+int main() {
+    Point p(3.0f, 4.0f);
+    p.distance_to_origin();  // 5.0
+    return 0;
+}</pre>
+      <p><strong>Practice:</strong> Write a <code>Waypoint</code> class with latitude, longitude, altitude, and a method that calculates distance to another waypoint.</p>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-3">
+    <div class="lesson-header" onclick="toggleLesson('s3-3')">
+      <div class="lesson-title">3.3 References</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>References are cleaner syntax for C pointers — passing by address without the <code>*</code> and <code>&amp;</code> noise.</p>
+      <pre>// C style
+void set_c(float* altitude, float value) { *altitude = value; }
+
+// C++ style — cleaner, same effect
+void set_cpp(float&amp; altitude, float value) { altitude = value; }
+
+int main() {
+    float alt = 0.0f;
+    set_c(&amp;alt, 100.0f);
+    set_cpp(alt, 100.0f);
+    return 0;
+}</pre>
+      <p><strong>Rule:</strong> Prefer references over pointers. Use pointers only when the value can be absent (<code>nullptr</code>) or when transferring ownership.</p>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-4">
+    <div class="lesson-header" onclick="toggleLesson('s3-4')">
+      <div class="lesson-title">3.4 Smart Pointers</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>Smart pointers automatically call <code>delete</code> when they go out of scope. Used in every single ROS2 node.</p>
+      <pre>#include &lt;memory&gt;
+
+int main() {
+    // unique_ptr — one owner, freed when out of scope
+    auto p = std::make_unique&lt;float&gt;(100.0f);
+
+    // shared_ptr — multiple owners, freed when last owner dies
+    // THIS IS EVERYWHERE IN ROS2
+    auto sp = std::make_shared&lt;float&gt;(100.0f);
+    auto also_p = sp;  // both point to same memory
+    return 0;
+}</pre>
+      <div class="callout callout-info">This line appears in every ROS2 node:
+<pre>rclcpp::Publisher&lt;sensor_msgs::msg::NavSatFix&gt;::SharedPtr publisher_;
+//                                                          ↑ this is just shared_ptr</pre></div>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-5">
+    <div class="lesson-header" onclick="toggleLesson('s3-5')">
+      <div class="lesson-title">3.5 STL Containers</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>Do not use raw C arrays in modern C++.</p>
+      <pre>#include &lt;vector&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;array&gt;
+
+int main() {
+    std::vector&lt;float&gt; altitudes = {10.0, 20.0, 30.0};
+    altitudes.push_back(40.0);
+    for (float alt : altitudes) { /* range loop */ }
+
+    std::array&lt;double, 3&gt; waypoint = {23.8103, 90.4125, 50.0};
+    // [0]=lat  [1]=lon  [2]=altitude
+
+    std::map&lt;std::string, float&gt; sensor;
+    sensor["altitude"] = 100.5f;
+    return 0;
+}</pre>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-6">
+    <div class="lesson-header" onclick="toggleLesson('s3-6')">
+      <div class="lesson-title">3.6 Lambdas</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <p>JavaScript arrow function = Python lambda = C++ lambda. Every ROS2 callback uses this pattern.</p>
+      <pre>int main() {
+    auto add = [](int a, int b) { return a + b; };
+    add(3, 4);  // 7
+
+    // Capture outer variable
+    float threshold = 5.0f;
+    auto is_close = [threshold](float dist) { return dist &lt; threshold; };
+    return 0;
+}
+
+// [this] capture — used in every ROS2 node (inside a class constructor)
+// timer_ = create_wall_timer(100ms, [this]() { publish_data(); });</pre>
+      <div class="callout callout-info"><strong>Lambda syntax:</strong> <code>[capture](params) { body }</code><br>
+        <code>[]</code> — nothing · <code>[=]</code> — all by value · <code>[&amp;]</code> — all by ref · <code>[this]</code> — class instance (most common in ROS2)</div>
+    </div>
+  </div>
+
+  <div class="lesson" id="s3-7">
+    <div class="lesson-header" onclick="toggleLesson('s3-7')">
+      <div class="lesson-title">3.7 Key Patterns in Drone Code</div>
+      <svg class="lesson-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="lesson-body">
+      <pre>// const reference — no copy, no modification
+void process_gps(const sensor_msgs::msg::NavSatFix&amp; msg) { /* ... */ }
+
+// enum class for state machines
+enum class FlightState { IDLE, ARMING, TAKEOFF, NAVIGATING, LANDING };
+
+int main() {
+    using namespace std::chrono_literals;
+
+    // std::clamp — used in every controller
+    float computed = 1.5f;
+    float throttle = std::clamp(computed, 0.0f, 1.0f);
+
+    // chrono literals — time durations
+    auto period = 100ms;  auto timeout = 5s;
+
+    // C++17 structured bindings
+    auto [lat, lon] = std::pair&lt;double,double&gt;{23.81, 90.41};
+    return 0;
+}</pre>
+      <div class="callout callout-success"><strong>Module 3 Checkpoint:</strong> write a program that (1) creates a <code>Drone</code> class with enum class state, altitude, battery, (2) stores 4 waypoints in <code>vector&lt;array&lt;double,3&gt;&gt;</code>, (3) prints them with range loop, (4) uses a lambda to filter waypoints above 50m. If it compiles and runs → proceed to Module 4.</div>
+    </div>
+  </div>
+
+</div>
+<script src="../config.js"></script>
+<script src="../../../core/js/framework.js"></script>
+<script>initPage('s3', '../');</script>
+</body>
+</html>
